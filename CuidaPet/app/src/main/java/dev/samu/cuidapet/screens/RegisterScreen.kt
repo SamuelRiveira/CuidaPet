@@ -80,7 +80,7 @@ fun RegisterScreen(navController: NavController) {
                     onClick = {navController.navigate(route = AppScreens.RegisterClienteScreen.route)}
                 ){
                     Text(
-                        text = "Registrarte",
+                        text = "Continuar",
                         color = Color.White
                     )
                 }

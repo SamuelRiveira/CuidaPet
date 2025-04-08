@@ -1,7 +1,6 @@
 package dev.samu.cuidapet.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,8 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -28,8 +25,8 @@ import dev.saries.aprendizaje.navigation.AppScreens
 
 @Composable
 fun RegisterClienteScreen(navController: NavHostController) {
-    var userName by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var direccion by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier.fillMaxSize().background(Color(0xFF8ab3cf)),
@@ -50,20 +47,20 @@ fun RegisterClienteScreen(navController: NavHostController) {
                     fontSize = 36.sp
                 )
                 OutlinedTextField(
-                    value = userName,
-                    onValueChange = { userName = it },
-                    label = { Text("Usuario") },
+                    value = direccion,
+                    onValueChange = { direccion = it },
+                    label = { Text("Dirección") },
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Contraseña")},
+                    value = telefono,
+                    onValueChange = { telefono = it },
+                    label = { Text("Teléfono")},
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
                 Button(
-                    onClick = {navController.navigate(route = AppScreens.RegisterClienteScreen.route)}
+                    onClick = {navController.navigate(route = AppScreens.MainScreen.route)}
                 ){
                     Text(
                         text = "Registrarte",

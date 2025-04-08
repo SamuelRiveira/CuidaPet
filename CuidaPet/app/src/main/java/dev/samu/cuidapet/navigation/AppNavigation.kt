@@ -14,7 +14,7 @@ fun AppNavigation(modifier: androidx.compose.ui.Modifier){
     // estado de gestion de navegación
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = AppScreens.LoginScreen.route) {
+    NavHost(navController = navController, startDestination = AppScreens.MainScreen.route) {
         composable(route = AppScreens.LoginScreen.route) {
             LoginScreen(navController)
         }

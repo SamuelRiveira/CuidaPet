@@ -63,6 +63,7 @@ val LightBlue = Color(0xFFACD1D9)
 val MediumBlue = Color(0xFF5891A5)
 val DarkBlue = Color(0xFF3B5473)
 val PaleBlue = Color(0xFFDDF1F8)
+val LightRed = Color(0xFFFA584E)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -245,13 +246,13 @@ fun DrawerContent(
             Icon(
                 imageVector = Icons.Default.ExitToApp,
                 contentDescription = "Cerrar Sesión",
-                tint = DarkBlue
+                tint = LightRed
             )
             Spacer(modifier = Modifier.width(32.dp))
             Text(
                 text = "Cerrar Sesión",
                 fontSize = 16.sp,
-                color = DarkBlue
+                color = LightRed
             )
         }
 

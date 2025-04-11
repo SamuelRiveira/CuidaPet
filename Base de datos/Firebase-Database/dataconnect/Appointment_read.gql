@@ -1,0 +1,41 @@
+
+# This is a file for you to write an un-named query.
+# Only one un-named query is allowed per file.
+query {
+  appointments{
+    employee {
+      user {
+        name
+        email
+        password
+        role
+      }
+      specialty
+      fullName
+      nationalId
+      phone
+      address
+      hiringDate
+    }
+    pet {
+      client {
+        user {
+          name
+          email
+          password
+          role
+        }
+        address
+        phone
+      }
+      name
+      species
+      breed
+      age
+    }
+    date
+    time
+    status
+    reason
+  }
+}

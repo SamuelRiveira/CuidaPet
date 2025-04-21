@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
 import dev.samu.cuidapet.api.RetrofitInstance
 import dev.samu.cuidapet.viewmodel.UsuarioViewModel
 import dev.saries.aprendizaje.navigation.AppScreens
@@ -35,7 +36,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun LoginScreen(navController: NavController, viewModel: UsuarioViewModel = viewModel()) {
+fun LoginScreen(navController: NavController, db: FirebaseFirestore, viewModel: UsuarioViewModel = viewModel()) {
 
     var userName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

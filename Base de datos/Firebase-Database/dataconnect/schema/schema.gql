@@ -60,7 +60,7 @@ type User @table(key: "id") {
   name: String
   email: String @unique
   password: String
-  role: String @col(dataType: "ENUM('programmer', 'employee', 'client')")
+  role: String  # client, employee o programmer
 }
 
 # Programador hereda de Usuario

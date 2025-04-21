@@ -1,31 +1,33 @@
 package dev.saries.aprendizaje.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.firestore.FirebaseFirestore
 import dev.samu.cuidapet.screens.LoginScreen
 import dev.samu.cuidapet.screens.MainScreen
 import dev.samu.cuidapet.screens.RegisterClienteScreen
 import dev.samu.cuidapet.screens.RegisterScreen
 
 @Composable
-fun AppNavigation(modifier: androidx.compose.ui.Modifier){
+fun AppNavigation(modifier: Modifier, db: FirebaseFirestore){
     // estado de gestion de navegación
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = AppScreens.MainScreen.route) {
+    NavHost(navController = navController, startDestination = AppScreens.LoginScreen.route) {
         composable(route = AppScreens.LoginScreen.route) {
-            LoginScreen(navController)
+            LoginScreen(navController, db)
         }
         composable(route = AppScreens.MainScreen.route) {
-            MainScreen(navController)
+            MainScreen(navController, db)
         }
         composable(route = AppScreens.RegisterScreen.route) {
-            RegisterScreen(navController)
+            RegisterScreen(navController, db)
         }
         composable(route = AppScreens.RegisterClienteScreen.route) {
-            RegisterClienteScreen(navController)
+            RegisterClienteScreen(navController, db)
         }
 //        composable(route = AppScreens.SecondScreen.route + "/{text}",
 //            arguments = listOf(navArgument(name = "text"){

@@ -20,55 +20,143 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
 import dev.saries.aprendizaje.navigation.AppScreens
+import java.util.UUID
 
 @Composable
-fun RegisterClienteScreen(navController: NavHostController, db: FirebaseFirestore) {
-    var direccion by remember { mutableStateOf("") }
-    var telefono by remember { mutableStateOf("") }
+fun RegisterClienteScreen(
+    navController: NavController,
+    db: FirebaseFirestore,
+    userId: String? = null
+) {
+    var address by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF8ab3cf)),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF8ab3cf)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ElevatedCard(elevation = CardDefaults.cardElevation(
-            defaultElevation = 16.dp
-        )) {
+        ElevatedCard(
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 16.dp
+            )
+        ) {
             Column(
                 modifier = Modifier.padding(36.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "CuidaPet",
+                    text = "Detalles de Contacto",
                     modifier = Modifier.padding(bottom = 24.dp),
-                    fontSize = 36.sp
+                    fontSize = 28.sp,
+                    color = Color(0xFF388E3C)
                 )
+
                 OutlinedTextField(
-                    value = direccion,
-                    onValueChange = { direccion = it },
+                    value = address,
+                    onValueChange = { address = it },
                     label = { Text("Dirección") },
-                    modifier = Modifier.padding(bottom = 24.dp)
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
+
                 OutlinedTextField(
-                    value = telefono,
-                    onValueChange = { telefono = it },
-                    label = { Text("Teléfono")},
+                    value = phone,
+                    onValueChange = { phone = it },
+                    label = { Text("Teléfono") },
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
-                Button(
-                    onClick = {navController.navigate(route = AppScreens.MainScreen.route)}
-                ){
+                errorMessage?.let {
                     Text(
-                        text = "Registrarte",
+                        text = it,
+                        color = Color.Red,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
+                Button(
+                    onClick = {
+                        if (validateClientDetails(address, phone)) {
+                            isLoading = true
+                            errorMessage = null
+
+                            if (userId == null) {
+                                errorMessage = "ID de usuario no válido"
+                                isLoading = false
+                                return@Button
+                            }
+
+                            // Crear el registro de cliente con los datos proporcionados
+                            registerClientDetails(
+                                userId,
+                                address,
+                                phone,
+                                db
+                            ) { success, error ->
+                                isLoading = false
+                                if (success) {
+                                    // Navegamos al dashboard de cliente
+                                    navController.navigate(AppScreens.MainScreen.route) {
+                                        // Limpiamos el backstack para que no pueda volver a las pantallas de registro
+                                        popUpTo(AppScreens.LoginScreen.route) {
+                                            inclusive = true
+                                        }
+                                    }
+                                } else {
+                                    errorMessage = error
+                                }
+                            }
+                        } else {
+                            errorMessage = "Por favor completa todos los campos correctamente"
+                        }
+                    },
+                    enabled = !isLoading
+                ) {
+                    Text(
+                        text = if (isLoading) "Registrando..." else "Finalizar Registro",
                         color = Color.White
                     )
                 }
             }
         }
     }
+}
+
+private fun validateClientDetails(address: String, phone: String): Boolean {
+    return address.isNotBlank() && phone.isNotBlank() && phone.length >= 8
+}
+
+private fun registerClientDetails(
+    userId: String,
+    address: String,
+    phone: String,
+    db: FirebaseFirestore,
+    callback: (Boolean, String?) -> Unit
+) {
+    val clientId = UUID.randomUUID().toString()
+
+    val client = hashMapOf(
+        "id" to clientId,
+        "user" to db.document("users/$userId"),
+        "address" to address,
+        "phone" to phone
+    )
+
+    db.collection("clients")
+        .document(clientId)
+        .set(client)
+        .addOnSuccessListener {
+            callback(true, null)
+        }
+        .addOnFailureListener { exception ->
+            callback(false, "Error al registrar cliente: ${exception.message}")
+        }
 }

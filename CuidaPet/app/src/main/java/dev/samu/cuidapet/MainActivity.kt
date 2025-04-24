@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.firebase.Firebase
-import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.firestore
 import dev.samu.cuidapet.ui.theme.CuidaPetTheme
 import dev.saries.aprendizaje.navigation.AppNavigation
@@ -23,7 +22,6 @@ class MainActivity : ComponentActivity() {
         // Access a Cloud Firestore instance from your Activity
         val db = Firebase.firestore
 
-        FirebaseApp.initializeApp(this)
         setContent {
             CuidaPetTheme {
                 Scaffold { innerPadding ->

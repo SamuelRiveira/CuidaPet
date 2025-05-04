@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
-import dev.saries.aprendizaje.navigation.AppScreens
+import dev.samu.cuidapet.navigation.AppScreens
 
 @Composable
 fun RegisterClienteScreen(navController: NavHostController, db: FirebaseFirestore) {

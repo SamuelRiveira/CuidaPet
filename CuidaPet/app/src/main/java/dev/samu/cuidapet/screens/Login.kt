@@ -31,7 +31,7 @@ import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
 import dev.samu.cuidapet.api.RetrofitInstance
 import dev.samu.cuidapet.viewmodel.UsuarioViewModel
-import dev.saries.aprendizaje.navigation.AppScreens
+import dev.samu.cuidapet.navigation.AppScreens
 import kotlinx.coroutines.launch
 
 

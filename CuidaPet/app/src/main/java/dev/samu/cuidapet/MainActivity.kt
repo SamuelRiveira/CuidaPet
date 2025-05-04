@@ -12,7 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import dev.samu.cuidapet.ui.theme.CuidaPetTheme
-import dev.saries.aprendizaje.navigation.AppNavigation
+import dev.samu.cuidapet.navigation.AppNavigation
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

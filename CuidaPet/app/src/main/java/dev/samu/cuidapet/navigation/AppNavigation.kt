@@ -1,4 +1,4 @@
-package dev.saries.aprendizaje.navigation
+package dev.samu.cuidapet.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

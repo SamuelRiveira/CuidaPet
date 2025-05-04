@@ -29,7 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
 import dev.samu.cuidapet.viewmodel.UsuarioViewModel
-import dev.saries.aprendizaje.navigation.AppScreens
+import dev.samu.cuidapet.navigation.AppScreens
 
 @Composable
 fun RegisterScreen(navController: NavController, db: FirebaseFirestore) {

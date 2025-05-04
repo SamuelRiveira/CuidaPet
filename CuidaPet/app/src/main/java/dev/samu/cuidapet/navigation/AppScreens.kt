@@ -1,4 +1,4 @@
-package dev.saries.aprendizaje.navigation
+package dev.samu.cuidapet.navigation
 
 sealed class AppScreens(val route: String) {
     // Pantallas

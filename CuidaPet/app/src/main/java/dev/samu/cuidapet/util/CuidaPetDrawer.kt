@@ -1,4 +1,4 @@
-package dev.samu.cuidapet
+package dev.samu.cuidapet.util
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons

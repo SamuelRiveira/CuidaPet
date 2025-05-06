@@ -20,13 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
-import dev.samu.cuidapet.R
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Create
-import dev.samu.cuidapet.CuidaPetAppBar
-import dev.samu.cuidapet.CuidaPetDrawer
-import dev.samu.cuidapet.PetRepository
+import dev.samu.cuidapet.util.CuidaPetAppBar
+import dev.samu.cuidapet.util.CuidaPetDrawer
+import dev.samu.cuidapet.repository.PetRepository
 import dev.samu.cuidapet.model.Pet
 import dev.samu.cuidapet.ui.theme.BackgroundColor
 import dev.samu.cuidapet.ui.theme.LightGrayColor
@@ -36,7 +35,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PetDetailScreen(navController: NavController, db: FirebaseFirestore, petId: String? = null) {
+fun PetDetailScreen(navController: NavController, petId: String? = null) {
     // Instancia del repositorio
     val petRepository = remember { PetRepository() }
     val scope = rememberCoroutineScope()

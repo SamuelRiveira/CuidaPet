@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,9 +20,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
-import dev.samu.cuidapet.CuidaPetAppBar
-import dev.samu.cuidapet.CuidaPetDrawer
-import dev.samu.cuidapet.PetRepository
+import dev.samu.cuidapet.util.CuidaPetAppBar
+import dev.samu.cuidapet.util.CuidaPetDrawer
+import dev.samu.cuidapet.repository.PetRepository
 import dev.samu.cuidapet.model.Pet
 import dev.samu.cuidapet.ui.theme.LightGrayColor
 import dev.samu.cuidapet.ui.theme.PrimaryColor
@@ -32,7 +31,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PetListScreen(navController: NavController, db: FirebaseFirestore) {
+fun PetListScreen(navController: NavController) {
     // Instancia del repositorio
     val petRepository = remember { PetRepository() }
     val pets = petRepository.pets.collectAsState().value

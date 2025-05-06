@@ -54,7 +54,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.google.firebase.firestore.FirebaseFirestore
 import dev.samu.cuidapet.R
 import dev.samu.cuidapet.data.MenuItem
 import kotlinx.coroutines.launch
@@ -68,7 +67,7 @@ val LightRed = Color(0xFFFA584E)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavHostController, db: FirebaseFirestore) {
+fun MainScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val selectedItem = remember { mutableStateOf("Inicio") }

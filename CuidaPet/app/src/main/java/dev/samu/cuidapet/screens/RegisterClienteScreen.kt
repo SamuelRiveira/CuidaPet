@@ -21,11 +21,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.google.firebase.firestore.FirebaseFirestore
 import dev.samu.cuidapet.navigation.AppScreens
 
 @Composable
-fun RegisterClienteScreen(navController: NavHostController, db: FirebaseFirestore) {
+fun RegisterClienteScreen(navController: NavHostController) {
     var direccion by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
 

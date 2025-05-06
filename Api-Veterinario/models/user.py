@@ -23,6 +23,8 @@ class User:
 
     @staticmethod
     def create(username, password, role):
+        role = role.lower() if role else role
+
         valid_roles = ['programador', 'empleado', 'cliente']
         if role not in valid_roles:
             raise ValueError(f"Rol no válido. Debe ser uno de: {', '.join(valid_roles)}")

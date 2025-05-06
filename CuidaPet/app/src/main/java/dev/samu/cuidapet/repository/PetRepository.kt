@@ -1,5 +1,6 @@
-package dev.samu.cuidapet
+package dev.samu.cuidapet.repository
 
+import dev.samu.cuidapet.R
 import dev.samu.cuidapet.model.Pet
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -12,8 +12,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,14 +23,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.firebase.firestore.FirebaseFirestore
-import dev.samu.cuidapet.viewmodel.UsuarioViewModel
 import dev.samu.cuidapet.navigation.AppScreens
 
 @Composable
-fun RegisterScreen(navController: NavController, db: FirebaseFirestore) {
+fun RegisterScreen(navController: NavController) {
 
     var userName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

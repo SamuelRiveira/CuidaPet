@@ -1,7 +1,6 @@
 import psycopg2
 import config
 
-
 class Database:
     @staticmethod
     def get_connection():

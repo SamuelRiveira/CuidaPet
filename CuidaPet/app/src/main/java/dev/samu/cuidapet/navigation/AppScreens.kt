@@ -12,4 +12,6 @@ sealed class AppScreens(val route: String) {
     object PetDetailScreen: AppScreens("pet_detail_screen/{petId}") {
         fun createRoute(petId: String) = "pet_detail_screen/$petId"
     }
+    object CitasMascotasScreen: AppScreens("citas_mascotas_screen")
+
 }

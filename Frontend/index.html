@@ -7,6 +7,63 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+    <!-- Popup Login and Register -->
+
+    <div class="contenedor">
+        <span id="cierre" class="icono-cierre" onclick="cerrar()"><img class="iconCierre" src="iconos/close-outline.svg" alt="cierre"></span>
+        <div class="forma-caja login">
+            <h2>Iniciar sesión</h2>
+            <form action="#">
+                <div class="caja-input">
+                    <span class="icono"><img class="iconPerson" src="iconos/person.svg" alt="user"></span>
+                    <input type="text" required autocomplete="current-username">
+                    <label>Nombre de usuario</label>
+                </div>
+                <div class="caja-input">
+                    <span class="icono"><img class="lockClosed" src="iconos/lock-closed.svg" alt="lock-closed"></ion-icon></span>
+                    <input type="password" required autocomplete="current-password">
+                    <label>Contraseña</label>
+                </div>
+                <div class="recordar-olvidar">
+                    <label><input type="checkbox">Recordarme</label>
+                    <a href="#">Olvidaste la contraseña?</a>
+                </div>
+                <button type="submit" class="boton-login">Iniciar sesión</button>
+                <div class="login-register">
+                    <p>No tienes una cuenta? <a href="#" onclick="activar()">Registrarse</a></p>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Registro -->
+
+        <div class="forma-caja register">
+            <h2>Registrarse</h2>
+            <form action="#">
+                <div class="caja-input">
+                    <span class="icono"><img class="iconPerson" src="iconos/person.svg" alt="user"></span>
+                    <input type="text" required autocomplete="current-username">
+                    <label>Usuario</label>
+                </div>
+                <div class="caja-input">
+                    <span class="icono"><img class="lockClosed" src="iconos/lock-closed.svg" alt="lock-closed"></ion-icon></span>
+                    <input type="password" required autocomplete="current-password">
+                    <label>Contraseña</label>
+                </div>
+                <div class="recordar-olvidar">
+                    <label><input type="checkbox">Acepto los términos y condiciones</label>
+                </div>
+                <button type="submit" class="boton-register">Registrarse</button>
+                <div class="login-register">
+                    <p>Ya tienes una cuenta? <a href="#" onclick="desactivar()">Iniciar sesión</a></p>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
     <!-- Header & Navigation -->
     <header>
         <div class="logo">
@@ -53,7 +110,7 @@
                 </svg>
             </i> Perfil</a>
         </nav>
-        <div class="session-control">
+        <div class="session-control" onclick="abrir()">
             <a href="#" class="btn btn-outline">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2"

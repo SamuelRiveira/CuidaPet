@@ -210,6 +210,17 @@
                 <p>Gestiona la información de tus mascotas</p>
             </div>
 
+            <!-- Botón para añadir nueva mascota -->
+            <div class="container-top">
+                <div></div>
+                <button id="add-pet-btn" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    Añadir Mascota
+                </button>
+            </div>
+
             <div class="pets-grid">
                 <!-- Pet Card 1 -->
                 <div class="pet-card" data-pet-id="luna">
@@ -330,6 +341,59 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para añadir mascota -->
+    <div id="add-pet-modal" class="pet-modal">
+        <div class="pet-modal-content">
+            <div class="pet-modal-header">
+                <h2>Añadir Nueva Mascota</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="pet-modal-body">
+                <form id="add-pet-form">
+                    <div class="form-group">
+                        <label for="pet-name">Nombre</label>
+                        <input type="text" id="pet-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pet-type">Tipo</label>
+                        <select id="pet-type" class="form-control" required>
+                            <option value="">Seleccionar tipo</option>
+                            <option value="Perro">Perro</option>
+                            <option value="Gato">Gato</option>
+                            <option value="Ave">Ave</option>
+                            <option value="Roedor">Roedor</option>
+                            <option value="Reptil">Reptil</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pet-breed">Raza</label>
+                        <input type="text" id="pet-breed" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pet-age">Edad</label>
+                        <div class="age-input">
+                            <input type="number" id="pet-age" class="form-control" min="0" required>
+                            <select id="pet-age-unit" class="form-control">
+                                <option value="años">años</option>
+                                <option value="meses">meses</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="pet-photo">Foto</label>
+                        <input type="file" id="pet-photo" class="form-control" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label for="pet-appointment">Próxima cita (opcional)</label>
+                        <input type="date" id="pet-appointment" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Guardar Mascota</button>
+                </form>
             </div>
         </div>
     </div>

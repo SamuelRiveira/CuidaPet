@@ -7,13 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
         link.addEventListener('click', function(e) {
             e.preventDefault();
 
-            // Remover clase 'active' de todos los enlaces
             navLinks.forEach(l => l.classList.remove('active'));
 
-            // Añadir clase 'active' al enlace actual
             this.classList.add('active');
 
-            // Mostrar la página correspondiente
             const targetPage = this.getAttribute('data-page');
             showPage(targetPage);
         });
@@ -25,11 +22,9 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function(e) {
             e.preventDefault();
 
-            // Obtener página de destino
             const targetPage = this.getAttribute('data-page');
             showPage(targetPage);
 
-            // Actualizar estado visual del menú de navegación
             navLinks.forEach(link => {
                 link.classList.toggle('active', link.getAttribute('data-page') === targetPage);
             });
@@ -41,11 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
     flexButton.addEventListener('click', function(e) {
         e.preventDefault();
 
-        // Obtener página de destino
         const targetPage = this.getAttribute('data-page');
         showPage(targetPage);
 
-        // Actualizar estado visual del menú de navegación
         navLinks.forEach(link => {
             link.classList.toggle('active', link.getAttribute('data-page') === targetPage);
         });
@@ -64,12 +57,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function showPage(pageId) {
-        // Hide all pages
         document.querySelectorAll('.page').forEach(page => {
             page.classList.remove('active-page');
         });
-        
-        // Show target page
+
         document.getElementById(pageId + '-page').classList.add('active-page');
     }
 

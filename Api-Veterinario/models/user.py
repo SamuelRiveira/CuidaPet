@@ -5,11 +5,19 @@ class User:
 
     @staticmethod
     def get_by_id(user_id):
+        print(f"Buscando usuario con ID: {user_id}, tipo: {type(user_id)}")
         users = Database.select(
             "Usuario",
             condition="idUsuario = %s",
             condition_params=(user_id,)
         )
+        if not users:
+            print("No se encontró usuario con 'idUsuario', intentando con 'idusuario'")
+            users = Database.select(
+                "Usuario",
+                condition="idusuario = %s",
+                condition_params=(user_id,)
+            )
         return users[0] if users else None
 
     @staticmethod
@@ -41,7 +49,16 @@ class User:
         }
 
         result = Database.insert("Usuario", user_data, "idUsuario")
-        return result[0] if result else None
+        if result and len(result) > 0:
+            if isinstance(result[0], dict) and 'idusuario' in result[0]:
+                return result[0]['idusuario']
+            elif isinstance(result[0], dict) and 'idUsuario' in result[0]:
+                return result[0]['idUsuario']
+            elif isinstance(result[0], dict):
+                return list(result[0].values())[0] if result[0] else None
+            else:
+                return result[0]
+        return None
 
     @staticmethod
     def update_password(user_id, new_password):
@@ -101,7 +118,16 @@ class Client(User):
         }
 
         result = Database.insert("Cliente", client_data, "idCliente")
-        return result[0] if result else None
+        if result and len(result) > 0:
+            if isinstance(result[0], dict) and 'idcliente' in result[0]:
+                return result[0]['idcliente']
+            elif isinstance(result[0], dict) and 'idCliente' in result[0]:
+                return result[0]['idCliente']
+            elif isinstance(result[0], dict):
+                return list(result[0].values())[0] if result[0] else None
+            else:
+                return result[0]
+        return None
 
 
 class Employee(User):
@@ -138,7 +164,16 @@ class Employee(User):
             employee_data['fecha_contratacion'] = hire_date
 
         result = Database.insert("Empleado", employee_data, "idEmpleado")
-        return result[0] if result else None
+        if result and len(result) > 0:
+            if isinstance(result[0], dict) and 'idempleado' in result[0]:
+                return result[0]['idempleado']
+            elif isinstance(result[0], dict) and 'idEmpleado' in result[0]:
+                return result[0]['idEmpleado']
+            elif isinstance(result[0], dict):
+                return list(result[0].values())[0] if result[0] else None
+            else:
+                return result[0]
+        return None
 
 
 class Programmer(User):
@@ -173,4 +208,13 @@ class Programmer(User):
             programmer_data['fecha_contratacion'] = hire_date
 
         result = Database.insert("Programador", programmer_data, "idProgramador")
-        return result[0] if result else None
+        if result and len(result) > 0:
+            if isinstance(result[0], dict) and 'idprogramador' in result[0]:
+                return result[0]['idprogramador']
+            elif isinstance(result[0], dict) and 'idProgramador' in result[0]:
+                return result[0]['idProgramador']
+            elif isinstance(result[0], dict):
+                return list(result[0].values())[0] if result[0] else None
+            else:
+                return result[0]
+        return None

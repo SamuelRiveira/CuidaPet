@@ -8,6 +8,7 @@ class Database:
 
     @staticmethod
     def execute_query(query, params=None, fetch=True):
+        connection = None
         try:
             connection = Database.get_connection()
             cursor = connection.cursor()
@@ -19,19 +20,27 @@ class Database:
 
             result = None
             if fetch and cursor.description:
-                columns = [desc[0] for desc in cursor.description]
+                columns = [desc[0].lower() for desc in cursor.description]
                 results = cursor.fetchall()
                 result = [dict(zip(columns, row)) for row in results]
+                if result:
+                    print(f"Resultado de la consulta: {result}")
 
             if not fetch:
                 connection.commit()
+                return True
 
+            connection.commit()
             cursor.close()
-            connection.close()
             return result
         except psycopg2.Error as e:
+            if connection:
+                connection.rollback()
             print(f"Database error: {e}")
             raise
+        finally:
+            if connection:
+                connection.close()
 
     @staticmethod
     def insert(table, data, returning=None):
@@ -51,7 +60,7 @@ class Database:
     @staticmethod
     def update(table, data, condition, condition_params):
         set_clause = ", ".join([f"{column} = %s" for column in data.keys()])
-        values = list(data.values()) + list(condition_params)
+        values = list(data.values()) + list(condition_params if isinstance(condition_params, (list, tuple)) else [condition_params])
 
         query = f"UPDATE {table} SET {set_clause} WHERE {condition}"
 

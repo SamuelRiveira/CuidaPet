@@ -36,6 +36,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    const flexButton = document.querySelector('.btn.btn-primary[data-page="appointments"]');
+
+    flexButton.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // Obtener página de destino
+        const targetPage = this.getAttribute('data-page');
+        showPage(targetPage);
+
+        // Actualizar estado visual del menú de navegación
+        navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('data-page') === targetPage);
+        });
+    });
+
+
     // Pet cards navigation
     const petCards = document.querySelectorAll('.pet-card');
     petCards.forEach(card => {

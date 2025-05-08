@@ -1,3 +1,6 @@
+// Instanciamos la clase PetManager
+const petManager = new PetManager();
+
 // Función para generar el HTML de una tarjeta de mascota
 function createPetCardHTML(pet) {
     return `
@@ -33,8 +36,8 @@ function renderPetCards() {
     // Limpia el contenedor antes de añadir nuevas tarjetas
     petsGrid.innerHTML = '';
 
-    // Obtiene los datos de las mascotas
-    const pets = getPetsData();
+    // Obtiene los datos de las mascotas usando la clase PetManager
+    const pets = petManager.getPetsData();
 
     // Comprueba si hay mascotas disponibles
     if (pets.length === 0) {
@@ -59,6 +62,11 @@ function renderPetCards() {
         return;
     }
 
+    // Si hay mascotas, asegúrate de que la grid tenga el estilo correcto
+    petsGrid.style.display = 'grid';
+    petsGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+    petsGrid.style.gap = '2rem';
+
     // Genera y añade el HTML para cada mascota
     pets.forEach(pet => {
         petsGrid.insertAdjacentHTML('beforeend', createPetCardHTML(pet));
@@ -70,8 +78,8 @@ function renderPetCards() {
 
 // NUEVA FUNCIÓN: Carga los detalles de una mascota específica
 function loadPetDetails(petId) {
-    // Busca la mascota por su ID
-    const pets = getPetsData();
+    // Busca la mascota por su ID usando la clase PetManager
+    const pets = petManager.getPetsData();
     const pet = pets.find(p => p.id === petId);
 
     if (!pet) {
@@ -157,6 +165,35 @@ function addPetCardEventListeners() {
     });
 }
 
+// Ejemplo de uso para eliminar una mascota
+function handleDeletePet(petId) {
+    if (confirm(`¿Estás seguro de que deseas eliminar esta mascota?`)) {
+        const success = petManager.deletePet(petId);
+        if (success) {
+            alert('Mascota eliminada correctamente');
+            // Volvemos a la lista de mascotas y actualizamos la vista
+            showPage('pets');
+            renderPetCards();
+        } else {
+            alert('Error al eliminar la mascota');
+        }
+    }
+}
+
+// Ejemplo de uso para crear una nueva mascota
+function handleCreatePet(petData) {
+    const success = petManager.createPet(petData);
+    if (success) {
+        alert(`${petData.name} ha sido añadido correctamente`);
+        // Actualizamos la vista de mascotas
+        renderPetCards();
+        return true;
+    } else {
+        alert('Error al añadir la mascota');
+        return false;
+    }
+}
+
 // Navigation between pages
 document.addEventListener('DOMContentLoaded', function() {
     // Renderiza las tarjetas de mascotas al cargar la página
@@ -208,63 +245,48 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Form submissions
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('¡Formulario enviado correctamente!');
-            form.reset();
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active-page');
         });
-    });
+
+        document.getElementById(pageId + '-page').classList.add('active-page');
+    }
 
     const addPetBtn = document.getElementById('add-pet-btn');
     const modal = document.getElementById('add-pet-modal');
     const closeModal = document.querySelector('.close-modal');
     const addPetForm = document.getElementById('add-pet-form');
 
-    // Abrir el modal al hacer clic en el botón
-    addPetBtn.addEventListener('click', function() {
+// Abrir el modal al hacer clic en el botón
+    addPetBtn.addEventListener('click', function () {
         modal.style.display = 'block';
     });
 
-    // Cerrar el modal al hacer clic en la X
-    closeModal.addEventListener('click', function() {
+// Cerrar el modal al hacer clic en la X
+    closeModal.addEventListener('click', function () {
         modal.style.display = 'none';
     });
 
-    // Cerrar el modal al hacer clic fuera de él
-    window.addEventListener('click', function(event) {
+// Cerrar el modal al hacer clic fuera de él
+    window.addEventListener('click', function (event) {
         if (event.target === modal) {
             modal.style.display = 'none';
         }
     });
 
-    // Manejar el envío del formulario
-    addPetForm.addEventListener('submit', function(e) {
+// Manejar el envío del formulario
+    addPetForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        // Obtener valores del formulario
         const petName = document.getElementById('pet-name').value;
         const petType = document.getElementById('pet-type').value;
         const petBreed = document.getElementById('pet-breed').value;
         const petAge = document.getElementById('pet-age').value;
         const petAgeUnit = document.getElementById('pet-age-unit').value;
-        const petAppointment = document.getElementById('pet-appointment').value;
 
-        // Generar un ID basado en el nombre
         const petId = petName.toLowerCase().replace(/\s+/g, '-');
 
-        // Formatea la fecha de la cita si existe
-        let appointmentText = 'No programada';
-        if (petAppointment) {
-            const dateParts = petAppointment.split('-');
-            if (dateParts.length === 3) {
-                appointmentText = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-            }
-        }
-
-        // Crear el objeto de la nueva mascota
         const newPet = {
             id: petId,
             name: petName,
@@ -272,38 +294,21 @@ document.addEventListener('DOMContentLoaded', function() {
             breed: petBreed,
             age: petAge,
             ageUnit: petAgeUnit,
-            appointment: appointmentText,
-            photoUrl: "/api/placeholder/400/320" // Imagen placeholder
+            photoUrl: "/api/placeholder/400/320"
         };
 
-        // Añadir la nueva tarjeta a la cuadrícula
-        const petsGrid = document.querySelector('.pets-grid');
-        petsGrid.insertAdjacentHTML('afterbegin', createPetCardHTML(newPet));
+        // Añadir la mascota a través de la instancia de PetManager
+        petManager.createPet(newPet);
 
-        // Añadir event listener a la nueva tarjeta
-        addPetCardEventListeners();
+        // Opcional: volver a renderizar tarjetas si corresponde
+        renderPetCards();
 
-        // Cerrar el modal y resetear el formulario
         modal.style.display = 'none';
         addPetForm.reset();
 
-        // Mostrar confirmación
-        alert(`¡${petName} ha sido añadido con éxito!`);
+        alert(`¡${petName} ha sido añadida con éxito!`);
     });
 
-    // Si hay un archivo de imagen seleccionado, manejarlo
-    const petPhotoInput = document.getElementById('pet-photo');
-    petPhotoInput.addEventListener('change', function(e) {
-        // Aquí iría el código para manejar la carga de imágenes
-        // Por ejemplo, mostrar una vista previa
-        // Este código es solo para referencia y no funcionará realmente sin un backend
-
-        const file = e.target.files[0];
-        if (file) {
-            // Aquí podrías mostrar una vista previa o indicar que la imagen está lista
-            console.log('Archivo seleccionado:', file.name);
-        }
-    });
 });
 
 //Container Login and Register

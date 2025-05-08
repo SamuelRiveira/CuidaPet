@@ -1,4 +1,7 @@
 function getPetsData() {
+
+    // *IMPORTANTE* Cuando no hayan mascotas hay que retornar []
+
     return [
         {
             id: "luna",

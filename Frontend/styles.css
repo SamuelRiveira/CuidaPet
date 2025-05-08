@@ -339,6 +339,39 @@ h2, h3 {
     color: var(--primary-color);
 }
 
+/* Estilos para el mensaje cuando no hay mascotas */
+.no-pets-message {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 3rem;
+    background-color: #f8f9fa;
+    border-radius: 1rem;
+    margin: 2rem auto;
+    min-height: 250px;
+    width: 30%;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.no-pets-message svg {
+    color: #adb5bd;
+    margin-bottom: 1.5rem;
+}
+
+.no-pets-message h3 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.no-pets-message p {
+    color: #6c757d;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
 /* Home Page */
 
 .Start{

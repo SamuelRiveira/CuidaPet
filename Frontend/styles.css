@@ -28,6 +28,8 @@ body {
     background-color: #ffffff;
     color: var(--text-dark);
     line-height: 1.6;
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
 
 /* Header & Navigation */
@@ -1434,6 +1436,10 @@ img.iconCierre {
 @media (max-width: 768px) {
     .hero {
         grid-template-columns: 1fr;
+    }
+
+    .hero-text p{
+        width: 200px;
     }
 
     .hero-text {

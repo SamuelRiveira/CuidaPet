@@ -6,6 +6,7 @@ class PetEdit {
             { selector: 'h1#pet-detail-name', type: 'text', label: 'Nombre' },
             { selector: 'span.allergy-tag', type: 'text', label: 'Alergias' },
             { selector: 'p[data-component-name="<p />"]', type: 'text', label: 'Descripción' },
+            { selector: 'div.special-notes p', type: 'text', label: 'Notas especiales' },
             { selector: 'div.info-item .info-value', type: 'text', label: 'Información' }
         ];
         this.originalValues = new Map();

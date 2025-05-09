@@ -389,13 +389,14 @@ input:checked + .slider:before {
     background-color: var(--primary-color);
     color: var(--white);
     border: 2px solid transparent;
+    margin-left: 0px;
 }
 
 .container-top .confirm-edit-button {
     background-color: var(--primary-color);
     color: var(--white);
     border: 2px solid transparent;
-    margin-right: 8px;
+    margin-left: 0px;
 }
 
 .container-top .cancel-edit-button {

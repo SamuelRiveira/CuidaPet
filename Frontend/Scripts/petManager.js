@@ -113,4 +113,9 @@ class PetManager {
         // Aquí se añadiría la lógica para eliminar una mascota
         return true;
     }
+
+    handlePetEdit(editedData) {
+        // Placeholder method for pet editing functionality
+        console.log('Pet edit data received:', editedData);
+    }
 }

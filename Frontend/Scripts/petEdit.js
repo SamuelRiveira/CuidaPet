@@ -3,6 +3,7 @@ class PetEdit {
     constructor() {
         this.editableElements = [
             { selector: 'h1[data-component-name="<h1 />"]', type: 'text', label: 'Nombre' },
+            { selector: 'h1#pet-detail-name', type: 'text', label: 'Nombre' },
             { selector: 'span.allergy-tag', type: 'text', label: 'Alergias' },
             { selector: 'p[data-component-name="<p />"]', type: 'text', label: 'Descripción' },
             { selector: 'div.info-item .info-value', type: 'text', label: 'Información' }

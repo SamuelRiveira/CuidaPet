@@ -1,0 +1,226 @@
+// Pet Edit Functionality
+class PetEdit {
+    constructor() {
+        this.editableElements = [
+            { selector: 'h1[data-component-name="<h1 />"]', type: 'text', label: 'Nombre' },
+            { selector: 'span.allergy-tag', type: 'text', label: 'Alergias' },
+            { selector: 'p[data-component-name="<p />"]', type: 'text', label: 'Descripción' },
+            { selector: 'div.info-item .info-value', type: 'text', label: 'Información' }
+        ];
+        this.originalValues = new Map();
+        this.photoEditMode = false;
+    }
+
+    initEditButton() {
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Editar';
+        editButton.classList.add('edit-button');
+        
+        const containerTop = document.querySelector('.container-top .container-left');
+        if (containerTop) {
+            containerTop.appendChild(editButton);
+        }
+
+        editButton.addEventListener('click', () => this.toggleEditMode());
+    }
+
+    toggleEditMode() {
+        const confirmButton = document.querySelector('.confirm-edit-button');
+        const cancelButton = document.querySelector('.cancel-edit-button');
+
+        if (!confirmButton) {
+            this.enableEditMode();
+        } else {
+            this.disableEditMode(false);
+        }
+    }
+
+    enableEditMode() {
+        // Store original values
+        this.originalValues.clear();
+
+        this.editableElements.forEach(elem => {
+            const elements = document.querySelectorAll(elem.selector);
+            elements.forEach(element => {
+                // Store original value
+                this.originalValues.set(element, element.textContent);
+
+                // Make element editable
+                element.setAttribute('contenteditable', 'true');
+                element.classList.add('editing');
+            });
+        });
+
+        // Add photo edit functionality
+        const petPhoto = document.querySelector('.pet-photo img');
+        if (petPhoto) {
+            this.originalPhotoSrc = petPhoto.src;
+            const photoEditOverlay = document.createElement('div');
+            photoEditOverlay.classList.add('photo-edit-overlay');
+            photoEditOverlay.innerHTML = `
+                <input type="file" id="pet-photo-input" accept="image/*" class="photo-input">
+                <label for="pet-photo-input" class="photo-edit-label">
+                    <span>Editar Foto</span>
+                </label>
+            `;
+            petPhoto.parentElement.appendChild(photoEditOverlay);
+
+            const photoInput = document.getElementById('pet-photo-input');
+            photoInput.addEventListener('change', (e) => this.handlePhotoChange(e));
+        }
+
+        // Replace edit button with confirm/cancel buttons
+        const editButton = document.querySelector('.edit-button');
+        if (editButton) {
+            editButton.remove();
+        }
+
+        const buttonContainer = document.querySelector('.container-top .container-left');
+        if (buttonContainer) {
+            const confirmButton = document.createElement('button');
+            confirmButton.textContent = 'Confirmar';
+            confirmButton.classList.add('confirm-edit-button');
+
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = 'Cancelar';
+            cancelButton.classList.add('cancel-edit-button');
+
+            confirmButton.addEventListener('click', () => this.confirmEdit());
+            cancelButton.addEventListener('click', () => this.disableEditMode(true));
+
+            buttonContainer.appendChild(confirmButton);
+            buttonContainer.appendChild(cancelButton);
+        }
+    }
+
+    handlePhotoChange(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const petPhoto = document.querySelector('.pet-photo img');
+                if (petPhoto) {
+                    petPhoto.src = e.target.result;
+                    this.photoEditMode = true;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    disableEditMode(isCancelled) {
+        this.editableElements.forEach(elem => {
+            const elements = document.querySelectorAll(elem.selector);
+            elements.forEach(element => {
+                // Restore original value if cancelled
+                if (isCancelled && this.originalValues.has(element)) {
+                    element.textContent = this.originalValues.get(element);
+                }
+
+                // Remove editable attributes
+                element.removeAttribute('contenteditable');
+                element.classList.remove('editing');
+            });
+        });
+
+        // Restore photo if cancelled
+        const petPhoto = document.querySelector('.pet-photo img');
+        const photoEditOverlay = document.querySelector('.photo-edit-overlay');
+        if (petPhoto && photoEditOverlay) {
+            if (isCancelled && this.originalPhotoSrc) {
+                petPhoto.src = this.originalPhotoSrc;
+            }
+            photoEditOverlay.remove();
+            this.photoEditMode = false;
+        }
+
+        // Remove confirm/cancel buttons and restore edit button
+        const confirmButton = document.querySelector('.confirm-edit-button');
+        const cancelButton = document.querySelector('.cancel-edit-button');
+        
+        if (confirmButton) confirmButton.remove();
+        if (cancelButton) cancelButton.remove();
+
+        this.initEditButton();
+    }
+
+    confirmEdit() {
+        const editedData = {};
+
+        this.editableElements.forEach(elem => {
+            const elements = document.querySelectorAll(elem.selector);
+            elements.forEach(element => {
+                const normalizedKey = elem.label.toLowerCase().replace(/\s+/g, '_');
+                editedData[normalizedKey] = element.textContent.trim();
+            });
+        });
+
+        // Add photo data if edited
+        if (this.photoEditMode) {
+            const petPhoto = document.querySelector('.pet-photo img');
+            if (petPhoto) {
+                editedData['foto'] = petPhoto.src;
+            }
+        }
+
+        // Validate data before sending
+        const validationErrors = this.validateEditedData(editedData);
+        if (validationErrors.length > 0) {
+            this.showValidationErrors(validationErrors);
+            return;
+        }
+
+        // Call the empty function in petManager to handle the data
+        petManager.handlePetEdit(editedData);
+
+        // Disable edit mode
+        this.disableEditMode(false);
+    }
+
+    validateEditedData(data) {
+        const errors = [];
+
+        // Add validation rules
+        if (!data.nombre || data.nombre.length < 2) {
+            errors.push('El nombre debe tener al menos 2 caracteres');
+        }
+
+        if (data.alergias && data.alergias.length > 50) {
+            errors.push('Las alergias no pueden superar 50 caracteres');
+        }
+
+        if (data.descripcion && data.descripcion.length > 200) {
+            errors.push('La descripción no puede superar 200 caracteres');
+        }
+
+        return errors;
+    }
+
+    showValidationErrors(errors) {
+        // Create a modal or alert to show validation errors
+        const errorModal = document.createElement('div');
+        errorModal.classList.add('validation-error-modal');
+        errorModal.innerHTML = `
+            <div class="error-content">
+                <h3>Errores de validación</h3>
+                <ul>
+                    ${errors.map(error => `<li>${error}</li>`).join('')}
+                </ul>
+                <button class="close-error-modal">Cerrar</button>
+            </div>
+        `;
+
+        document.body.appendChild(errorModal);
+
+        const closeButton = errorModal.querySelector('.close-error-modal');
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(errorModal);
+        });
+    }
+}
+
+// Initialize the edit functionality when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    const petEdit = new PetEdit();
+    petEdit.initEditButton();
+});

@@ -87,7 +87,10 @@ function updatePetCardEventListeners() {
             e.stopPropagation();
             
             const petId = this.getAttribute('data-pet-id');
-            togglePetSelection(this, petId);
+            // Solo permitir selección si deleteModeActive es true
+            if (deleteModeActive) {
+                togglePetSelection(this, petId);
+            }
         });
     });
 }
@@ -157,6 +160,8 @@ function confirmDelete() {
 // Función para cancelar el modo de borrado
 function cancelDelete() {
     resetDeleteMode();
+    // Prevent card selection until delete mode is activated again
+    deleteModeActive = false;
 }
 
 // Función para resetear el modo de borrado

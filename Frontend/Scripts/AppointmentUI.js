@@ -1,62 +1,11 @@
-/**
- * Clase de servicio para manejar las citas
- * Proporciona métodos para obtener, crear, actualizar y eliminar citas
- */
-class AppointmentsService {
-    /**
-     * Obtiene la lista de citas del usuario
-     * @returns {Promise<Array>} - Promise que resuelve con el array de citas
-     */
-    getAppointments() {
-        // Por ahora devolvemos datos simulados
-        return new Promise((resolve) => {
-            // Simula un retraso de red de 500ms
-            setTimeout(() => {
-                // Puedes cambiar este valor a [] para simular que no hay citas
-                const appointments = [
-                    {
-                        id: 1,
-                        petId: 101,
-                        petName: "Luna",
-                        petImage: "/Frontend/imagenes/img_luna.jpg",
-                        date: "2025-05-15",
-                        time: "10:30",
-                        type: "Vacunación",
-                        veterinarian: "Dr. Martínez"
-                    },
-                    {
-                        id: 2,
-                        petId: 102,
-                        petName: "Simba",
-                        petImage: "/Frontend/imagenes/img_simba.jpg",
-                        date: "2025-05-22",
-                        time: "16:00",
-                        type: "Revisión general",
-                        veterinarian: "Dra. López"
-                    },
-                    {
-                        id: 3,
-                        petId: 103,
-                        petName: "Rocky",
-                        petImage: "/Frontend/imagenes/img_rocky.jpg",
-                        date: "2025-06-03",
-                        time: "12:15",
-                        type: "Peluquería",
-                        veterinarian: "Estilista Rodríguez"
-                    }
-                ];
-                resolve(appointments);
-            }, 500);
-        });
-    }
-}
+
 
 /**
  * Clase para manejar la UI de citas
  */
-class AppointmentsManager {
+class AppointmentUI {
     constructor() {
-        this.appointmentsService = new AppointmentsService();
+        this.appointmentsService = new AppointmentManager();
         this.appointmentsContainer = document.querySelector('.appointments-grid');
         this.initAppointments();
     }
@@ -153,8 +102,8 @@ class AppointmentsManager {
         const cancelBtn = card.querySelector('.btn-cancel');
         const editBtn = card.querySelector('.btn-primary');
         
-        cancelBtn.addEventListener('click', () => this.handleCancelAppointment(appointment.id));
-        editBtn.addEventListener('click', () => this.handleEditAppointment(appointment.id));
+        cancelBtn.addEventListener('click', () => this.appointmentsService.handleCancelAppointment(appointment.id));
+        editBtn.addEventListener('click', () => this.appointmentsService.handleEditAppointment(appointment.id));
 
         return card;
     }
@@ -202,32 +151,15 @@ class AppointmentsManager {
         `;
         this.appointmentsContainer.appendChild(messageElement);
     }
-
-    /**
-     * Manejador para cancelar una cita
-     * @param {number} appointmentId - ID de la cita a cancelar
-     */
-    handleCancelAppointment(appointmentId) {
-        console.log(`Cancelar cita ID: ${appointmentId}`);
-        // Aquí iría la lógica para cancelar la cita
-    }
-
-    /**
-     * Manejador para editar una cita
-     * @param {number} appointmentId - ID de la cita a editar
-     */
-    handleEditAppointment(appointmentId) {
-        console.log(`Editar cita ID: ${appointmentId}`);
-        // Aquí iría la lógica para editar la cita
-    }
 }
 
 // Inicializar el gestor de citas cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
     // Solo inicializa si la página de citas está activa o cuando se navegue a ella
     const initAppointments = () => {
-        if (document.getElementById('appointments-page').classList.contains('active-page')) {
-            new AppointmentsManager();
+        const appointmentsPage = document.getElementById('appointments-page');
+        if (appointmentsPage && appointmentsPage.classList.contains('active-page')) {
+            new AppointmentUI();
         }
     };
 
@@ -244,5 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Observar cambios en la clase de la página de citas para detectar cuando se active
-    observer.observe(document.getElementById('appointments-page'), { attributes: true });
+    const appointmentsPage = document.getElementById('appointments-page');
+    if (appointmentsPage) {
+        observer.observe(appointmentsPage, { attributes: true });
+    }
 });

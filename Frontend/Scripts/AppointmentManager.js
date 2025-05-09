@@ -2,7 +2,7 @@
  * Clase de servicio para manejar las citas
  * Proporciona métodos para obtener, crear, actualizar y eliminar citas
  */
-export class AppointmentManager {
+class AppointmentManager {
     /**
      * Obtiene la lista de citas del usuario
      * @returns {Promise<Array>} - Promise que resuelve con el array de citas
@@ -48,5 +48,23 @@ export class AppointmentManager {
                 resolve(appointments);
             }, 500);
         });
+    }
+
+    /**
+     * Manejador para cancelar una cita
+     * @param {number} appointmentId - ID de la cita a cancelar
+     */
+    handleCancelAppointment(appointmentId) {
+        console.log(`Cancelar cita ID: ${appointmentId}`);
+        // Aquí iría la lógica para cancelar la cita
+    }
+
+    /**
+     * Manejador para editar una cita
+     * @param {number} appointmentId - ID de la cita a editar
+     */
+    handleEditAppointment(appointmentId) {
+        console.log(`Editar cita ID: ${appointmentId}`);
+        // Aquí iría la lógica para editar la cita
     }
 }

@@ -55,8 +55,8 @@ class AppointmentManager {
      * @param {number} appointmentId - ID de la cita a cancelar
      */
     handleCancelAppointment(appointmentId) {
-        console.log(`Cancelar cita ID: ${appointmentId}`);
         // Aquí iría la lógica para cancelar la cita
+        return true;
     }
 
     /**
@@ -64,7 +64,16 @@ class AppointmentManager {
      * @param {number} appointmentId - ID de la cita a editar
      */
     handleEditAppointment(appointmentId) {
-        console.log(`Editar cita ID: ${appointmentId}`);
         // Aquí iría la lógica para editar la cita
+        return true;
+    }
+
+    /**
+     * Manejador para eliminar una cita
+     * @param {number} appointmentId - ID de la cita a eliminar
+     */
+    handleDeleteAppointment(appointmentId) {
+        // Aquí iría la lógica para eliminar la cita
+        return true;
     }
 }

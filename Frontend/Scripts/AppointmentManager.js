@@ -100,10 +100,11 @@ class AppointmentManager {
                         { value: 'desparasitacion', label: 'Desparasitación' }
                     ],
                     occupiedTimeSlots: [
-                        { start: '09:00', end: '09:30' },
-                        { start: '10:15', end: '10:45' },
-                        { start: '14:30', end: '15:00' },
-                        { start: '16:45', end: '17:15' }
+                        { date: '2025-05-15', start: '09:00', end: '09:30' },
+                        { date: '2025-05-15', start: '10:15', end: '10:45' },
+                        { date: '2025-05-16', start: '14:30', end: '15:00' },
+                        { date: '2025-05-17', start: '16:45', end: '17:15' },
+                        { date: '2025-05-20', start: '09:00', end: '09:30' }
                     ]
                 };
                 resolve(formData);

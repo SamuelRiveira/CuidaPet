@@ -162,6 +162,7 @@ class AppointmentUI {
             // Obtener referencias a los select
             const petSelect = document.getElementById('pet-select');
             const serviceSelect = document.getElementById('service-select');
+            const dateInput = document.getElementById('appointment-date');
             const timeInput = document.getElementById('appointment-time');
 
             // Limpiar opciones existentes (excepto la primera)
@@ -188,8 +189,8 @@ class AppointmentUI {
                 serviceSelect.appendChild(option);
             });
 
-            // Configurar validación de tiempo ocupado
-            this.setupTimeValidation(formData.occupiedTimeSlots, timeInput);
+            // Configurar validación de tiempo ocupado considerando la fecha
+            this.setupTimeValidation(formData.occupiedTimeSlots, dateInput, timeInput);
         } catch (error) {
             console.error('Error al cargar los datos del formulario:', error);
         }
@@ -198,18 +199,27 @@ class AppointmentUI {
     /**
      * Configura la validación de tiempo ocupado
      * @param {Array} occupiedSlots - Lista de intervalos de tiempo ocupados
+     * @param {HTMLInputElement} dateInput - Input de fecha
      * @param {HTMLInputElement} timeInput - Input de tiempo
      */
-    setupTimeValidation(occupiedSlots, timeInput) {
+    setupTimeValidation(occupiedSlots, dateInput, timeInput) {
         // Eliminar cualquier validador previo
         if (timeInput.validateTime) {
             timeInput.removeEventListener('change', timeInput.validateTime);
         }
+        if (dateInput.validateDate) {
+            dateInput.removeEventListener('change', dateInput.validateDate);
+        }
 
-        // Crear nuevo validador
-        timeInput.validateTime = (event) => {
-            const selectedTime = event.target.value;
-            const occupiedSlot = this.findOccupiedSlot(selectedTime, occupiedSlots);
+        // Función para validar la combinación de fecha y hora
+        const validateDateTime = () => {
+            const selectedDate = dateInput.value;
+            const selectedTime = timeInput.value;
+            
+            // Si no hay fecha o tiempo seleccionado, no validamos
+            if (!selectedDate || !selectedTime) return;
+            
+            const occupiedSlot = this.findOccupiedSlot(selectedDate, selectedTime, occupiedSlots);
 
             // Eliminar advertencias previas
             const existingWarning = document.getElementById('time-warning');
@@ -222,7 +232,7 @@ class AppointmentUI {
                 const warningElement = document.createElement('div');
                 warningElement.id = 'time-warning';
                 warningElement.className = 'warning-message';
-                warningElement.textContent = `Advertencia: Este horario (${selectedTime}) está ocupado entre ${occupiedSlot.start} y ${occupiedSlot.end}`;
+                warningElement.textContent = `Advertencia: Este horario (${selectedTime}) está ocupado entre ${occupiedSlot.start} y ${occupiedSlot.end} el día ${this.formatDate(occupiedSlot.date)}`;
                 warningElement.style.color = 'orange';
                 warningElement.style.marginTop = '10px';
 
@@ -231,21 +241,43 @@ class AppointmentUI {
             }
         };
 
-        // Añadir el evento de validación
+        // Crear nuevos validadores
+        timeInput.validateTime = () => validateDateTime();
+        dateInput.validateDate = () => validateDateTime();
+
+        // Añadir los eventos de validación
         timeInput.addEventListener('change', timeInput.validateTime);
+        dateInput.addEventListener('change', dateInput.validateDate);
+    }
+    
+    /**
+     * Formatea una fecha en formato legible
+     * @param {string} dateString - Fecha en formato ISO (YYYY-MM-DD)
+     * @returns {string} - Fecha formateada
+     */
+    formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                           'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+        return `${day} de ${month} de ${year}`;
     }
 
     /**
-     * Encuentra el intervalo ocupado para un tiempo dado
+     * Encuentra el intervalo ocupado para una fecha y tiempo dados
+     * @param {string} date - Fecha a verificar en formato YYYY-MM-DD
      * @param {string} time - Hora a verificar en formato HH:mm
      * @param {Array} occupiedSlots - Lista de intervalos de tiempo ocupados
      * @returns {Object|null} Intervalo ocupado o null si no está ocupado
      */
-    findOccupiedSlot(time, occupiedSlots) {
+    findOccupiedSlot(date, time, occupiedSlots) {
         return occupiedSlots.find(slot => {
             const startTime = slot.start;
             const endTime = slot.end;
-            return time >= startTime && time < endTime;
+            // Solo verificamos si el tiempo está ocupado para la fecha seleccionada
+            return slot.date === date && time >= startTime && time < endTime;
         }) || null;
     }
 }

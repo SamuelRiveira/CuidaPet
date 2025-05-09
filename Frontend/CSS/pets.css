@@ -310,7 +310,6 @@
 /* Estilos para el botón de añadir mascota */
 .container-top {
     display: flex;
-    justify-content: end;
     margin-bottom: 20px;
 }
 

@@ -44,7 +44,6 @@
                 <div class="login-register">
                     <p>No tienes una cuenta? <a href="#" onclick="activar()">Registrarse</a></p>
                 </div>
-
             </form>
         </div>
 
@@ -220,15 +219,36 @@
                 <p>Gestiona la información de tus mascotas</p>
             </div>
 
-            <!-- Botón para añadir nueva mascota -->
+            <!-- Botones para gestionar mascotas -->
             <div class="container-top">
-                <div></div>
-                <button id="add-pet-btn" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 5v14M5 12h14"></path>
-                    </svg>
-                    Añadir Mascota
-                </button>
+                <div id="delete-confirm-container" style="display: none;">
+                    <button id="confirm-delete-btn" class="btn btn-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                            <line x1="18" y1="9" x2="12" y2="15"></line>
+                            <line x1="12" y1="9" x2="18" y2="15"></line>
+                        </svg>
+                        Confirmar Borrado
+                    </button>
+                    <button id="cancel-delete-btn" class="btn btn-outline">
+                        Cancelar
+                    </button>
+                </div>
+                <div class="pet-action-buttons">
+                    <button id="delete-pet-btn" class="btn btn-outline btn-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        Borrar Mascotas
+                    </button>
+                    <button id="add-pet-btn" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14M5 12h14"></path>
+                        </svg>
+                        Añadir Mascota
+                    </button>
+                </div>
             </div>
 
             <div class="pets-grid">
@@ -698,6 +718,7 @@
     <script src="Scripts/main.js"></script>
     <script src="Scripts/login.js"></script>
     <script src="Scripts/navigation.js"></script>
+    <script src="Scripts/petDelete.js"></script>
     <script src="Scripts/petManager.js"></script>
     <script src="Scripts/petView.js"></script>
     <script src="Scripts/petForm.js"></script>

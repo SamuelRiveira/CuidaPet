@@ -4,6 +4,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 1rem;
 }
 
 .container-right{
@@ -44,8 +45,9 @@
     border-radius: var(--border-radius);
     overflow: hidden;
     box-shadow: var(--shadow);
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
     cursor: pointer;
+    position: relative;
 }
 
 .pet-card:hover {
@@ -198,6 +200,56 @@
     margin-right: 0.5rem;
 }
 
+/* Estilos para el checkbox de selección */
+.pet-checkbox {
+    display: none;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 22px;
+    height: 22px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 2px solid var(--secondary-color);
+    border-radius: 4px;
+    z-index: 10;
+}
+
+.pet-checkbox.checked {
+    background-color: var(--secondary-color);
+}
+
+.pet-checkbox.checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+}
+
+.delete-mode .pet-checkbox {
+    display: block;
+}
+
+/* Estilos para las tarjetas seleccionadas */
+.pet-card.selected {
+    border: 2px solid #e74c3c;
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
+/* Estilos para botones de borrado */
+.btn-danger {
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+}
+
 .medical-list {
     list-style-type: none;
     padding: 0;
@@ -257,7 +309,26 @@
 
 /* Estilos para el botón de añadir mascota */
 .container-top {
+    display: flex;
+    justify-content: end;
     margin-bottom: 20px;
+}
+
+.pet-action-buttons{
+    gap: 8px;
+}
+
+#delete-confirm-container{
+    gap: 8px;
+}
+
+#cancel-delete-btn{
+    background-color: var(--primary-color);
+}
+
+#delete-pet-btn:hover{
+    background-color: #c0392b;
+    border-color: #c0392b;
 }
 
 /* Estilos para el modal */

@@ -12,7 +12,7 @@ class PetManager {
                 age: "3",
                 ageUnit: "años",
                 appointment: "10/06/2025",
-                photoUrl: "/imagenes/img_luna.jpg",
+                photoUrl: "/Frontend/imagenes/img_luna.jpg",
                 weight: "4.5 kg",
                 owner: "Samuel Riveira Escudero",
                 medicalHistory: [
@@ -31,7 +31,7 @@ class PetManager {
                 age: "5",
                 ageUnit: "años",
                 appointment: "22/06/2025",
-                photoUrl: "/imagenes/img_simba.jpg",
+                photoUrl: "/Frontend/imagenes/img_simba.jpg",
                 weight: "28.5 kg",
                 owner: "Samuel Riveira Escudero",
                 medicalHistory: [
@@ -50,7 +50,7 @@ class PetManager {
                 age: "2",
                 ageUnit: "años",
                 appointment: "No programada",
-                photoUrl: "/imagenes/img_rocky.jpg",
+                photoUrl: "/Frontend/imagenes/img_rocky.jpg",
                 weight: "12.3 kg",
                 owner: "Samuel Riveira Escudero",
                 medicalHistory: [
@@ -69,7 +69,7 @@ class PetManager {
                 age: "8",
                 ageUnit: "meses",
                 appointment: "02/08/2025",
-                photoUrl: "/imagenes/img_mia.jpg",
+                photoUrl: "/Frontend/imagenes/img_mia.jpg",
                 weight: "3.1 kg",
                 owner: "Samuel Riveira Escudero",
                 medicalHistory: [
@@ -88,7 +88,7 @@ class PetManager {
                 age: "6",
                 ageUnit: "años",
                 appointment: "27/09/2025",
-                photoUrl: "/imagenes/img_max.jpg",
+                photoUrl: "/Frontend/imagenes/img_max.jpg",
                 weight: "18.9 kg",
                 owner: "Samuel Riveira Escudero",
                 medicalHistory: [

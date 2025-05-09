@@ -76,4 +76,38 @@ class AppointmentManager {
         // Aquí iría la lógica para eliminar la cita
         return true;
     }
+
+    /**
+     * Obtiene los datos para el formulario de citas
+     * @returns {Promise} Promesa que resuelve con los datos del formulario
+     */
+    getAppointmentFormData() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const formData = {
+                    pets: [
+                        { value: 'luna', label: 'Luna' },
+                        { value: 'simba', label: 'Simba' },
+                        { value: 'rocky', label: 'Rocky' },
+                        { value: 'mia', label: 'Mia' },
+                        { value: 'max', label: 'Max' }
+                    ],
+                    services: [
+                        { value: 'vacunas', label: 'Vacunas' },
+                        { value: 'revision', label: 'Revisión general' },
+                        { value: 'esterilizacion', label: 'Esterilización/Castración' },
+                        { value: 'peluqueria', label: 'Peluquería' },
+                        { value: 'desparasitacion', label: 'Desparasitación' }
+                    ],
+                    occupiedTimeSlots: [
+                        { start: '09:00', end: '09:30' },
+                        { start: '10:15', end: '10:45' },
+                        { start: '14:30', end: '15:00' },
+                        { start: '16:45', end: '17:15' }
+                    ]
+                };
+                resolve(formData);
+            }, 500);
+        });
+    }
 }

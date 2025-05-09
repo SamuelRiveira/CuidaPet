@@ -151,6 +151,103 @@ class AppointmentUI {
         `;
         this.appointmentsContainer.appendChild(messageElement);
     }
+
+    /**
+     * Popula los select de mascotas y servicios con datos del formulario
+     */
+    async populateFormData() {
+        try {
+            const formData = await this.appointmentsService.getAppointmentFormData();
+            
+            // Obtener referencias a los select
+            const petSelect = document.getElementById('pet-select');
+            const serviceSelect = document.getElementById('service-select');
+            const timeInput = document.getElementById('appointment-time');
+
+            // Limpiar opciones existentes (excepto la primera)
+            while (petSelect.options.length > 1) {
+                petSelect.remove(1);
+            }
+            while (serviceSelect.options.length > 1) {
+                serviceSelect.remove(1);
+            }
+
+            // Añadir opciones de mascotas
+            formData.pets.forEach(pet => {
+                const option = document.createElement('option');
+                option.value = pet.value;
+                option.textContent = pet.label;
+                petSelect.appendChild(option);
+            });
+
+            // Añadir opciones de servicios
+            formData.services.forEach(service => {
+                const option = document.createElement('option');
+                option.value = service.value;
+                option.textContent = service.label;
+                serviceSelect.appendChild(option);
+            });
+
+            // Configurar validación de tiempo ocupado
+            this.setupTimeValidation(formData.occupiedTimeSlots, timeInput);
+        } catch (error) {
+            console.error('Error al cargar los datos del formulario:', error);
+        }
+    }
+
+    /**
+     * Configura la validación de tiempo ocupado
+     * @param {Array} occupiedSlots - Lista de intervalos de tiempo ocupados
+     * @param {HTMLInputElement} timeInput - Input de tiempo
+     */
+    setupTimeValidation(occupiedSlots, timeInput) {
+        // Eliminar cualquier validador previo
+        if (timeInput.validateTime) {
+            timeInput.removeEventListener('change', timeInput.validateTime);
+        }
+
+        // Crear nuevo validador
+        timeInput.validateTime = (event) => {
+            const selectedTime = event.target.value;
+            const occupiedSlot = this.findOccupiedSlot(selectedTime, occupiedSlots);
+
+            // Eliminar advertencias previas
+            const existingWarning = document.getElementById('time-warning');
+            if (existingWarning) {
+                existingWarning.remove();
+            }
+
+            // Si el tiempo está ocupado, mostrar advertencia
+            if (occupiedSlot) {
+                const warningElement = document.createElement('div');
+                warningElement.id = 'time-warning';
+                warningElement.className = 'warning-message';
+                warningElement.textContent = `Advertencia: Este horario (${selectedTime}) está ocupado entre ${occupiedSlot.start} y ${occupiedSlot.end}`;
+                warningElement.style.color = 'orange';
+                warningElement.style.marginTop = '10px';
+
+                // Insertar la advertencia después del input de tiempo
+                timeInput.parentNode.insertBefore(warningElement, timeInput.nextSibling);
+            }
+        };
+
+        // Añadir el evento de validación
+        timeInput.addEventListener('change', timeInput.validateTime);
+    }
+
+    /**
+     * Encuentra el intervalo ocupado para un tiempo dado
+     * @param {string} time - Hora a verificar en formato HH:mm
+     * @param {Array} occupiedSlots - Lista de intervalos de tiempo ocupados
+     * @returns {Object|null} Intervalo ocupado o null si no está ocupado
+     */
+    findOccupiedSlot(time, occupiedSlots) {
+        return occupiedSlots.find(slot => {
+            const startTime = slot.start;
+            const endTime = slot.end;
+            return time >= startTime && time < endTime;
+        }) || null;
+    }
 }
 
 // Inicializar el gestor de citas cuando el DOM esté completamente cargado
@@ -159,7 +256,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const initAppointments = () => {
         const appointmentsPage = document.getElementById('appointments-page');
         if (appointmentsPage && appointmentsPage.classList.contains('active-page')) {
-            new AppointmentUI();
+            const appointmentUI = new AppointmentUI();
+            appointmentUI.populateFormData();
         }
     };
 

@@ -173,6 +173,12 @@ function resetDeleteMode() {
     const petCards = document.querySelectorAll('.pet-card');
     petCards.forEach(card => {
         card.classList.remove('selected');
+        
+        // Reiniciar checkboxes de eliminación
+        const checkbox = card.querySelector('.pet-checkbox');
+        if (checkbox) {
+            checkbox.classList.remove('checked');
+        }
     });
     
     // Restaurar el comportamiento original de clic en las tarjetas

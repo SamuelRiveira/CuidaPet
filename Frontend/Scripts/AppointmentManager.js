@@ -78,6 +78,19 @@ class AppointmentManager {
     }
 
     /**
+     * Manejador para crear una cita
+     * @param {string} petId - ID de la mascota
+     * @param {string} serviceId - ID del servicio
+     * @param {string} date - Fecha de la cita
+     * @param {string} time - Hora de la cita
+     * @returns {boolean} - Resultado de la operación
+     */
+    handleCreateAppointment(petId, serviceId, date, time) {
+        // Aquí iría la lógica para crear la cita
+        return true;
+    }
+
+    /**
      * Obtiene los datos para el formulario de citas
      * @returns {Promise} Promesa que resuelve con los datos del formulario
      */

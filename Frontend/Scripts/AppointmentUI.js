@@ -103,7 +103,7 @@ class AppointmentUI {
         const cancelBtn = card.querySelector('.btn-cancel');
         const editBtn = card.querySelector('.btn-primary');
         
-        cancelBtn.addEventListener('click', () => this.appointmentsService.handleCancelAppointment(appointment.id));
+        cancelBtn.addEventListener('click', () => this.showCancelConfirmation(appointment.id));
         editBtn.addEventListener('click', () => this.appointmentsService.handleEditAppointment(appointment.id));
 
         return card;
@@ -428,6 +428,114 @@ class AppointmentUI {
         warnings.forEach(warning => {
             if (warning) warning.remove();
         });
+    }
+    
+    /**
+     * Muestra el modal de confirmación para cancelar una cita
+     * @param {number} appointmentId - ID de la cita a cancelar
+     */
+    showCancelConfirmation(appointmentId) {
+        // Obtener referencias al modal y sus elementos
+        const modal = document.getElementById('cancel-appointment-modal');
+        const closeBtn = modal.querySelector('.close-modal');
+        const cancelBtn = document.getElementById('cancel-modal-btn');
+        const confirmBtn = document.getElementById('confirm-cancel-btn');
+        
+        // Guardar referencia al ID de la cita actual
+        this.currentAppointmentId = appointmentId;
+        
+        // Mostrar el modal
+        modal.style.display = 'block';
+        
+        // Configurar eventos
+        const closeModal = () => {
+            modal.style.display = 'none';
+        };
+        
+        // Evento para cerrar el modal
+        closeBtn.onclick = closeModal;
+        cancelBtn.onclick = closeModal;
+        
+        // Evento para confirmar la cancelación
+        confirmBtn.onclick = () => {
+            // Llamar al método para eliminar la cita
+            const result = this.appointmentsService.handleDeleteAppointment(this.currentAppointmentId);
+            
+            if (result) {
+                // Cerrar el modal
+                closeModal();
+                
+                // Mostrar mensaje de éxito
+                this.showCancellationSuccessMessage();
+                
+                // Actualizar la lista de citas
+                this.initAppointments();
+            }
+        };
+        
+        // Cerrar el modal si se hace clic fuera de él
+        window.onclick = (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    }
+    
+    /**
+     * Muestra un mensaje de éxito al cancelar una cita
+     */
+    showCancellationSuccessMessage() {
+        // Crear elemento para el mensaje
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'success-message';
+        messageContainer.style.position = 'fixed';
+        messageContainer.style.bottom = '20px';
+        messageContainer.style.right = '20px';
+        messageContainer.style.backgroundColor = '#d4edda';
+        messageContainer.style.color = '#28a745';
+        messageContainer.style.padding = '15px 20px';
+        messageContainer.style.borderRadius = '4px';
+        messageContainer.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+        messageContainer.style.zIndex = '1000';
+        messageContainer.style.transition = 'all 0.3s ease';
+        messageContainer.style.animation = 'slideIn 0.3s forwards';
+        messageContainer.innerHTML = `
+            <div style="display: flex; align-items: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <span>La cita ha sido cancelada con éxito</span>
+            </div>
+        `;
+        
+        // Agregar estilos de animación al documento si no existen
+        if (!document.getElementById('notification-styles')) {
+            const styleEl = document.createElement('style');
+            styleEl.id = 'notification-styles';
+            styleEl.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(styleEl);
+        }
+        
+        // Agregar el mensaje al DOM
+        document.body.appendChild(messageContainer);
+        
+        // Eliminar el mensaje después de 4 segundos
+        setTimeout(() => {
+            messageContainer.style.animation = 'fadeOut 0.3s forwards';
+            setTimeout(() => {
+                messageContainer.remove();
+            }, 300);
+        }, 4000);
     }
 }
 

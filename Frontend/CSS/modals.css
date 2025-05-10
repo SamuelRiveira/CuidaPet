@@ -70,3 +70,27 @@
 .age-input select {
     flex: 1;
 }
+
+#confirm-cancel-btn{
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+    color: white;
+    transition: ease .2s;
+}
+
+#confirm-cancel-btn:hover{
+    background-color: #c0392b;
+    border-color: #c0392b;
+    color: var(--white);
+}
+
+#cancel-modal-btn{
+    background-color: var(--primary-color);
+    color: var(--white);
+    transition: ease .2s;
+}
+
+#cancel-modal-btn:hover{
+    --tw-bg-opacity: 1;
+    background-color: rgb(61 82 106 / var(--tw-bg-opacity));
+}

@@ -598,6 +598,23 @@
         </div>
     </div>
 
+    <!-- Modal de confirmación para cancelar citas -->
+    <div id="cancel-appointment-modal" class="pet-modal">
+        <div class="pet-modal-content">
+            <div class="pet-modal-header">
+                <h2>Confirmar cancelación</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="pet-modal-body">
+                <p>¿Estás seguro de que deseas cancelar esta cita?</p>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button id="cancel-modal-btn" class="btn btn-outline">Volver</button>
+                    <button id="confirm-cancel-btn" class="btn btn-primary">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="Scripts/main.js"></script>
     <script src="Scripts/login.js"></script>
     <script src="Scripts/navigation.js"></script>

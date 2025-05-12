@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="CSS/profile.css">
     <link rel="stylesheet" href="CSS/responsive.css">
     <link rel="stylesheet" href="CSS/utils.css">
+    <link rel="stylesheet" href="CSS/roles.css">
     <link rel="shortcut icon" href="imagenes/CuidaPet_azul_v2_icon.png" type="image/x-icon">
 </head>
 <body>
@@ -496,5 +497,15 @@
     <script src="Scripts/petEdit.js"></script>
     <script src="Scripts/ProfileManager.js"></script>
     <script src="Scripts/ProfileUI.js"></script>
+    <!-- Sistema de roles y autenticación -->
+    <script src="Scripts/UserAuthManager.js"></script>
+    <script src="Scripts/RoleUIManager.js"></script>
+    <script>
+        // Inicializar el sistema de roles cuando el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', () => {
+            // Crear instancia del gestor de UI basado en roles
+            const roleManager = new RoleUIManager();
+        });
+    </script>
 </body>
 </html>

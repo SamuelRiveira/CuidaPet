@@ -141,7 +141,7 @@
                     <h1>Servicio único para tus mascotas</h1>
                     <p>Cuidamos de tu mascota todo el año con atención integral, bienestar personalizado y un equipo dedicado a su salud y felicidad. ¡Confía en nosotros!</p>
                     <div class="action-buttons">
-                        <a href="#" class="btn btn-primary" data-page="appointments">
+                        <a href="javascript:void(0)" id="pedir-cita-btn" class="btn btn-primary" data-page="appointments">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M8 2v4"></path>
                                 <path d="M16 2v4"></path>
@@ -500,12 +500,7 @@
     <!-- Sistema de roles y autenticación -->
     <script src="Scripts/UserAuthManager.js"></script>
     <script src="Scripts/RoleUIManager.js"></script>
-    <script>
-        // Inicializar el sistema de roles cuando el DOM esté cargado
-        document.addEventListener('DOMContentLoaded', () => {
-            // Crear instancia del gestor de UI basado en roles
-            const roleManager = new RoleUIManager();
-        });
-    </script>
+    <script src="Scripts/navigation.js"></script>
+    <script src="Scripts/app-init.js"></script>
 </body>
 </html>

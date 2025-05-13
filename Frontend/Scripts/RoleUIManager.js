@@ -280,7 +280,54 @@ class RoleUIManager {
                         </div>
                     </div>
                     <div class="client-list">
-                        <p>Cargando lista de clientes...</p>
+                        <!-- Tarjetas de clientes de ejemplo -->
+                        <div class="client-card">
+                            <div class="client-avatar">
+                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='../Assets/Images/default-avatar.png'">
+                            </div>
+                            <div class="client-info">
+                                <h4>Ana García Martínez</h4>
+                                <p><i class="fas fa-phone"></i> +34 612 345 678</p>
+                                <p><i class="fas fa-map-marker-alt"></i> Calle Mayor 123, Madrid</p>
+                                <p><i class="fas fa-paw"></i> 2 mascotas</p>
+                            </div>
+                        </div>
+
+                        <div class="client-card">
+                            <div class="client-avatar">
+                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='../Assets/Images/default-avatar.png'">
+                            </div>
+                            <div class="client-info">
+                                <h4>Carlos Rodríguez López</h4>
+                                <p><i class="fas fa-phone"></i> +34 623 456 789</p>
+                                <p><i class="fas fa-map-marker-alt"></i> Avenida de la Paz 45, Barcelona</p>
+                                <p><i class="fas fa-paw"></i> 1 mascota</p>
+                            </div>
+                        </div>
+
+                        <div class="client-card">
+                            <div class="client-avatar">
+                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='../Assets/Images/default-avatar.png'">
+                            </div>
+                            <div class="client-info">
+                                <h4>Elena Fernández Sánchez</h4>
+                                <p><i class="fas fa-phone"></i> +34 634 567 890</p>
+                                <p><i class="fas fa-map-marker-alt"></i> Plaza del Sol 7, Valencia</p>
+                                <p><i class="fas fa-paw"></i> 3 mascotas</p>
+                            </div>
+                        </div>
+
+                        <div class="client-card">
+                            <div class="client-avatar">
+                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='../Assets/Images/default-avatar.png'">
+                            </div>
+                            <div class="client-info">
+                                <h4>Miguel Torres Ruiz</h4>
+                                <p><i class="fas fa-phone"></i> +34 645 678 901</p>
+                                <p><i class="fas fa-map-marker-alt"></i> Rambla de Cataluña 22, Sevilla</p>
+                                <p><i class="fas fa-paw"></i> 2 mascotas</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

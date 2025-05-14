@@ -8,7 +8,9 @@ class PetEdit {
             { selector: 'span.allergy-tag', type: 'text', label: 'Alergias' },
             { selector: 'p[data-component-name="<p />"]', type: 'text', label: 'Descripción' },
             { selector: 'div.special-notes p', type: 'text', label: 'Notas especiales' },
-            { selector: 'div.info-item .info-value', type: 'text', label: 'Información' }
+            { selector: 'div.info-item .info-value', type: 'text', label: 'Información' },
+            { selector: 'div.medical-history > ul', type: 'html', label: 'Historial médico' },
+            { selector: 'div[data-component-name="<div />"] > ul', type: 'html', label: 'Historial médico' }
         ];
         this.originalValues = new Map();
         this.photoEditMode = false;
@@ -46,7 +48,11 @@ class PetEdit {
             const elements = document.querySelectorAll(elem.selector);
             elements.forEach(element => {
                 // Store original value
-                this.originalValues.set(element, element.textContent);
+                if (elem.type === 'html') {
+                    this.originalValues.set(element, element.innerHTML);
+                } else {
+                    this.originalValues.set(element, element.textContent);
+                }
 
                 // Make element editable
                 element.setAttribute('contenteditable', 'true');
@@ -133,7 +139,11 @@ class PetEdit {
             elements.forEach(element => {
                 // Restore original value if cancelled
                 if (isCancelled && this.originalValues.has(element)) {
-                    element.textContent = this.originalValues.get(element);
+                    if (elem.type === 'html') {
+                        element.innerHTML = this.originalValues.get(element);
+                    } else {
+                        element.textContent = this.originalValues.get(element);
+                    }
                 }
 
                 // Remove editable attributes
@@ -188,7 +198,11 @@ class PetEdit {
             const elements = document.querySelectorAll(elem.selector);
             elements.forEach(element => {
                 const normalizedKey = elem.label.toLowerCase().replace(/\s+/g, '_');
-                editedData[normalizedKey] = element.textContent.trim();
+                if (elem.type === 'html') {
+                    editedData[normalizedKey] = element.innerHTML.trim();
+                } else {
+                    editedData[normalizedKey] = element.textContent.trim();
+                }
             });
         });
         

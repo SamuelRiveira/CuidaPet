@@ -290,6 +290,10 @@ class RoleUIManager {
                                 <p><i class="fas fa-phone"></i> +34 612 345 678</p>
                                 <p><i class="fas fa-map-marker-alt"></i> Calle Mayor 123, Madrid</p>
                                 <p><i class="fas fa-paw"></i> 2 mascotas</p>
+                                <hr class="client-card-divider">
+                                <div class="client-card-actions">
+                                    <button class="btn btn-secondary view-pets-btn" onclick="RoleUIManager.showClientPets(this)">Ver Mascotas</button>
+                                </div>
                             </div>
                         </div>
 
@@ -302,6 +306,10 @@ class RoleUIManager {
                                 <p><i class="fas fa-phone"></i> +34 623 456 789</p>
                                 <p><i class="fas fa-map-marker-alt"></i> Avenida de la Paz 45, Barcelona</p>
                                 <p><i class="fas fa-paw"></i> 1 mascota</p>
+                                <hr class="client-card-divider">
+                                <div class="client-card-actions">
+                                    <button class="btn btn-secondary view-pets-btn" onclick="RoleUIManager.showClientPets(this)">Ver Mascotas</button>
+                                </div>
                             </div>
                         </div>
 
@@ -314,6 +322,10 @@ class RoleUIManager {
                                 <p><i class="fas fa-phone"></i> +34 634 567 890</p>
                                 <p><i class="fas fa-map-marker-alt"></i> Plaza del Sol 7, Valencia</p>
                                 <p><i class="fas fa-paw"></i> 3 mascotas</p>
+                                <hr class="client-card-divider">
+                                <div class="client-card-actions">
+                                    <button class="btn btn-secondary view-pets-btn" onclick="RoleUIManager.showClientPets(this)">Ver Mascotas</button>
+                                </div>
                             </div>
                         </div>
 
@@ -326,6 +338,10 @@ class RoleUIManager {
                                 <p><i class="fas fa-phone"></i> +34 645 678 901</p>
                                 <p><i class="fas fa-map-marker-alt"></i> Rambla de Cataluña 22, Sevilla</p>
                                 <p><i class="fas fa-paw"></i> 2 mascotas</p>
+                                <hr class="client-card-divider">
+                                <div class="client-card-actions">
+                                    <button class="btn btn-secondary view-pets-btn" onclick="RoleUIManager.showClientPets(this)">Ver Mascotas</button>
+                                </div>
                             </div>
                         </div>
                     </div>

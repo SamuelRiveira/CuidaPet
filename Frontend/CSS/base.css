@@ -269,6 +269,46 @@ textarea{
     text-align: center;
 }
 
+.client-card .client-card-divider {
+    border: none;
+    border-top: 1px solid var(--medium-gray);
+    margin: 15px 0;
+}
+
+.client-card .client-card-actions {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+.client-card .client-card-actions .view-pets-btn {
+    width: calc(100% - 20px);
+    margin: 0 10px;
+    padding: 12px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+}
+
+.client-card .client-card-actions .view-pets-btn:hover {
+    --tw-bg-opacity: 1;
+    background-color: rgb(61 82 106 / var(--tw-bg-opacity));
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.client-card .client-card-actions .view-pets-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .client-info p {
     margin-bottom: 8px;
     display: flex;

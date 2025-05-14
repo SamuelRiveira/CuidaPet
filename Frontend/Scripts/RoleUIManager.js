@@ -710,100 +710,202 @@ class RoleUIManager {
             if (clientName.includes('Ana')) {
                 petsList.innerHTML = `
                     <div class="pet-card" data-pet-id="1" data-pet-name="Luna" data-pet-type="Perro" data-pet-breed="Labrador" data-pet-age="5 años">
-                        <img src="/Frontend/imagenes/img_luna.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div style="position: relative;">
+                            <img src="/Frontend/imagenes/img_luna.jpg" alt="Foto de Luna" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                            <span class="pet-age">5 años</span>
+                        </div>
                         <div class="pet-info">
-                            <h4>Luna</h4>
-                            <p>Perro - Labrador</p>
-                            <p>5 años</p>
-                            <button class="btn btn-primary view-pet-history">Ver historial</button>
+                            <span class="pet-type">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11.25 16.25h1.5L12 17z"></path>
+                                    <path d="M16 14v.5"></path>
+                                    <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                                    <path d="M8 14v.5"></path>
+                                    <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
+                                </svg>
+                                Perro
+                            </span>
+                            <h3 class="pet-name">Luna</h3>
+                            <p class="pet-breed">Labrador</p>
+                            <div class="pet-appointment">
+                                <strong>Próxima cita:</strong> ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                            </div>
                         </div>
                     </div>
                     <div class="pet-card" data-pet-id="2" data-pet-name="Mia" data-pet-type="Gato" data-pet-breed="Siamés" data-pet-age="3 años">
-                        <img src="/Frontend/imagenes/img_mia.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div style="position: relative;">
+                            <img src="/Frontend/imagenes/img_mia.jpg" alt="Foto de Mia" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                            <span class="pet-age">3 años</span>
+                        </div>
                         <div class="pet-info">
-                            <h4>Mia</h4>
-                            <p>Gato - Siamés</p>
-                            <p>3 años</p>
-                            <button class="btn btn-primary view-pet-history">Ver historial</button>
+                            <span class="pet-type">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11.25 16.25h1.5L12 17z"></path>
+                                    <path d="M16 14v.5"></path>
+                                    <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                                    <path d="M8 14v.5"></path>
+                                    <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
+                                </svg>
+                                Gato
+                            </span>
+                            <h3 class="pet-name">Mia</h3>
+                            <p class="pet-breed">Siamés</p>
+                            <div class="pet-appointment">
+                                <strong>Próxima cita:</strong> ${new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                            </div>
                         </div>
                     </div>
                 `;
             } else if (clientName.includes('Carlos')) {
                 petsList.innerHTML = `
                     <div class="pet-card" data-pet-id="3" data-pet-name="Max" data-pet-type="Perro" data-pet-breed="Bulldog" data-pet-age="2 años">
-                        <img src="/Frontend/imagenes/img_max.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div style="position: relative;">
+                            <img src="/Frontend/imagenes/img_max.jpg" alt="Foto de Max" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                            <span class="pet-age">2 años</span>
+                        </div>
                         <div class="pet-info">
-                            <h4>Max</h4>
-                            <p>Perro - Bulldog</p>
-                            <p>2 años</p>
-                            <button class="btn btn-primary view-pet-history">Ver historial</button>
+                            <span class="pet-type">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11.25 16.25h1.5L12 17z"></path>
+                                    <path d="M16 14v.5"></path>
+                                    <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                                    <path d="M8 14v.5"></path>
+                                    <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
+                                </svg>
+                                Perro
+                            </span>
+                            <h3 class="pet-name">Max</h3>
+                            <p class="pet-breed">Bulldog</p>
+                            <div class="pet-appointment">
+                                <strong>Próxima cita:</strong> ${new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                            </div>
                         </div>
                     </div>
                 `;
             } else if (clientName.includes('Elena')) {
                 petsList.innerHTML = `
                     <div class="pet-card" data-pet-id="4" data-pet-name="Rocky" data-pet-type="Perro" data-pet-breed="Pastor Alemán" data-pet-age="4 años">
-                        <img src="/Frontend/imagenes/img_rocky.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div style="position: relative;">
+                            <img src="/Frontend/imagenes/img_rocky.jpg" alt="Foto de Rocky" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                            <span class="pet-age">4 años</span>
+                        </div>
                         <div class="pet-info">
-                            <h4>Rocky</h4>
-                            <p>Perro - Pastor Alemán</p>
-                            <p>4 años</p>
-                            <button class="btn btn-primary view-pet-history">Ver historial</button>
+                            <span class="pet-type">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11.25 16.25h1.5L12 17z"></path>
+                                    <path d="M16 14v.5"></path>
+                                    <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                                    <path d="M8 14v.5"></path>
+                                    <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
+                                </svg>
+                                Perro
+                            </span>
+                            <h3 class="pet-name">Rocky</h3>
+                            <p class="pet-breed">Pastor Alemán</p>
+                            <div class="pet-appointment">
+                                <strong>Próxima cita:</strong> ${new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                            </div>
                         </div>
                     </div>
                     <div class="pet-card" data-pet-id="5" data-pet-name="Simba" data-pet-type="Gato" data-pet-breed="Persa" data-pet-age="2 años">
-                        <img src="/Frontend/imagenes/img_simba.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div style="position: relative;">
+                            <img src="/Frontend/imagenes/img_simba.jpg" alt="Foto de Simba" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                            <span class="pet-age">2 años</span>
+                        </div>
                         <div class="pet-info">
-                            <h4>Simba</h4>
-                            <p>Gato - Persa</p>
-                            <p>2 años</p>
-                            <button class="btn btn-primary view-pet-history">Ver historial</button>
+                            <span class="pet-type">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11.25 16.25h1.5L12 17z"></path>
+                                    <path d="M16 14v.5"></path>
+                                    <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                                    <path d="M8 14v.5"></path>
+                                    <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
+                                </svg>
+                                Gato
+                            </span>
+                            <h3 class="pet-name">Simba</h3>
+                            <p class="pet-breed">Persa</p>
+                            <div class="pet-appointment">
+                                <strong>Próxima cita:</strong> ${new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                            </div>
                         </div>
                     </div>
                     <div class="pet-card" data-pet-id="6" data-pet-name="Bolita" data-pet-type="Conejo" data-pet-breed="Enano" data-pet-age="1 año">
-                        <img src="/Frontend/imagenes/img_perfil.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div style="position: relative;">
+                            <img src="/Frontend/imagenes/img_perfil.jpg" alt="Foto de Bolita" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                            <span class="pet-age">1 año</span>
+                        </div>
                         <div class="pet-info">
-                            <h4>Bolita</h4>
-                            <p>Conejo - Enano</p>
-                            <p>1 año</p>
-                            <button class="btn btn-primary view-pet-history">Ver historial</button>
+                            <span class="pet-type">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11.25 16.25h1.5L12 17z"></path>
+                                    <path d="M16 14v.5"></path>
+                                    <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                                    <path d="M8 14v.5"></path>
+                                    <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
+                                </svg>
+                                Conejo
+                            </span>
+                            <h3 class="pet-name">Bolita</h3>
+                            <p class="pet-breed">Enano</p>
+                            <div class="pet-appointment">
+                                <strong>Próxima cita:</strong> ${new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                            </div>
                         </div>
                     </div>
                 `;
             } else {
                 petsList.innerHTML = `
                     <div class="pet-card" data-pet-id="7" data-pet-name="Toby" data-pet-type="Perro" data-pet-breed="Golden Retriever" data-pet-age="3 años">
-                        <img src="/Frontend/imagenes/img_perfil.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div style="position: relative;">
+                            <img src="/Frontend/imagenes/img_perfil.jpg" alt="Foto de Toby" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                            <span class="pet-age">3 años</span>
+                        </div>
                         <div class="pet-info">
-                            <h4>Toby</h4>
-                            <p>Perro - Golden Retriever</p>
-                            <p>3 años</p>
-                            <button class="btn btn-primary view-pet-history">Ver historial</button>
+                            <span class="pet-type">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11.25 16.25h1.5L12 17z"></path>
+                                    <path d="M16 14v.5"></path>
+                                    <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                                    <path d="M8 14v.5"></path>
+                                    <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
+                                </svg>
+                                Perro
+                            </span>
+                            <h3 class="pet-name">Toby</h3>
+                            <p class="pet-breed">Golden Retriever</p>
+                            <div class="pet-appointment">
+                                <strong>Próxima cita:</strong> ${new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                            </div>
                         </div>
                     </div>
                     <div class="pet-card" data-pet-id="8" data-pet-name="Felix" data-pet-type="Gato" data-pet-breed="Atigrado" data-pet-age="2 años">
-                        <img src="/Frontend/imagenes/img_perfil.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div style="position: relative;">
+                            <img src="/Frontend/imagenes/img_perfil.jpg" alt="Foto de Felix" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                            <span class="pet-age">2 años</span>
+                        </div>
                         <div class="pet-info">
-                            <h4>Felix</h4>
-                            <p>Gato - Atigrado</p>
-                            <p>2 años</p>
-                            <button class="btn btn-primary view-pet-history">Ver historial</button>
+                            <span class="pet-type">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11.25 16.25h1.5L12 17z"></path>
+                                    <path d="M16 14v.5"></path>
+                                    <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                                    <path d="M8 14v.5"></path>
+                                    <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
+                                </svg>
+                                Gato
+                            </span>
+                            <h3 class="pet-name">Felix</h3>
+                            <p class="pet-breed">Atigrado</p>
+                            <div class="pet-appointment">
+                                <strong>Próxima cita:</strong> ${new Date(Date.now() + 18 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                            </div>
                         </div>
                     </div>
                 `;
             }
             
-            // Agregar eventos a los botones de Ver historial
-            const viewButtons = document.querySelectorAll('#client-pets-page .view-pet-history');
-            viewButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Evitar que se propague al hacer clic en el botón
-                    const petCard = button.closest('.pet-card');
-                    RoleUIManager.showPetDetail(petCard);
-                });
-            });
-            
-            // También permitir hacer clic en toda la tarjeta
+            // Permitir hacer clic en toda la tarjeta para ver el detalle
             const petCards = document.querySelectorAll('#client-pets-page .pet-card');
             petCards.forEach(card => {
                 card.addEventListener('click', () => {

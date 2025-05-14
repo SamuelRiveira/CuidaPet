@@ -669,7 +669,7 @@ class RoleUIManager {
     }
     
     /**
-     * Muestra las mascotas de un cliente específico
+     * Muestra las mascotas de un cliente específico en una página dedicada
      * @param {HTMLElement} button - Botón que activó la acción
      * @static
      */
@@ -681,130 +681,283 @@ class RoleUIManager {
         // Obtener el nombre del cliente
         const clientName = clientCard.querySelector('h4').textContent;
         
-        // Crear un modal para mostrar las mascotas
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Mascotas de ${clientName}</h3>
-                    <button class="close-button">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="pets-list">
-                        <!-- Aquí se cargarán las mascotas del cliente -->
-                        <p>Cargando mascotas...</p>
-                    </div>
-                </div>
-            </div>
-        `;
+        // Almacenar el nombre del cliente para usarlo en la página
+        localStorage.setItem('currentClientName', clientName);
         
-        // Agregar el modal al DOM
-        document.body.appendChild(modal);
+        // Obtener la página actual para poder volver a ella después
+        const currentPage = document.querySelector('.active-page').id;
+        localStorage.setItem('previousPage', currentPage);
         
-        // Mostrar el modal
-        setTimeout(() => {
-            modal.classList.add('show');
-        }, 10);
+        // Configurar el botón de retorno y el título de la página
+        const backButton = document.getElementById('client-pets-back-button');
+        backButton.dataset.page = currentPage.replace('-page', '');
+        
+        const clientPetsTitle = document.getElementById('client-pets-title');
+        clientPetsTitle.textContent = `Mascotas de ${clientName}`;
+        
+        // Limpiar la lista de mascotas existente
+        const petsList = document.querySelector('#client-pets-page .pets-list');
+        petsList.innerHTML = '<p>Cargando mascotas...</p>';
+        
+        // Cambiar a la página de mascotas del cliente
+        RoleUIManager.navigateToPage('client-pets');
         
         // Simular carga de mascotas (en una implementación real, esto vendría de una API)
         setTimeout(() => {
-            const petsList = modal.querySelector('.pets-list');
+            const petsList = document.querySelector('#client-pets-page .pets-list');
             
             // Generar mascotas de ejemplo basadas en el cliente
             if (clientName.includes('Ana')) {
                 petsList.innerHTML = `
-                    <div class="pet-card">
+                    <div class="pet-card" data-pet-id="1" data-pet-name="Luna" data-pet-type="Perro" data-pet-breed="Labrador" data-pet-age="5 años">
                         <img src="/Frontend/imagenes/img_luna.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                         <div class="pet-info">
                             <h4>Luna</h4>
                             <p>Perro - Labrador</p>
                             <p>5 años</p>
-                            <button class="btn btn-primary">Ver historial</button>
+                            <button class="btn btn-primary view-pet-history">Ver historial</button>
                         </div>
                     </div>
-                    <div class="pet-card">
+                    <div class="pet-card" data-pet-id="2" data-pet-name="Mia" data-pet-type="Gato" data-pet-breed="Siamés" data-pet-age="3 años">
                         <img src="/Frontend/imagenes/img_mia.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                         <div class="pet-info">
                             <h4>Mia</h4>
                             <p>Gato - Siamés</p>
                             <p>3 años</p>
-                            <button class="btn btn-primary">Ver historial</button>
+                            <button class="btn btn-primary view-pet-history">Ver historial</button>
                         </div>
                     </div>
                 `;
             } else if (clientName.includes('Carlos')) {
                 petsList.innerHTML = `
-                    <div class="pet-card">
+                    <div class="pet-card" data-pet-id="3" data-pet-name="Max" data-pet-type="Perro" data-pet-breed="Bulldog" data-pet-age="2 años">
                         <img src="/Frontend/imagenes/img_max.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                         <div class="pet-info">
                             <h4>Max</h4>
                             <p>Perro - Bulldog</p>
                             <p>2 años</p>
-                            <button class="btn btn-primary">Ver historial</button>
+                            <button class="btn btn-primary view-pet-history">Ver historial</button>
                         </div>
                     </div>
                 `;
             } else if (clientName.includes('Elena')) {
                 petsList.innerHTML = `
-                    <div class="pet-card">
+                    <div class="pet-card" data-pet-id="4" data-pet-name="Rocky" data-pet-type="Perro" data-pet-breed="Pastor Alemán" data-pet-age="4 años">
                         <img src="/Frontend/imagenes/img_rocky.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                         <div class="pet-info">
                             <h4>Rocky</h4>
                             <p>Perro - Pastor Alemán</p>
                             <p>4 años</p>
-                            <button class="btn btn-primary">Ver historial</button>
+                            <button class="btn btn-primary view-pet-history">Ver historial</button>
                         </div>
                     </div>
-                    <div class="pet-card">
+                    <div class="pet-card" data-pet-id="5" data-pet-name="Simba" data-pet-type="Gato" data-pet-breed="Persa" data-pet-age="2 años">
                         <img src="/Frontend/imagenes/img_simba.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                         <div class="pet-info">
                             <h4>Simba</h4>
                             <p>Gato - Persa</p>
                             <p>2 años</p>
-                            <button class="btn btn-primary">Ver historial</button>
+                            <button class="btn btn-primary view-pet-history">Ver historial</button>
                         </div>
                     </div>
-                    <div class="pet-card">
+                    <div class="pet-card" data-pet-id="6" data-pet-name="Bolita" data-pet-type="Conejo" data-pet-breed="Enano" data-pet-age="1 año">
                         <img src="/Frontend/imagenes/img_perfil.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                         <div class="pet-info">
                             <h4>Bolita</h4>
                             <p>Conejo - Enano</p>
                             <p>1 año</p>
-                            <button class="btn btn-primary">Ver historial</button>
+                            <button class="btn btn-primary view-pet-history">Ver historial</button>
                         </div>
                     </div>
                 `;
             } else {
                 petsList.innerHTML = `
-                    <div class="pet-card">
+                    <div class="pet-card" data-pet-id="7" data-pet-name="Toby" data-pet-type="Perro" data-pet-breed="Golden Retriever" data-pet-age="3 años">
                         <img src="/Frontend/imagenes/img_perfil.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                         <div class="pet-info">
                             <h4>Toby</h4>
                             <p>Perro - Golden Retriever</p>
                             <p>3 años</p>
-                            <button class="btn btn-primary">Ver historial</button>
+                            <button class="btn btn-primary view-pet-history">Ver historial</button>
                         </div>
                     </div>
-                    <div class="pet-card">
+                    <div class="pet-card" data-pet-id="8" data-pet-name="Felix" data-pet-type="Gato" data-pet-breed="Atigrado" data-pet-age="2 años">
                         <img src="/Frontend/imagenes/img_perfil.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                         <div class="pet-info">
                             <h4>Felix</h4>
                             <p>Gato - Atigrado</p>
                             <p>2 años</p>
-                            <button class="btn btn-primary">Ver historial</button>
+                            <button class="btn btn-primary view-pet-history">Ver historial</button>
                         </div>
                     </div>
                 `;
             }
+            
+            // Agregar eventos a los botones de Ver historial
+            const viewButtons = document.querySelectorAll('#client-pets-page .view-pet-history');
+            viewButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Evitar que se propague al hacer clic en el botón
+                    const petCard = button.closest('.pet-card');
+                    RoleUIManager.showPetDetail(petCard);
+                });
+            });
+            
+            // También permitir hacer clic en toda la tarjeta
+            const petCards = document.querySelectorAll('#client-pets-page .pet-card');
+            petCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    RoleUIManager.showPetDetail(card);
+                });
+            });
         }, 800);
+    }
+    
+    /**
+     * Método estático para navegar entre páginas
+     * @param {string} pageId - ID de la página a mostrar sin el sufijo "-page"
+     * @static
+     */
+    static navigateToPage(pageId) {
+        // Obtener todas las páginas
+        const pages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('nav a');
         
-        // Configurar evento para cerrar el modal
-        modal.querySelector('.close-button').addEventListener('click', () => {
-            modal.classList.remove('show');
-            setTimeout(() => {
-                modal.remove();
-            }, 300);
+        // Ocultar todas las páginas
+        pages.forEach(page => {
+            page.classList.remove('active-page');
         });
+        
+        // Desactivar todos los enlaces de navegación
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        // Mostrar la página solicitada
+        const targetPage = document.getElementById(`${pageId}-page`);
+        if (targetPage) {
+            targetPage.classList.add('active-page');
+            
+            // Activar el enlace correspondiente si existe
+            const activeLink = document.querySelector(`nav a[data-page="${pageId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+    }
+    
+    /**
+     * Muestra los detalles de una mascota en la página de detalle
+     * @param {HTMLElement} petCard - Tarjeta de la mascota que se quiere ver en detalle
+     * @static
+     */
+    static showPetDetail(petCard) {
+        if (!petCard) return;
+        
+        // Obtener los datos de la mascota desde los atributos data
+        const petId = petCard.dataset.petId;
+        const petName = petCard.dataset.petName;
+        const petType = petCard.dataset.petType;
+        const petBreed = petCard.dataset.petBreed;
+        const petAge = petCard.dataset.petAge;
+        
+        // Obtener la imagen de la mascota
+        const petImage = petCard.querySelector('img').src;
+        
+        // Obtener el nombre del cliente (dueño de la mascota)
+        const clientName = localStorage.getItem('currentClientName') || 'Cliente';
+        
+        // Guardar la página actual para poder volver
+        const currentPage = document.querySelector('.active-page').id;
+        localStorage.setItem('previousPetPage', currentPage);
+        
+        // Configurar el botón de retorno en la página de detalle
+        const backButton = document.querySelector('#pet-detail-page .back-button');
+        backButton.dataset.page = currentPage.replace('-page', '');
+        backButton.innerHTML = `<span>\u2190</span> Volver a mascotas de ${clientName}`;
+        
+        // Actualizar la información en la página de detalle
+        const detailPage = document.getElementById('pet-detail-page');
+        
+        // Actualizar el nombre de la mascota
+        const petNameElement = detailPage.querySelector('h1');
+        petNameElement.textContent = petName;
+        
+        // Actualizar el tipo y raza
+        const petTypeElement = detailPage.querySelector('.pet-type');
+        petTypeElement.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11.25 16.25h1.5L12 17z"></path>
+                <path d="M16 14v.5"></path>
+                <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                <path d="M8 14v.5"></path>
+                <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
+            </svg>
+            ${petType}
+        `;
+        
+        const petTypeRaceElement = detailPage.querySelector('.pet-type').nextSibling;
+        petTypeRaceElement.textContent = ` ${petBreed}`;
+        
+        // Actualizar la imagen
+        const petImageElement = detailPage.querySelector('.pet-photo img');
+        petImageElement.src = petImage;
+        petImageElement.alt = `Foto de ${petName}`;
+        
+        // Actualizar la información básica
+        const ageElement = detailPage.querySelector('.info-item:nth-child(1) .info-value');
+        ageElement.textContent = petAge;
+        
+        const weightElement = detailPage.querySelector('.info-item:nth-child(2) .info-value');
+        weightElement.textContent = `${Math.floor(Math.random() * 20) + 1} kg`; // Peso aleatorio para demo
+        
+        const ownerElement = detailPage.querySelector('.info-item:nth-child(3) .info-value');
+        ownerElement.textContent = clientName;
+        
+        // Actualizar próxima cita (fecha aleatoria para demo)
+        const nextAppointmentElement = detailPage.querySelector('.container-right h2');
+        const randomDate = new Date();
+        randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30) + 1);
+        nextAppointmentElement.textContent = randomDate.toLocaleDateString();
+        
+        // Generar historial médico aleatorio
+        const medicalHistoryList = detailPage.querySelector('.medical-list');
+        medicalHistoryList.innerHTML = `
+            <li><span class="date">${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}</span> - Vacunación anual</li>
+            <li><span class="date">${new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toLocaleDateString()}</span> - Revisión general</li>
+            <li><span class="date">${new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toLocaleDateString()}</span> - Tratamiento antiparasitario</li>
+        `;
+        
+        // Generar alergias aleatorias
+        const allergiesSection = detailPage.querySelector('.allergies');
+        if (Math.random() > 0.5) {
+            allergiesSection.innerHTML = `
+                <h3>Alergias</h3>
+                <span class="allergy-tag">Pollo</span>
+                <span class="allergy-tag">Penicilina</span>
+            `;
+        } else {
+            allergiesSection.innerHTML = `
+                <h3>Alergias</h3>
+                <p>No se han registrado alergias.</p>
+            `;
+        }
+        
+        // Generar notas especiales aleatorias
+        const notesSection = detailPage.querySelector('.special-notes');
+        if (Math.random() > 0.5) {
+            notesSection.innerHTML = `
+                <h3>Notas especiales</h3>
+                <p>Requiere atención especial debido a una lesión previa en la pata trasera derecha.</p>
+            `;
+        } else {
+            notesSection.innerHTML = `
+                <h3>Notas especiales</h3>
+                <p>Sin notas específicas.</p>
+            `;
+        }
+        
+        // Navegar a la página de detalle
+        RoleUIManager.navigateToPage('pet-detail');
     }
 }

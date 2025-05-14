@@ -269,6 +269,56 @@ textarea{
     text-align: center;
 }
 
+.pet-info {
+    background: linear-gradient(to bottom, #e8f4f8, #d5eaf0);
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: var(--transition);
+    text-align: center;
+    border: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+.pet-info:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+}
+
+.pet-info h4 {
+    color: var(--primary-color);
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+    font-weight: bold;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.pet-info p {
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.pet-info .btn-primary {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    margin-top: 15px;
+    transition: var(--transition);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.pet-info .btn-primary:hover {
+    background-color: var(--accent-color);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
 .client-card .client-card-divider {
     border: none;
     border-top: 1px solid var(--medium-gray);

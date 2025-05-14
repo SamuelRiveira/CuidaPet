@@ -33,74 +33,97 @@
     margin: 0;
 }
 
-.pets-grid {
+.pets-grid, .pets-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2.5rem;
     margin-top: 2rem;
+    width: 100%;
 }
 
 .pet-card {
     background-color: var(--white);
     border-radius: var(--border-radius);
     overflow: hidden;
-    box-shadow: var(--shadow);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
+    border: 1px solid var(--medium-gray);
 }
 
 .pet-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .pet-card img {
     width: 100%;
-    height: 200px;
+    height: 220px;
     object-fit: cover;
+    transition: transform 0.5s ease;
+    border-bottom: 3px solid var(--secondary-color);
+}
+
+.pet-card:hover img {
+    transform: scale(1.05);
 }
 
 .pet-info {
-    padding: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+    background-color: var(--light-bg);
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
 }
 
 .pet-type {
     display: inline-block;
     background-color: var(--secondary-color);
     color: var(--white);
-    padding: 0.2rem 0.5rem;
-    border-radius: var(--border-radius);
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-bottom: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .pet-name {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: bold;
     margin-bottom: 0.5rem;
+    color: var(--primary-color);
 }
 
 .pet-breed {
-    color: var(--gray);
-    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+    font-weight: 500;
 }
 
 .pet-age {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: rgba(44, 62, 80, 0.8);
+    top: 15px;
+    right: 15px;
+    background-color: var(--primary-color);
     color: white;
-    padding: 0.2rem 0.5rem;
-    border-radius: var(--border-radius);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1;
 }
 
 .pet-appointment {
-    margin-top: 1rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid #eee;
-    font-size: 0.85rem;
-    color: var(--gray);
+    margin-top: 1.2rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--medium-gray);
+    font-size: 0.9rem;
+    color: var(--text-dark);
 }
 
 /* Back Button */

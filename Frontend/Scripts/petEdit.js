@@ -4,6 +4,7 @@ class PetEdit {
         this.editableElements = [
             { selector: 'h1[data-component-name="<h1 />"]', type: 'text', label: 'Nombre' },
             { selector: 'h1#pet-detail-name', type: 'text', label: 'Nombre' },
+            { selector: 'h1', type: 'text', label: 'Nombre' }, // Añadido para capturar cualquier h1
             { selector: 'span.allergy-tag', type: 'text', label: 'Alergias' },
             { selector: 'p[data-component-name="<p />"]', type: 'text', label: 'Descripción' },
             { selector: 'div.special-notes p', type: 'text', label: 'Notas especiales' },
@@ -50,8 +51,24 @@ class PetEdit {
                 // Make element editable
                 element.setAttribute('contenteditable', 'true');
                 element.classList.add('editing');
+                
+                // Añadir un borde o indicador visual para elementos editables
+                element.style.border = '1px dashed #3498db';
+                element.style.padding = '5px';
+                element.title = 'Editable - Haz clic para modificar';
             });
         });
+        
+        // Asegurarse específicamente de que el h1 sea editable
+        const mainTitle = document.querySelector('h1');
+        if (mainTitle && !mainTitle.hasAttribute('contenteditable')) {
+            this.originalValues.set(mainTitle, mainTitle.textContent);
+            mainTitle.setAttribute('contenteditable', 'true');
+            mainTitle.classList.add('editing');
+            mainTitle.style.border = '1px dashed #3498db';
+            mainTitle.style.padding = '5px';
+            mainTitle.title = 'Editable - Haz clic para modificar';
+        }
 
         // Add photo edit functionality
         const petPhoto = document.querySelector('.pet-photo img');
@@ -122,8 +139,26 @@ class PetEdit {
                 // Remove editable attributes
                 element.removeAttribute('contenteditable');
                 element.classList.remove('editing');
+                
+                // Eliminar estilos visuales de edición
+                element.style.border = '';
+                element.style.padding = '';
+                element.removeAttribute('title');
             });
         });
+        
+        // Asegurarse de que el h1 principal también vuelva a su estado normal
+        const mainTitle = document.querySelector('h1');
+        if (mainTitle) {
+            if (isCancelled && this.originalValues.has(mainTitle)) {
+                mainTitle.textContent = this.originalValues.get(mainTitle);
+            }
+            mainTitle.removeAttribute('contenteditable');
+            mainTitle.classList.remove('editing');
+            mainTitle.style.border = '';
+            mainTitle.style.padding = '';
+            mainTitle.removeAttribute('title');
+        }
 
         // Restore photo if cancelled
         const petPhoto = document.querySelector('.pet-photo img');
@@ -156,6 +191,12 @@ class PetEdit {
                 editedData[normalizedKey] = element.textContent.trim();
             });
         });
+        
+        // Asegurarse de capturar el valor del h1 principal
+        const mainTitle = document.querySelector('h1');
+        if (mainTitle && mainTitle.hasAttribute('contenteditable')) {
+            editedData['nombre'] = mainTitle.textContent.trim();
+        }
 
         // Add photo data if edited
         if (this.photoEditMode) {

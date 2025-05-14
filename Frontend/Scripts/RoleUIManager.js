@@ -283,7 +283,7 @@ class RoleUIManager {
                         <!-- Tarjetas de clientes de ejemplo -->
                         <div class="client-card">
                             <div class="client-avatar">
-                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='../Assets/Images/default-avatar.png'">
+                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                             </div>
                             <div class="client-info">
                                 <h4>Ana García Martínez</h4>
@@ -299,7 +299,7 @@ class RoleUIManager {
 
                         <div class="client-card">
                             <div class="client-avatar">
-                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='../Assets/Images/default-avatar.png'">
+                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                             </div>
                             <div class="client-info">
                                 <h4>Carlos Rodríguez López</h4>
@@ -315,7 +315,7 @@ class RoleUIManager {
 
                         <div class="client-card">
                             <div class="client-avatar">
-                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='../Assets/Images/default-avatar.png'">
+                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                             </div>
                             <div class="client-info">
                                 <h4>Elena Fernández Sánchez</h4>
@@ -331,7 +331,7 @@ class RoleUIManager {
 
                         <div class="client-card">
                             <div class="client-avatar">
-                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='../Assets/Images/default-avatar.png'">
+                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                             </div>
                             <div class="client-info">
                                 <h4>Miguel Torres Ruiz</h4>
@@ -666,5 +666,145 @@ class RoleUIManager {
         return pagePermissions[pageId].some(permission => 
             UserAuthManager.hasPermission(permission)
         );
+    }
+    
+    /**
+     * Muestra las mascotas de un cliente específico
+     * @param {HTMLElement} button - Botón que activó la acción
+     * @static
+     */
+    static showClientPets(button) {
+        // Obtener la tarjeta del cliente desde el botón
+        const clientCard = button.closest('.client-card');
+        if (!clientCard) return;
+        
+        // Obtener el nombre del cliente
+        const clientName = clientCard.querySelector('h4').textContent;
+        
+        // Crear un modal para mostrar las mascotas
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Mascotas de ${clientName}</h3>
+                    <button class="close-button">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="pets-list">
+                        <!-- Aquí se cargarán las mascotas del cliente -->
+                        <p>Cargando mascotas...</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Agregar el modal al DOM
+        document.body.appendChild(modal);
+        
+        // Mostrar el modal
+        setTimeout(() => {
+            modal.classList.add('show');
+        }, 10);
+        
+        // Simular carga de mascotas (en una implementación real, esto vendría de una API)
+        setTimeout(() => {
+            const petsList = modal.querySelector('.pets-list');
+            
+            // Generar mascotas de ejemplo basadas en el cliente
+            if (clientName.includes('Ana')) {
+                petsList.innerHTML = `
+                    <div class="pet-card">
+                        <img src="/Frontend/imagenes/img_luna.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div class="pet-info">
+                            <h4>Luna</h4>
+                            <p>Perro - Labrador</p>
+                            <p>5 años</p>
+                            <button class="btn btn-primary">Ver historial</button>
+                        </div>
+                    </div>
+                    <div class="pet-card">
+                        <img src="/Frontend/imagenes/img_mia.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div class="pet-info">
+                            <h4>Mia</h4>
+                            <p>Gato - Siamés</p>
+                            <p>3 años</p>
+                            <button class="btn btn-primary">Ver historial</button>
+                        </div>
+                    </div>
+                `;
+            } else if (clientName.includes('Carlos')) {
+                petsList.innerHTML = `
+                    <div class="pet-card">
+                        <img src="/Frontend/imagenes/img_max.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div class="pet-info">
+                            <h4>Max</h4>
+                            <p>Perro - Bulldog</p>
+                            <p>2 años</p>
+                            <button class="btn btn-primary">Ver historial</button>
+                        </div>
+                    </div>
+                `;
+            } else if (clientName.includes('Elena')) {
+                petsList.innerHTML = `
+                    <div class="pet-card">
+                        <img src="/Frontend/imagenes/img_rocky.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div class="pet-info">
+                            <h4>Rocky</h4>
+                            <p>Perro - Pastor Alemán</p>
+                            <p>4 años</p>
+                            <button class="btn btn-primary">Ver historial</button>
+                        </div>
+                    </div>
+                    <div class="pet-card">
+                        <img src="/Frontend/imagenes/img_simba.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div class="pet-info">
+                            <h4>Simba</h4>
+                            <p>Gato - Persa</p>
+                            <p>2 años</p>
+                            <button class="btn btn-primary">Ver historial</button>
+                        </div>
+                    </div>
+                    <div class="pet-card">
+                        <img src="/Frontend/imagenes/img_perfil.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div class="pet-info">
+                            <h4>Bolita</h4>
+                            <p>Conejo - Enano</p>
+                            <p>1 año</p>
+                            <button class="btn btn-primary">Ver historial</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                petsList.innerHTML = `
+                    <div class="pet-card">
+                        <img src="/Frontend/imagenes/img_perfil.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div class="pet-info">
+                            <h4>Toby</h4>
+                            <p>Perro - Golden Retriever</p>
+                            <p>3 años</p>
+                            <button class="btn btn-primary">Ver historial</button>
+                        </div>
+                    </div>
+                    <div class="pet-card">
+                        <img src="/Frontend/imagenes/img_perfil.jpg" alt="Mascota" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                        <div class="pet-info">
+                            <h4>Felix</h4>
+                            <p>Gato - Atigrado</p>
+                            <p>2 años</p>
+                            <button class="btn btn-primary">Ver historial</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }, 800);
+        
+        // Configurar evento para cerrar el modal
+        modal.querySelector('.close-button').addEventListener('click', () => {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.remove();
+            }, 300);
+        });
     }
 }

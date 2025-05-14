@@ -272,7 +272,6 @@
 /* Estado de carga */
 .appointments-calendar p {
     text-align: center;
-    padding: 2rem;
     color: var(--text-color-light);
 }
 

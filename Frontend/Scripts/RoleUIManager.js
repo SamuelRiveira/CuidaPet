@@ -364,17 +364,19 @@ class RoleUIManager {
                     <div class="card-header">
                         <h3>Calendario de Citas</h3>
                         <div class="filter-container">
-                            <select class="filter-select">
+                            <select class="filter-select" id="appointment-status-filter">
                                 <option value="all">Todas las citas</option>
                                 <option value="pending">Pendientes</option>
                                 <option value="completed">Completadas</option>
                                 <option value="cancelled">Canceladas</option>
                             </select>
-                            <input type="date" class="date-filter">
+                            <input type="date" class="date-filter" id="appointment-date-filter">
                         </div>
                     </div>
                     <div class="appointments-calendar">
-                        <p>Cargando calendario de citas...</p>
+                        <div class="appointments-grid" id="appointments-grid">
+                            <p>Cargando calendario de citas...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -513,6 +515,225 @@ class RoleUIManager {
         
         // Modificar el login.js existente para manejar los roles
         this.enhanceLoginForm();
+        
+        // Carga de citas si el usuario es empleado
+        if (this.userStatus.isLoggedIn && this.userStatus.userRole === 'empleado') {
+            this.initAppointmentsCalendar();
+        }
+    }
+    
+    /**
+     * Inicializa el calendario de citas para empleados
+     */
+    initAppointmentsCalendar() {
+        // Esperar a que el DOM esté completamente cargado para manipularlo
+        document.addEventListener('DOMContentLoaded', () => {
+            this.loadAppointments();
+        });
+
+        // Si el DOM ya está cargado, inicializar directamente
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            this.loadAppointments();
+        }
+
+        // Configurar los filtros de citas
+        const statusFilter = document.getElementById('appointment-status-filter');
+        const dateFilter = document.getElementById('appointment-date-filter');
+
+        if (statusFilter) {
+            statusFilter.addEventListener('change', () => {
+                this.loadAppointments();
+            });
+        }
+
+        if (dateFilter) {
+            dateFilter.addEventListener('change', () => {
+                this.loadAppointments();
+            });
+        }
+    }
+
+    /**
+     * Carga las citas usando el gestor de datos de citas
+     */
+    async loadAppointments() {
+        try {
+            const appointmentsGrid = document.getElementById('appointments-grid');
+            if (!appointmentsGrid) return;
+
+            appointmentsGrid.innerHTML = '<p>Cargando citas...</p>';
+
+            // Obtener los valores de los filtros
+            const statusFilter = document.getElementById('appointment-status-filter');
+            const dateFilter = document.getElementById('appointment-date-filter');
+
+            const filters = {};
+            if (statusFilter && statusFilter.value !== 'all') {
+                filters.status = statusFilter.value;
+            }
+            if (dateFilter && dateFilter.value) {
+                filters.date = dateFilter.value;
+            }
+
+            // Cargar las citas usando el gestor de datos
+            const appointmentManager = new AppointmentDataManager();
+            const appointments = await appointmentManager.getAppointments(filters);
+
+            // Si no hay citas, mostrar mensaje
+            if (appointments.length === 0) {
+                appointmentsGrid.innerHTML = '<p>No hay citas que coincidan con los filtros seleccionados.</p>';
+                return;
+            }
+
+            // Limpiar el contenedor
+            appointmentsGrid.innerHTML = '';
+
+            // Crear las tarjetas de citas
+            appointments.forEach(appointment => {
+                const appointmentCard = this.createAppointmentCard(appointment);
+                appointmentsGrid.appendChild(appointmentCard);
+            });
+
+            // Aplicar estilo de grid al contenedor
+            appointmentsGrid.style.display = 'grid';
+            appointmentsGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+            appointmentsGrid.style.gap = '2rem';
+        } catch (error) {
+            console.error('Error al cargar las citas:', error);
+            const appointmentsGrid = document.getElementById('appointments-grid');
+            if (appointmentsGrid) {
+                appointmentsGrid.innerHTML = '<p>Error al cargar las citas. Por favor, intente de nuevo más tarde.</p>';
+            }
+        }
+    }
+
+    /**
+     * Crea una tarjeta de cita con el formato especificado
+     * @param {Object} appointment - Datos de la cita
+     * @returns {HTMLElement} - Elemento de la tarjeta de cita
+     */
+    createAppointmentCard(appointment) {
+        const appointmentDate = appointment.date;
+        const day = appointmentDate.getDate();
+        const month = AppointmentDataManager.getMonthName(appointmentDate.getMonth());
+        const time = AppointmentDataManager.formatTime(appointmentDate);
+        const statusLabel = AppointmentDataManager.getStatusLabel(appointment.status);
+
+        // Crear el elemento de la tarjeta
+        const cardElement = document.createElement('div');
+        cardElement.className = 'appointment-card';
+        cardElement.dataset.appointmentId = appointment.id;
+        
+        // Agregar clase según el estado
+        if (statusLabel.class) {
+            cardElement.classList.add(statusLabel.class);
+        }
+
+        // Construir el HTML de la tarjeta
+        cardElement.innerHTML = `
+            <div class="appointment-header">
+                <div class="appointment-date">
+                    <span class="day">${day}</span>
+                    <span class="month">${month}</span>
+                </div>
+                <div class="appointment-time">
+                    <span class="time-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="18" height="18" viewBox="0 0 148.000000 148.000000" preserveAspectRatio="xMidYMid meet">
+                            <g transform="translate(0.000000,148.000000) scale(0.100000,-0.100000)" fill="#ffffff" stroke="none">
+                            <path d="M635 1471 c-295 -47 -526 -252 -606 -536 -32 -112 -32 -278 0 -390 71 -253 263 -445 516 -516 112 -32 278 -32 390 0 253 71 445 263 516 516 29 103 31 277 5 375 -42 153 -82 202 -135 162 -33 -24 -32 -52 4 -150 157 -436 -250 -893 -710 -797 -232 48 -432 248 -480 480 -29 141 -11 268 57 405 101 200 324 339 545 340 115 0 264 -48 361 -117 54 -38 74 -41 102 -13 47 47 11 96 -120 164 -124 65 -313 98 -445 77z"></path>
+                            <path d="M696 1208 c-13 -19 -16 -61 -16 -255 0 -220 1 -234 20 -253 18 -18 33 -20 195 -20 162 0 177 2 195 20 11 11 20 29 20 40 0 11 -9 29 -20 40 -18 18 -33 20 -155 20 l-135 0 0 193 c0 215 -6 237 -60 237 -18 0 -34 -8 -44 -22z"></path>
+                            </g>
+                        </svg>
+                    </span>
+                    <span class="time">${time}</span>
+                </div>
+            </div>
+            <div class="appointment-content">
+                <div class="pet-info-brief">
+                    <img src="${appointment.pet.imageUrl}" alt="${appointment.pet.name}" class="pet-thumbnail">
+                    <div class="pet-details">
+                        <h4>${appointment.pet.name}</h4>
+                        <p>${appointment.pet.type} - ${appointment.pet.breed}</p>
+                    </div>
+                </div>
+                <div class="appointment-service">
+                    <div class="service-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14"></path>
+                            <path d="M2 20h20"></path>
+                            <path d="M14 12v.01"></path>
+                        </svg>
+                    </div>
+                    <span class="service-name">${appointment.service.name}</span>
+                    <span class="service-price">${appointment.service.price.toFixed(2)} €</span>
+                </div>
+                <div class="appointment-owner">
+                    <div class="owner-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <span class="owner-name">${appointment.owner.name}</span>
+                    <a href="tel:${appointment.owner.phone}" class="phone-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.908.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                    </a>
+                </div>
+                <div class="appointment-vet">
+                    <div class="vet-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 18a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v9z"></path>
+                            <path d="M16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
+                            <path d="M7 6H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h1"></path>
+                            <path d="M12 9h.01"></path>
+                            <path d="M12 13h.01"></path>
+                        </svg>
+                    </div>
+                    <span class="vet-name">${appointment.vet.name}</span>
+                </div>
+                <div class="appointment-status">
+                    <span class="status-badge ${statusLabel.class}">${statusLabel.text}</span>
+                    <div class="appointment-actions">
+                        <button class="btn-action btn-edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9"></path>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                            </svg>
+                        </button>
+                        <button class="btn-action btn-cancel">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Agregar eventos a los botones
+        const editButton = cardElement.querySelector('.btn-edit');
+        if (editButton) {
+            editButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log(`Editar cita: ${appointment.id}`);
+                // Aquí se implementaría la lógica para editar la cita
+            });
+        }
+
+        const cancelButton = cardElement.querySelector('.btn-cancel');
+        if (cancelButton) {
+            cancelButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log(`Cancelar cita: ${appointment.id}`);
+                // Aquí se implementaría la lógica para cancelar la cita
+            });
+        }
+
+        return cardElement;
     }
     
     /**
@@ -984,6 +1205,19 @@ class RoleUIManager {
         // Actualizar el nombre de la mascota
         const petNameElement = detailPage.querySelector('h1');
         petNameElement.textContent = petName;
+        
+        // Agregar botón de editar junto al título
+        const editButton = document.createElement('button');
+        editButton.className = 'edit-button';
+        editButton.textContent = 'Editar';
+        editButton.style.marginLeft = '15px';
+        editButton.addEventListener('click', () => {
+            // Lógica para editar la mascota
+            console.log(`Editar mascota: ${petName}`);
+        });
+        
+        // Insertar el botón de editar junto al título
+        petNameElement.insertAdjacentElement('afterend', editButton);
         
         // Actualizar el tipo y raza
         const petTypeElement = detailPage.querySelector('.pet-type');

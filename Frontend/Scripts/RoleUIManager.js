@@ -665,7 +665,6 @@ class RoleUIManager {
                         </svg>
                     </div>
                     <span class="service-name">${appointment.service.name}</span>
-                    <span class="service-price">${appointment.service.price.toFixed(2)} €</span>
                 </div>
                 <div class="appointment-owner">
                     <div class="owner-icon">
@@ -675,23 +674,14 @@ class RoleUIManager {
                         </svg>
                     </div>
                     <span class="owner-name">${appointment.owner.name}</span>
-                    <a href="tel:${appointment.owner.phone}" class="phone-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.908.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                        </svg>
-                    </a>
                 </div>
                 <div class="appointment-vet">
                     <div class="vet-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17 18a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v9z"></path>
-                            <path d="M16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
-                            <path d="M7 6H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h1"></path>
-                            <path d="M12 9h.01"></path>
-                            <path d="M12 13h.01"></path>
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.908.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
                         </svg>
                     </div>
-                    <span class="vet-name">${appointment.vet.name}</span>
+                    <span class="vet-name">${appointment.owner.phone}</span>
                 </div>
                 <div class="appointment-status">
                     <span class="status-badge ${statusLabel.class}">${statusLabel.text}</span>

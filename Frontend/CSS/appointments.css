@@ -39,6 +39,20 @@
     background-color: var(--primary-color);
     color: white;
     padding: 0.8rem 1rem;
+    transition: background-color 0.3s ease;
+}
+
+/* Colores de cabecera según estado */
+.status-pending .appointment-header {
+    background-color: #ffc107; /* Amarillo para citas pendientes */
+}
+
+.status-completed .appointment-header {
+    background-color: #4caf50; /* Verde para citas completadas */
+}
+
+.status-cancelled .appointment-header {
+    background-color: #9e9e9e; /* Gris para citas canceladas */
 }
 
 /* Fecha de la cita */

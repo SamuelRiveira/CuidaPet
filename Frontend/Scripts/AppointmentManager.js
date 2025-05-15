@@ -22,7 +22,8 @@ class AppointmentManager {
                         date: "2025-05-15",
                         time: "10:30",
                         type: "Vacunación",
-                        veterinarian: "Dr. Martínez"
+                        veterinarian: "Dr. Martínez",
+                        status: "pending" // Estado pendiente
                     },
                     {
                         id: 2,
@@ -32,7 +33,8 @@ class AppointmentManager {
                         date: "2025-05-22",
                         time: "16:00",
                         type: "Revisión general",
-                        veterinarian: "Dra. López"
+                        veterinarian: "Dra. López",
+                        status: "completed" // Estado completada
                     },
                     {
                         id: 3,
@@ -42,7 +44,8 @@ class AppointmentManager {
                         date: "2025-06-03",
                         time: "12:15",
                         type: "Peluquería",
-                        veterinarian: "Estilista Rodríguez"
+                        veterinarian: "Estilista Rodríguez",
+                        status: "cancelled" // Estado cancelada
                     }
                 ];
                 resolve(appointments);

@@ -62,9 +62,34 @@ class AppointmentUI {
                            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         const month = monthNames[date.getMonth()];
 
+        // Determinar el estado de la cita (por defecto 'pending' si no está definido)
+        const status = appointment.status || 'pending';
+        
+        // Obtener la etiqueta y clase según el estado
+        let statusLabel = '';
+        let statusClass = '';
+        
+        switch (status) {
+            case 'pending':
+                statusLabel = 'Pendiente';
+                statusClass = 'status-pending';
+                break;
+            case 'completed':
+                statusLabel = 'Completada';
+                statusClass = 'status-completed';
+                break;
+            case 'cancelled':
+                statusLabel = 'Cancelada';
+                statusClass = 'status-cancelled';
+                break;
+            default:
+                statusLabel = 'Pendiente';
+                statusClass = 'status-pending';
+        }
+
         // Crear el elemento de la tarjeta
         const card = document.createElement('div');
-        card.className = 'appointment-card';
+        card.className = `appointment-card ${statusClass}`;
         card.innerHTML = `
             <div class="appointment-header">
                 <div class="appointment-date">
@@ -92,12 +117,19 @@ class AppointmentUI {
                         <p class="appointment-vet">${appointment.veterinarian}</p>
                     </div>
                 </div>
+                <div class="appointment-status">
+                    <span class="status-badge ${statusClass}">${statusLabel}</span>
+                </div>
                 <div class="appointment-actions">
+                    <!-- Estos botones solo se mostrarán si el usuario tiene permisos -->
                     <button class="btn btn-cancel" data-id="${appointment.id}">Cancelar cita</button>
                     <button class="btn btn-primary" data-id="${appointment.id}">Modificar</button>
                 </div>
             </div>
         `;
+        
+        // Los botones de acción se muestran por defecto
+        // El RoleUIManager se encarga de mostrar/ocultar según el rol
 
         // Agregar eventos a los botones
         const cancelBtn = card.querySelector('.btn-cancel');

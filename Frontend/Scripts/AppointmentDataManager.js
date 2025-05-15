@@ -252,4 +252,57 @@ class AppointmentDataManager {
                 return { class: 'status-unknown', text: 'Desconocido' };
         }
     }
+    
+    /**
+     * Actualiza el estado de una cita pasando al siguiente en el ciclo
+     * pendiente -> completada -> cancelada -> pendiente
+     * @param {number} appointmentId - ID de la cita a actualizar
+     * @returns {string} - El nuevo estado de la cita
+     */
+    async updateAppointmentStatus(appointmentId) {
+        // En una implementación real, esto se haría mediante una llamada a la API
+        const appointments = await this.getAppointments();
+        const appointment = appointments.find(app => app.id === appointmentId);
+        
+        if (!appointment) {
+            console.error(`No se encontró la cita con ID: ${appointmentId}`);
+            return null;
+        }
+        
+        // Actualizar el estado siguiendo el ciclo: pendiente -> completada -> cancelada -> pendiente
+        switch (appointment.status) {
+            case 'pending':
+                appointment.status = 'completed';
+                break;
+            case 'completed':
+                appointment.status = 'cancelled';
+                break;
+            case 'cancelled':
+            default:
+                appointment.status = 'pending';
+                break;
+        }
+        
+        // En una implementación real, aquí enviaríamos el cambio a la API
+        console.log(`Cita ${appointmentId} actualizada a estado: ${appointment.status}`);
+        
+        return appointment.status;
+    }
+    
+    /**
+     * Método estático para ciclar el estado de una cita
+     * @param {string} currentStatus - Estado actual de la cita
+     * @returns {string} - Siguiente estado en el ciclo
+     */
+    static cycleAppointmentStatus(currentStatus) {
+        switch (currentStatus) {
+            case 'pending':
+                return 'completed';
+            case 'completed':
+                return 'cancelled';
+            case 'cancelled':
+            default:
+                return 'pending';
+        }
+    }
 }

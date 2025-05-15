@@ -31,7 +31,6 @@ class ProfileManager {
      */
     static updateUserProfile(profileData) {
         // TODO: En el futuro, esta función realizará una llamada a una API para actualizar el perfil
-        console.log('Perfil actualizado con éxito:', profileData);
         // Simulamos una operación exitosa
         return true;
     }

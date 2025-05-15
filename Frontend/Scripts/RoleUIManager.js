@@ -697,14 +697,67 @@ class RoleUIManager {
             </div>
         `;
 
-        // Agregar eventos a los botones
+        // Mostrar/ocultar botón de edición según el rol del usuario
         const editButton = cardElement.querySelector('.btn-edit');
         if (editButton) {
-            editButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                console.log(`Editar cita: ${appointment.id}`);
-                // Aquí se implementaría la lógica para editar la cita
-            });
+            // Solo mostrar el botón de edición para empleados
+            if (this.userStatus.userRole === 'empleado' || this.userStatus.userRole === 'programador') {
+                editButton.style.display = 'flex';
+                
+                // Agregar evento para cambiar estado de forma cíclica
+                editButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    try {
+                        // Obtener el estado actual de la cita
+                        const currentStatus = appointment.status;
+                        
+                        // Cambiar al siguiente estado en el ciclo
+                        let newStatus;
+                        switch (currentStatus) {
+                            case 'pending':
+                                newStatus = 'completed';
+                                break;
+                            case 'completed':
+                                newStatus = 'cancelled';
+                                break;
+                            case 'cancelled':
+                            default:
+                                newStatus = 'pending';
+                                break;
+                        }
+                        
+                        // Actualizar el estado en el objeto de la cita
+                        appointment.status = newStatus;
+                        
+                        // Actualizar la UI para reflejar el cambio
+                        // Eliminar clases de estado anteriores
+                        cardElement.classList.remove('status-pending', 'status-completed', 'status-cancelled');
+                        
+                        // Obtener la nueva etiqueta y añadir la clase correspondiente
+                        const statusLabel = AppointmentDataManager.getStatusLabel(newStatus);
+                        cardElement.classList.add(statusLabel.class);
+                        
+                        // Actualizar el texto del estado
+                        const statusBadge = cardElement.querySelector('.status-badge');
+                        if (statusBadge) {
+                            statusBadge.textContent = statusLabel.text;
+                            statusBadge.className = `status-badge ${statusLabel.class}`;
+                        }
+                        
+                        console.log(`Estado de cita ${appointment.id} actualizado a: ${newStatus}`);
+                        
+                        // En una implementación real, aquí enviaríamos el cambio a la API
+                        // const appointmentManager = new AppointmentDataManager();
+                        // appointmentManager.updateAppointmentStatus(appointment.id, newStatus);
+                    } catch (error) {
+                        console.error('Error al actualizar el estado de la cita:', error);
+                    }
+                });
+            } else {
+                // Ocultar el botón para clientes
+                editButton.style.display = 'none';
+            }
         }
 
         const cancelButton = cardElement.querySelector('.btn-cancel');

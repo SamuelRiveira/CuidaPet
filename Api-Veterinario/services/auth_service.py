@@ -52,15 +52,3 @@ class AuthService:
             return None, str(e)
         except Exception as e:
             return None, f"Error en el registro: {str(e)}"
-
-    @staticmethod
-    def change_password(user_id, current_password, new_password):
-        if not User.verify_password(user_id, current_password):
-            return False, "Contraseña actual incorrecta"
-
-        success = User.update_password(user_id, new_password)
-
-        if not success:
-            return False, "Error al actualizar contraseña"
-
-        return True, "Contraseña actualizada con éxito"

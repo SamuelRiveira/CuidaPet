@@ -58,32 +58,3 @@ def register():
 
     except Exception as e:
         return APIResponse.error(str(e), 500)
-
-
-@auth_bp.route('/cambiar_contraseña', methods=['PUT'])
-@Security.token_required
-def change_password(usuario_actual):
-    try:
-        body_request = request.json
-        if not body_request:
-            return APIResponse.error("Datos no proporcionados")
-
-        current_password = body_request.get("contraseña_actual")
-        new_password = body_request.get("contraseña_nueva")
-
-        if not current_password or not new_password:
-            return APIResponse.error("Se requiere contraseña actual y nueva")
-
-        success, message = AuthService.change_password(
-            usuario_actual['id'],
-            current_password,
-            new_password
-        )
-
-        if not success:
-            return APIResponse.unauthorized(message)
-
-        return APIResponse.success(message=message)
-
-    except Exception as e:
-        return APIResponse.error(str(e), 500)

@@ -1,109 +1,134 @@
-CREATE TABLE Usuario (
-  idUsuario INTEGER   NOT NULL ,
-  nombre VARCHAR    ,
-  contrase�a VARCHAR    ,
-  rol ENUM('programador', 'empleado', 'cliente')      ,
-PRIMARY KEY(idUsuario));
+-- Tabla de roles
+CREATE TABLE rol (
+    id_rol SERIAL PRIMARY KEY,
+    nombre_rol TEXT NOT NULL UNIQUE CHECK (nombre_rol IN ('cliente', 'empleado', 'admin'))
+);
 
+-- Tabla de usuarios con UUID
+CREATE TABLE usuario (
+    id_usuario UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    direccion TEXT,
+    imagen TEXT,
+    id_rol INTEGER NOT NULL REFERENCES rol(id_rol) ON DELETE RESTRICT,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
+-- Tabla de alergias
+CREATE TABLE alergia (
+    id_alergia SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE
+);
 
+-- Tabla de mascotas con referencia a usuario (UUID)
+CREATE TABLE mascota (
+    id_mascota SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    especie VARCHAR(50) NOT NULL,
+    raza VARCHAR(100),
+    edad INTEGER,
+    peso NUMERIC(5,2),
+    notas_especiales TEXT,
+    historial_medico TEXT,
+    imagen TEXT,
+    id_usuario UUID NOT NULL REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    -- Nota: La restricción CHECK que verifica el rol del propietario se implementará mediante una función y un trigger.
+);
 
-CREATE TABLE Programador (
-  idProgramador INTEGER   NOT NULL ,
-  Usuario_idUsuario INTEGER   NOT NULL ,
-  dni VARCHAR    ,
-  telefono VARCHAR    ,
-  direccion VARCHAR    ,
-  fecha_contratacion DATE      ,
-PRIMARY KEY(idProgramador),
-  FOREIGN KEY(Usuario_idUsuario)
-    REFERENCES Usuario(idUsuario));
+-- Tabla intermedia para relacionar mascotas con alergias
+CREATE TABLE mascota_alergia (
+    id_mascota INTEGER REFERENCES mascota(id_mascota) ON DELETE CASCADE,
+    id_alergia INTEGER REFERENCES alergia(id_alergia) ON DELETE RESTRICT,
+    fecha_diagnostico DATE,
+    PRIMARY KEY (id_mascota, id_alergia)
+);
 
+-- Tabla de estados de cita
+CREATE TABLE estado_cita (
+    id_estado SERIAL PRIMARY KEY,
+    nombre_estado TEXT NOT NULL UNIQUE CHECK (nombre_estado IN ('pendiente', 'completada', 'cancelada'))
+);
 
-CREATE INDEX IFK_Rel_08 ON Programador (Usuario_idUsuario);
+-- Tabla de servicios
+CREATE TABLE servicio (
+    id_servicio SERIAL PRIMARY KEY,
+    nombre_servicio VARCHAR(100) NOT NULL
+);
 
+-- Tabla de citas, referencia a id_empleado como UUID
+CREATE TABLE cita (
+    id_cita SERIAL PRIMARY KEY,
+    fecha DATE NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_final TIME NOT NULL,
+    id_estado INTEGER NOT NULL DEFAULT 1 REFERENCES estado_cita(id_estado) ON DELETE RESTRICT,
+    id_servicio INTEGER REFERENCES servicio(id_servicio) ON DELETE SET NULL,
+    id_mascota INTEGER NOT NULL REFERENCES mascota(id_mascota) ON DELETE CASCADE,
+    id_empleado UUID REFERENCES usuario(id_usuario) ON DELETE SET NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (hora_final > hora_inicio)
+    -- Nota: La restricción CHECK que verifica el rol del empleado se implementará mediante una función y un trigger.
+);
 
-CREATE TABLE Cliente (
-  idCliente INTEGER   NOT NULL ,
-  Usuario_idUsuario INTEGER   NOT NULL ,
-  direccion VARCHAR    ,
-  telefono VARCHAR      ,
-PRIMARY KEY(idCliente),
-  FOREIGN KEY(Usuario_idUsuario)
-    REFERENCES Usuario(idUsuario));
+-- Insertar roles predefinidos
+INSERT INTO rol (nombre_rol) VALUES 
+('cliente'),
+('empleado'),
+('admin');
 
+-- Insertar estados de cita predefinidos
+INSERT INTO estado_cita (nombre_estado) VALUES 
+('pendiente'),
+('completada'),
+('cancelada');
 
-CREATE INDEX IFK_Rel_01 ON Cliente (Usuario_idUsuario);
+-- Insertar algunas alergias comunes
+INSERT INTO alergia (nombre) VALUES 
+('Polen'),
+('Ácaros del polvo'),
+('Alimentos específicos'),
+('Medicamentos'),
+('Picaduras de insectos'),
+('Productos químicos'),
+('Kiwi'),
+('Pelo de otros animales');
 
+-- Insertar algunos servicios básicos
+INSERT INTO servicio (nombre_servicio) VALUES 
+('Consulta general'),
+('Vacunación'),
+('Desparasitación'),
+('Cirugía menor'),
+('Limpieza dental'),
+('Análisis de sangre');
 
-CREATE TABLE Empleado (
-  idEmpleado INTEGER   NOT NULL ,
-  Usuario_idUsuario INTEGER   NOT NULL ,
-  especialidad VARCHAR    ,
-  nombre_completo VARCHAR    ,
-  dni VARCHAR    ,
-  telefono VARCHAR    ,
-  direccion VARCHAR    ,
-  fecha_contratacion DATE      ,
-PRIMARY KEY(idEmpleado),
-  FOREIGN KEY(Usuario_idUsuario)
-    REFERENCES Usuario(idUsuario));
+-- Crear índices para mejorar el rendimiento
+CREATE INDEX idx_usuario_email ON usuario(email);
+CREATE INDEX idx_mascota_usuario ON mascota(id_usuario);
+CREATE INDEX idx_cita_fecha ON cita(fecha);
+CREATE INDEX idx_cita_mascota ON cita(id_mascota);
+CREATE INDEX idx_cita_empleado ON cita(id_empleado);
 
-
-CREATE INDEX IFK_Rel_05 ON Empleado (Usuario_idUsuario);
-
-
-CREATE TABLE Mascota (
-  idMascota INTEGER   NOT NULL ,
-  Cliente_idCliente INTEGER   NOT NULL ,
-  nombre VARCHAR    ,
-  especie VARCHAR    ,
-  raza VARCHAR    ,
-  edad INTEGER      ,
-PRIMARY KEY(idMascota),
-  FOREIGN KEY(Cliente_idCliente)
-    REFERENCES Cliente(idCliente));
-
-
-CREATE INDEX IFK_Rel_02 ON Mascota (Cliente_idCliente);
-
-
-CREATE TABLE Cita (
-  idCita INTEGER   NOT NULL ,
-  Empleado_idEmpleado INTEGER   NOT NULL ,
-  Mascota_idMascota INTEGER   NOT NULL ,
-  fecha DATE    ,
-  hora TIME    ,
-  estado ENUM('pendiente', 'confirmada', 'cancelada')    ,
-  motivo VARCHAR      ,
-PRIMARY KEY(idCita),
-  FOREIGN KEY(Mascota_idMascota)
-    REFERENCES Mascota(idMascota),
-  FOREIGN KEY(Empleado_idEmpleado)
-    REFERENCES Empleado(idEmpleado));
-
-
-CREATE INDEX IFK_Rel_03 ON Cita (Mascota_idMascota);
-CREATE INDEX IFK_Rel_04 ON Cita (Empleado_idEmpleado);
-
-
-CREATE TABLE Ficha_Medica (
-  idFicha_Medica INTEGER   NOT NULL ,
-  Empleado_idEmpleado INTEGER   NOT NULL ,
-  Mascota_idMascota INTEGER   NOT NULL ,
-  fecha DATE    ,
-  diagnostico VARCHAR    ,
-  tratamiento VARCHAR    ,
-  observaciones TEXT      ,
-PRIMARY KEY(idFicha_Medica),
-  FOREIGN KEY(Mascota_idMascota)
-    REFERENCES Mascota(idMascota),
-  FOREIGN KEY(Empleado_idEmpleado)
-    REFERENCES Empleado(idEmpleado));
-
-
-CREATE INDEX IFK_Rel_06 ON Ficha_Medica (Mascota_idMascota);
-CREATE INDEX IFK_Rel_07 ON Ficha_Medica (Empleado_idEmpleado);
-
-
-
+-- Crear vista para consultas frecuentes
+CREATE VIEW vista_citas_detalle AS
+SELECT 
+    c.id_cita,
+    c.fecha,
+    c.hora_inicio,
+    c.hora_final,
+    ec.nombre_estado AS estado,
+    s.nombre_servicio AS servicio,
+    m.nombre AS mascota,
+    m.especie,
+    CONCAT(u_cliente.nombre, ' ', u_cliente.apellidos) AS propietario,
+    u_cliente.email AS email_propietario,
+    CONCAT(u_empleado.nombre, ' ', u_empleado.apellidos) AS empleado_asignado
+FROM cita c
+LEFT JOIN estado_cita ec ON c.id_estado = ec.id_estado
+LEFT JOIN servicio s ON c.id_servicio = s.id_servicio
+LEFT JOIN mascota m ON c.id_mascota = m.id_mascota
+LEFT JOIN usuario u_cliente ON m.id_usuario = u_cliente.id_usuario
+LEFT JOIN usuario u_empleado ON c.id_empleado = u_empleado.id_usuario;

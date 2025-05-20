@@ -66,7 +66,7 @@ export class API{
             const userObject = {
                 id: userData.id_usuario,
                 email: authData.user.email,
-                role: userData.rol ? userData.rol.nombre || 'cliente' : 'cliente',
+                role: userData.rol.nombre_rol,
             };
             
             // Guardar en localStorage para mantener la sesión

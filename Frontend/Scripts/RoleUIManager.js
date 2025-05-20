@@ -43,7 +43,7 @@ class RoleUIManager {
         
         // Si tiene sesión iniciada, cargar componentes específicos del rol
         if (this.userStatus.isLoggedIn) {
-            this.loadRoleSpecificComponents();
+            this.createRolePages();
         }
     }
     
@@ -191,35 +191,6 @@ class RoleUIManager {
                     Iniciar Sesión
                 </a>
             `;
-        }
-    }
-    
-    /**
-     * Carga componentes específicos según el rol del usuario
-     */
-    loadRoleSpecificComponents() {
-        // Crear las páginas necesarias para cada rol
-        this.createRolePages();
-        
-        // Actualizar el nombre en la interfaz si está disponible
-        if (this.userStatus.userData && this.userStatus.userData.name) {
-            // Actualizar nombre en ProfileManager para mantener compatibilidad con componentes existentes
-            if (typeof ProfileManager !== 'undefined') {
-                const currentProfile = ProfileManager.getUserProfile();
-                const updatedProfile = {
-                    ...currentProfile,
-                    name: this.userStatus.userData.name,
-                    personalInfo: {
-                        ...currentProfile.personalInfo,
-                        name: this.userStatus.userData.name
-                    }
-                };
-                
-                // Si existe un método para actualizar el perfil
-                if (typeof ProfileManager.updateUserProfile === 'function') {
-                    ProfileManager.updateUserProfile(updatedProfile);
-                }
-            }
         }
     }
     
@@ -427,9 +398,6 @@ class RoleUIManager {
                 this.handleNavigation(navLink.getAttribute('data-page'));
             }
         });
-        
-        // Modificar el login.js existente para manejar los roles
-        this.enhanceLoginForm();
         
         // Carga de citas si el usuario es empleado
         if (this.userStatus.isLoggedIn && this.userStatus.userRole === 'empleado') {
@@ -688,21 +656,6 @@ class RoleUIManager {
     }
     
     /**
-     * Mejora el formulario de login para manejar roles
-     * Nota: La implementación actual se ha movido a los archivos login.js y registro.js
-     * que manejan la autenticación mediante Supabase
-     */
-    enhanceLoginForm() {
-        // La funcionalidad de login se ha movido a login.js
-        // La funcionalidad de registro se ha movido a registro.js
-        // Estos archivos utilizan las nuevas funciones de API y UserAuthManager
-        // que interactúan con Supabase
-
-        // Este método se mantiene vacío para mantener compatibilidad con el código existente
-        // pero ya no es necesario agregar manejadores de eventos aquí
-    }
-    
-    /**
      * Maneja la navegación entre páginas
      * @param {string} pageId - ID de la página a mostrar
      */
@@ -710,12 +663,6 @@ class RoleUIManager {
         // Obtener todas las páginas
         const pages = document.querySelectorAll('.page');
         const navLinks = document.querySelectorAll('nav a');
-        
-        // Verificar permisos para la página solicitada
-        if (!this.canAccessPage(pageId)) {
-            console.error('No tienes permiso para acceder a esta página');
-            return;
-        }
         
         // Ocultar todas las páginas
         pages.forEach(page => {
@@ -738,50 +685,6 @@ class RoleUIManager {
                 activeLink.classList.add('active');
             }
         }
-    }
-    
-    /**
-     * Verifica si el usuario puede acceder a una página específica
-     * @param {string} pageId - ID de la página a verificar
-     * @returns {boolean} - True si puede acceder, false si no
-     */
-    canAccessPage(pageId) {
-        // Si es la página de inicio, siempre permitir
-        if (pageId === 'home') {
-            return true;
-        }
-        
-        // Si no tiene sesión iniciada, solo permitir home
-        if (!this.userStatus.isLoggedIn) {
-            return false;
-        }
-        
-        // Mapeo de páginas a permisos requeridos
-        const pagePermissions = {
-            // Páginas de cliente
-            'pets': ['manage_pets'],
-            'profile': ['view_profile'],
-            'appointments': ['schedule_appointments'],
-            
-            // Páginas de empleado
-            'client-management': ['manage_clients'],
-            'appointments-admin': ['manage_appointments'],
-            
-            // Páginas de admin
-            'system-admin': ['system_admin'],
-            'debug-tools': ['debug_tools'],
-            'users-admin': ['manage_users']
-        };
-        
-        // Si la página no requiere permisos específicos, permitir
-        if (!pagePermissions[pageId]) {
-            return true;
-        }
-        
-        // Verificar si tiene al menos uno de los permisos requeridos
-        return pagePermissions[pageId].some(permission => 
-            UserAuthManager.hasPermission(permission)
-        );
     }
     
     /**

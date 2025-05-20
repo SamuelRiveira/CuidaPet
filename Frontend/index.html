@@ -28,22 +28,23 @@
         <span id="cierre" class="icono-cierre" onclick="cerrar()"><img class="iconCierre" src="iconos/close-outline.svg" alt="cierre"></span>
         <div class="forma-caja login">
             <h2>Iniciar sesión</h2>
-            <form action="#">
+            <form id="login-form" action="#">
                 <div class="caja-input">
-                    <span class="icono"><img class="iconPerson" src="iconos/person.svg" alt="user"></span>
-                    <input type="text" required autocomplete="current-username">
-                    <label>Nombre de usuario</label>
+                    <span class="icono"><img class="iconPerson" src="iconos/person.svg" alt="email"></span>
+                    <input type="email" id="login-email" required autocomplete="email">
+                    <label>Email</label>
                 </div>
                 <div class="caja-input">
                     <span class="icono"><img class="lockClosed" src="iconos/lock-closed.svg" alt="lock-closed"></ion-icon></span>
-                    <input type="password" required autocomplete="current-password">
+                    <input type="password" id="login-password" required autocomplete="current-password">
                     <label>Contraseña</label>
                 </div>
+                <div id="login-mensaje" class="mensaje-error" style="display: none; color: red; margin-bottom: 10px;"></div>
                 <div class="recordar-olvidar">
-                    <label><input type="checkbox">Recordarme</label>
+                    <label><input type="checkbox" id="login-recordar">Recordarme</label>
                     <a href="#">Olvidaste la contraseña?</a>
                 </div>
-                <button type="submit" class="boton-login">Iniciar sesión</button>
+                <button type="submit" id="boton-login" class="boton-login">Iniciar sesión</button>
                 <div class="login-register">
                     <p>No tienes una cuenta? <a href="#" onclick="activar()">Registrarse</a></p>
                 </div>
@@ -507,6 +508,7 @@
 
     <script src="Scripts/main.js"></script>
     <script src="Scripts/login.js"></script>
+    <script type="module" src="Scripts/login2.js"></script>
     <script src="Scripts/navigation.js"></script>
     <script src="Scripts/AppointmentManager.js"></script>
     <script src="Scripts/AppointmentDataManager.js"></script>
@@ -519,10 +521,10 @@
     <script src="Scripts/ProfileManager.js"></script>
     <script src="Scripts/ProfileUI.js"></script>
     <!-- Sistema de roles y autenticación -->
-    <script src="Scripts/UserAuthManager.js"></script>
-    <script src="Scripts/RoleUIManager.js"></script>
-    <script src="Scripts/navigation.js"></script>
-    <script src="Scripts/app-init.js"></script>
+    <script type="module" src="Scripts/UserAuthManager.js"></script>
+    <script type="module" src="Scripts/RoleUIManager.js"></script>
+    <script type="module" src="Scripts/navigation.js"></script>
+    <script type="module" src="Scripts/app-init.js"></script>
     <script type="module" src="Scripts/APIS.js"></script>
     <script type="module" src="Scripts/registro.js"></script>
 </body>

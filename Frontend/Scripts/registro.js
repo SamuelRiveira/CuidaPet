@@ -3,6 +3,8 @@ import { API } from './APIS.js';
 /**
  * Maneja la funcionalidad de registro de usuarios
  */
+import { UserAuthManager } from "./UserAuthManager.js";
+
 document.addEventListener('DOMContentLoaded', () => {
     const formularioRegistro = document.getElementById('registro-form');
     const mensajeRegistro = document.getElementById('registro-mensaje');

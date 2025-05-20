@@ -1,7 +1,9 @@
 /**
  * Clase encargada de la gestión de autenticación y autorización de usuarios
  * Proporciona funciones para verificar el estado de sesión y los roles de usuario
+ * @requires API Requiere importar la API previamente
  */
+import { API } from "./APIS.js";
 class UserAuthManager {
     /**
      * Verifica el estado de sesión y rol del usuario actual
@@ -94,64 +96,47 @@ class UserAuthManager {
     }
     
     /**
-     * Simula inicio de sesión (para desarrollo y pruebas)
-     * @param {string} username - Nombre de usuario
+     * Realiza el inicio de sesión con Supabase
+     * @param {string} email - Correo electrónico del usuario
      * @param {string} password - Contraseña del usuario
-     * @param {string} role - Rol del usuario (cliente, empleado, admin)
-     * @returns {boolean} - Éxito de la operación
+     * @returns {Promise<boolean>} - Éxito de la operación
      */
-    static login(username, password, role = 'cliente') {
-        // TODO: Implementar llamada a API
-        // Por ahora, simplemente almacenamos los datos en localStorage
-        
-        // Validar que los roles sean correctos
-        if (!['cliente', 'empleado', 'admin'].includes(role)) {
-            console.error('Rol inválido');
+    static async login(email, password) {
+        try {
+            // Usar la API para iniciar sesión
+            const resultado = await API.iniciarSesion(email, password);
+            
+            if (!resultado.success) {
+                console.error('Error al iniciar sesión:', resultado.error);
+                return false;
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error inesperado al iniciar sesión:', error);
             return false;
         }
-        
-        // Simular ID de usuario
-        const userId = 'user_' + Math.floor(1000 + Math.random() * 9000);
-        
-        // Crear objeto de usuario
-        const user = {
-            id: userId,
-            username: username,
-            name: username, // En una implementación real, estos serían diferentes
-            email: `${username}@ejemplo.com`,
-            role: role,
-            lastLogin: new Date().toISOString(),
-            photo: '/Frontend/imagenes/img_perfil.png'
-        };
-        
-        // Añadir datos específicos según el rol
-        if (role === 'cliente') {
-            user.loyaltyPoints = 0;
-            user.memberSince = new Date().toISOString();
-        } else if (role === 'empleado') {
-            user.department = 'General';
-            user.position = 'Asistente';
-            user.employeeId = 'EMP' + Math.floor(1000 + Math.random() * 9000);
-        } else if (role === 'admin') {
-            user.accessLevel = 'Full';
-            user.gitUsername = 'admin_' + username;
-            user.adminKey = 'ADM' + Math.floor(100000 + Math.random() * 900000);
-        }
-        
-        // Guardar en localStorage
-        localStorage.setItem('cuidapet_user', JSON.stringify(user));
-        
-        return true;
     }
     
     /**
-     * Cierra la sesión del usuario actual
-     * @returns {boolean} - Éxito de la operación
+     * Cierra la sesión del usuario actual en Supabase
+     * @returns {Promise<boolean>} - Éxito de la operación
      */
-    static logout() {
-        // Remover los datos de usuario del localStorage
-        localStorage.removeItem('cuidapet_user');
-        return true;
+    static async logout() {
+        try {
+            // Usar la API para cerrar sesión
+            const resultado = await API.cerrarSesion();
+            
+            if (!resultado.success) {
+                console.error('Error al cerrar sesión:', resultado.error);
+                return false;
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error inesperado al cerrar sesión:', error);
+            return false;
+        }
     }
     
     /**
@@ -194,3 +179,5 @@ class UserAuthManager {
         return true;
     }
 }
+
+export { UserAuthManager };

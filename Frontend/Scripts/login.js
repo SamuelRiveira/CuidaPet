@@ -19,3 +19,4 @@ function cerrar() {
         contenedor.classList.remove("active");
     }, 500);
 }
+

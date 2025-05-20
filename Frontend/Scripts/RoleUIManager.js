@@ -2,6 +2,7 @@
  * Clase encargada de gestionar la interfaz según el rol del usuario
  * Controla la visualización de elementos y opciones de menú basado en permisos
  */
+import { UserAuthManager } from "./UserAuthManager.js";
 class RoleUIManager {
     constructor() {
         this.userStatus = null;
@@ -687,73 +688,17 @@ class RoleUIManager {
     
     /**
      * Mejora el formulario de login para manejar roles
+     * Nota: La implementación actual se ha movido a los archivos login.js y registro.js
+     * que manejan la autenticación mediante Supabase
      */
     enhanceLoginForm() {
-        // Buscar formularios de login y registro
-        const loginForm = document.querySelector('.forma-caja.login form');
-        const registerForm = document.querySelector('.forma-caja.register form');
-        
-        // Mejorar formulario de login
-        if (loginForm) {
-            // Prevenir el comportamiento predeterminado y usar nuestro sistema
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const username = loginForm.querySelector('input[type="text"]').value;
-                const password = loginForm.querySelector('input[type="password"]').value;
-                
-                // Simular inicio de sesión para desarrollo
-                if (username && password) {
-                    // Determinar rol (en una implementación real, esto vendría del backend)
-                    let role = 'cliente'; // Por defecto
-                    
-                    // Asignar roles para pruebas según nombre de usuario
-                    if (username.includes('empleado')) {
-                        role = 'empleado';
-                    } else if (username.includes('admin') || username.includes('dev')) {
-                        role = 'admin';
-                    }
-                    
-                    // Intentar iniciar sesión
-                    const success = UserAuthManager.login(username, password, role);
-                    
-                    if (success) {
-                        // Cerrar el modal de login
-                        document.querySelector('.contenedor').style.display = 'none';
-                        
-                        // Recargar la página para mostrar la interfaz correcta
-                        window.location.reload();
-                    }
-                }
-            });
-        }
-        
-        // Mejorar formulario de registro
-        if (registerForm) {
-            // Prevenir el comportamiento predeterminado y usar nuestro sistema
-            registerForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const username = registerForm.querySelector('input[type="text"]').value;
-                const password = registerForm.querySelector('input[type="password"]').value;
-                
-                // Comprobar si aceptó términos
-                const termsAccepted = registerForm.querySelector('input[type="checkbox"]').checked;
-                
-                if (username && password && termsAccepted) {
-                    // Registrar siempre como cliente
-                    const success = UserAuthManager.login(username, password, 'cliente');
-                    
-                    if (success) {
-                        // Cerrar el modal de registro
-                        document.querySelector('.contenedor').style.display = 'none';
-                        
-                        // Recargar la página
-                        window.location.reload();
-                    }
-                }
-            });
-        }
+        // La funcionalidad de login se ha movido a login.js
+        // La funcionalidad de registro se ha movido a registro.js
+        // Estos archivos utilizan las nuevas funciones de API y UserAuthManager
+        // que interactúan con Supabase
+
+        // Este método se mantiene vacío para mantener compatibilidad con el código existente
+        // pero ya no es necesario agregar manejadores de eventos aquí
     }
     
     /**
@@ -1246,3 +1191,5 @@ class RoleUIManager {
         RoleUIManager.navigateToPage('pet-detail');
     }
 }
+
+export { RoleUIManager };

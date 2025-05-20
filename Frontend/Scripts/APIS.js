@@ -191,18 +191,24 @@ export class API{
                     .from('imagenes')
                     .upload(`perfiles/${fileName}`, datosUsuario.imagenFile, {
                         cacheControl: '3600',
-                        upsert: false
+                        upsert: true
                     });
                 
                 if (uploadError) throw uploadError;
                 
-                // Obtener la URL pública del archivo
-                const { data: urlData } = await supabase.storage
+                // Obtener la URL firmada del archivo con validez de 1 año
+                const expiresIn = 365 * 24 * 60 * 60; // 1 año en segundos
+                const { data: signedUrlData, error: signedUrlError } = await supabase.storage
                     .from('imagenes')
-                    .getPublicUrl(`perfiles/${fileName}`);
+                    .createSignedUrl(`perfiles/${fileName}`, expiresIn);
+
+                if (signedUrlError) {
+                    console.error('Error creating signed URL:', signedUrlError);
+                    throw signedUrlError;
+                }
                 
-                // Agregar la URL de la imagen a los datos a actualizar
-                updateData.imagen = urlData.publicUrl;
+                // Agregar la URL firmada de la imagen a los datos a actualizar
+                updateData.imagen = signedUrlData.signedUrl;
             } else if (datosUsuario.imagen) {
                 // Si no hay archivo pero hay URL de imagen, usar esa URL
                 updateData.imagen = datosUsuario.imagen;

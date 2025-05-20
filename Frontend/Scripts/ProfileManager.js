@@ -46,68 +46,46 @@ class ProfileManager {
     /**
      * Actualiza los datos del perfil de usuario
      * @param {Object} profileData - Datos actualizados del perfil
-     * @returns {Promise<boolean>} - Éxito de la operación
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
      */
     static async updateUserProfile(profileData) {
         try {
-            // Obtener la sesión actual
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-            
-            if (sessionError) throw sessionError;
-            if (!session) {
-                throw new Error('No hay una sesión activa');
-            }
-            
-            const userId = session.user.id;
-            
-            // Preparar datos para actualizar
-            const updateData = {
+            // Preparar los datos para la API
+            const datosActualizacion = {
                 nombre: profileData.personalInfo.name,
                 apellidos: profileData.personalInfo.surnames,
                 direccion: profileData.personalInfo.address,
-                imagen: profileData.photoFile ? profileData.newPhotoUrl : profileData.originalPhoto
+                imagen: profileData.originalPhoto
             };
             
-            // Si hay una nueva foto, subirla a Supabase Storage
+            // Si hay una nueva foto, incluir el archivo para subir
             if (profileData.photoFile) {
-                // Generar un nombre único para el archivo
-                const fileExt = profileData.photoFile.name.split('.').pop();
-                const fileName = `${userId}_${Date.now()}.${fileExt}`;
-                
-                // Subir el archivo a Supabase Storage
-                const { data: uploadData, error: uploadError } = await supabase.storage
-                    .from('imagenes')
-                    .upload(`perfiles/${fileName}`, profileData.photoFile, {
-                        cacheControl: '3600',
-                        upsert: false
-                    });
-                
-                if (uploadError) throw uploadError;
-                
-                // Obtener la URL pública del archivo
-                const { data: urlData } = await supabase.storage
-                    .from('imagenes')
-                    .getPublicUrl(`perfiles/${fileName}`);
-                
-                // Agregar la URL de la imagen a los datos a actualizar
-                updateData.imagen = urlData.publicUrl;
+                datosActualizacion.imagenFile = profileData.photoFile;
             }
             
-            // Actualizar los datos en la base de datos
-            const { data: updateResult, error: updateError } = await supabase
-                .from('usuario')
-                .update(updateData)
-                .eq('id_usuario', userId);
+            // Llamar al método de la API para actualizar el perfil
+            const resultado = await API.actualizarPerfilUsuario(datosActualizacion);
             
-            if (updateError) throw updateError;
+            if (!resultado.success) {
+                throw resultado.error || new Error('Error al actualizar el perfil');
+            }
             
-            return true;
+            // Si se subió una nueva imagen, actualizar la URL de la imagen en los datos de retorno
+            if (profileData.photoFile) {
+                // Obtener la URL de la imagen del resultado o de los datos de actualización
+                const nuevaImagenUrl = resultado.data?.imagen || 
+                                     (await API.obtenerPerfilUsuario())?.data?.imagen;
+                
+                if (nuevaImagenUrl) {
+                    resultado.data = { ...resultado.data, imagen: nuevaImagenUrl };
+                }
+            }
+            
+            return { success: true, data: resultado.data };
             
         } catch (error) {
             console.error('Error al actualizar el perfil:', error);
-            // En un entorno de desarrollo, simulamos éxito aunque falle
-            // En producción, deberíamos retornar false
-            return true;
+            return { success: false, error };
         }
     }
 }

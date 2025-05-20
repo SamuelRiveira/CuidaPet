@@ -28,8 +28,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const petName = document.getElementById('pet-name').value;
         const petType = document.getElementById('pet-type').value;
         const petBreed = document.getElementById('pet-breed').value;
+        const petWeight = parseFloat(document.getElementById('pet-weight').value);
         const petAge = document.getElementById('pet-age').value;
         const petAgeUnit = document.getElementById('pet-age-unit').value;
+        const petNotes = document.getElementById('pet-notes').value;
 
         const petId = petName.toLowerCase().replace(/\s+/g, '-');
 
@@ -38,8 +40,10 @@ document.addEventListener('DOMContentLoaded', function() {
             name: petName,
             type: petType,
             breed: petBreed,
+            weight: petWeight,
             age: petAge,
             ageUnit: petAgeUnit,
+            notes: petNotes || null,
             // TODO: Tener en cuenta la imagen
             photoUrl: "/api/placeholder/400/320"
         };

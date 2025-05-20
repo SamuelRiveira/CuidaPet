@@ -107,24 +107,8 @@ class RoleUIManager {
             if (profileLink) {
                 nav.appendChild(profileLink);
             }
-        } else if (this.userStatus.userRole === 'programador') {
-            // Para programadores: enlaces de administración y desarrollo
-            this.addNavLink(nav, 'system-admin', 'Administración', `
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2"
-                    style="transform: translateY(1.3px);">
-                    <path d="M12 20h9"></path>
-                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                </svg>
-            `);
-            
-            this.addNavLink(nav, 'debug-tools', 'Herramientas', `
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2"
-                    style="transform: translateY(1.3px);">
-                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-                </svg>
-            `);
+        } else if (this.userStatus.userRole === 'admin') {
+            // Para admins: enlaces de administración y desarrollo
             
             this.addNavLink(nav, 'users-admin', 'Usuarios', `
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
@@ -248,8 +232,8 @@ class RoleUIManager {
             if (!document.getElementById('client-management-page')) {
                 this.createEmployeePages(main);
             }
-        } else if (this.userStatus.userRole === 'programador') {
-            // Crear páginas de programador si no existen
+        } else if (this.userStatus.userRole === 'admin') {
+            // Crear páginas de admin si no existen
             if (!document.getElementById('system-admin-page')) {
                 this.createDeveloperPages(main);
             }
@@ -385,81 +369,10 @@ class RoleUIManager {
     }
     
     /**
-     * Crea las páginas específicas para programadores
+     * Crea las páginas específicas para admins
      * @param {HTMLElement} container - Contenedor donde se agregarán las páginas
      */
-    createDeveloperPages(container) {
-        // Página de administración del sistema
-        const systemAdminPage = document.createElement('div');
-        systemAdminPage.id = 'system-admin-page';
-        systemAdminPage.className = 'page';
-        systemAdminPage.innerHTML = `
-            <div class="container">
-                <div class="page-header">
-                    <h1>Administración del Sistema</h1>
-                    <p>Panel de control para la configuración del sistema</p>
-                </div>
-                <div class="content-card">
-                    <div class="card-header">
-                        <h3>Configuración General</h3>
-                    </div>
-                    <div class="system-settings">
-                        <div class="setting-group">
-                            <h4>Información del Sistema</h4>
-                            <div class="setting-item">
-                                <span>Versión:</span>
-                                <span>1.0.0</span>
-                            </div>
-                            <div class="setting-item">
-                                <span>Último despliegue:</span>
-                                <span>${new Date().toLocaleDateString()}</span>
-                            </div>
-                            <div class="setting-item">
-                                <span>Estado:</span>
-                                <span class="status-active">Activo</span>
-                            </div>
-                        </div>
-                        <div class="setting-group">
-                            <h4>Mantenimiento</h4>
-                            <button class="btn btn-primary">Actualizar sistema</button>
-                            <button class="btn btn-outline">Modo mantenimiento</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        container.appendChild(systemAdminPage);
-        
-        // Página de herramientas de desarrollo
-        const debugToolsPage = document.createElement('div');
-        debugToolsPage.id = 'debug-tools-page';
-        debugToolsPage.className = 'page';
-        debugToolsPage.innerHTML = `
-            <div class="container">
-                <div class="page-header">
-                    <h1>Herramientas de Desarrollo</h1>
-                    <p>Herramientas para depuración y desarrollo</p>
-                </div>
-                <div class="content-card">
-                    <div class="card-header">
-                        <h3>Consola de Depuración</h3>
-                    </div>
-                    <div class="debug-console">
-                        <div class="console-output" id="console-output">
-                            <div class="log-entry">Sistema iniciado correctamente.</div>
-                            <div class="log-entry error">Error en la conexión a la base de datos.</div>
-                            <div class="log-entry warning">Advertencia: memoria baja.</div>
-                        </div>
-                        <div class="console-input">
-                            <input type="text" placeholder="Ingrese comando...">
-                            <button class="btn btn-primary">Ejecutar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        container.appendChild(debugToolsPage);
-        
+    createDeveloperPages(container) {        
         // Página de administración de usuarios
         const usersAdminPage = document.createElement('div');
         usersAdminPage.id = 'users-admin-page';
@@ -701,7 +614,7 @@ class RoleUIManager {
         const editButton = cardElement.querySelector('.btn-edit');
         if (editButton) {
             // Solo mostrar el botón de edición para empleados
-            if (this.userStatus.userRole === 'empleado' || this.userStatus.userRole === 'programador') {
+            if (this.userStatus.userRole === 'empleado' || this.userStatus.userRole === 'admin') {
                 editButton.style.display = 'flex';
                 
                 // Agregar evento para cambiar estado de forma cíclica
@@ -798,7 +711,7 @@ class RoleUIManager {
                     if (username.includes('empleado')) {
                         role = 'empleado';
                     } else if (username.includes('admin') || username.includes('dev')) {
-                        role = 'programador';
+                        role = 'admin';
                     }
                     
                     // Intentar iniciar sesión
@@ -908,7 +821,7 @@ class RoleUIManager {
             'client-management': ['manage_clients'],
             'appointments-admin': ['manage_appointments'],
             
-            // Páginas de programador
+            // Páginas de admin
             'system-admin': ['system_admin'],
             'debug-tools': ['debug_tools'],
             'users-admin': ['manage_users']

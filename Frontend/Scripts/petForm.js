@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             breed: petBreed,
             age: petAge,
             ageUnit: petAgeUnit,
+            // TODO: Tener en cuenta la imagen
             photoUrl: "/api/placeholder/400/320"
         };
 

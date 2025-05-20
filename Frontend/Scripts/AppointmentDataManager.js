@@ -7,7 +7,7 @@ class AppointmentDataManager {
      * Constructor de la clase
      */
     constructor() {
-        // En una versión real, aquí se inicializarían conexiones con APIs, etc.
+        
     }
 
     /**
@@ -16,13 +16,10 @@ class AppointmentDataManager {
      * @returns {Promise<Array>} - Promesa que resuelve a un array de citas
      */
     async getAppointments(filters = {}) {
-        // En una implementación real, aquí haríamos una llamada a una API
         // Por ahora, devolvemos datos simulados
+        // TODO: Implementar llamada a API
         return new Promise((resolve) => {
-            // Simulamos un pequeño retraso como en una llamada API real
-            setTimeout(() => {
-                resolve(this.getMockAppointments(filters));
-            }, 500);
+            resolve(this.getMockAppointments(filters));
         });
     }
 
@@ -33,10 +30,11 @@ class AppointmentDataManager {
      */
     getMockAppointments(filters = {}) {
         // Crear conjunto de citas de ejemplo
+        // TODO: Implementar llamada a API
         const appointments = [
             {
                 id: 1,
-                date: new Date(2025, 4, 15, 10, 30), // 15 de Mayo, 2025 10:30 AM
+                date: new Date(2025, 4, 15, 10, 30),
                 status: 'pending',
                 pet: {
                     id: 1,
@@ -53,7 +51,7 @@ class AppointmentDataManager {
                 service: {
                     id: 1,
                     name: 'Revisión general',
-                    duration: 30, // minutos
+                    duration: 30,
                     price: 35.00
                 },
                 notes: 'Revisar estado de vacunas',
@@ -64,7 +62,7 @@ class AppointmentDataManager {
             },
             {
                 id: 2,
-                date: new Date(2025, 4, 16, 11, 0), // 16 de Mayo, 2025 11:00 AM
+                date: new Date(2025, 4, 16, 11, 0),
                 status: 'completed',
                 pet: {
                     id: 2,
@@ -81,7 +79,7 @@ class AppointmentDataManager {
                 service: {
                     id: 2,
                     name: 'Vacunación',
-                    duration: 15, // minutos
+                    duration: 15,
                     price: 25.00
                 },
                 notes: 'Vacuna anual contra la rabia',
@@ -92,7 +90,7 @@ class AppointmentDataManager {
             },
             {
                 id: 3,
-                date: new Date(2025, 4, 17, 9, 15), // 17 de Mayo, 2025 9:15 AM
+                date: new Date(2025, 4, 17, 9, 15),
                 status: 'pending',
                 pet: {
                     id: 3,
@@ -109,7 +107,7 @@ class AppointmentDataManager {
                 service: {
                     id: 3,
                     name: 'Limpieza dental',
-                    duration: 45, // minutos
+                    duration: 45,
                     price: 50.00
                 },
                 notes: 'Primera limpieza dental',
@@ -120,7 +118,7 @@ class AppointmentDataManager {
             },
             {
                 id: 4,
-                date: new Date(2025, 4, 18, 16, 0), // 18 de Mayo, 2025 4:00 PM
+                date: new Date(2025, 4, 18, 16, 0),
                 status: 'cancelled',
                 pet: {
                     id: 4,
@@ -137,7 +135,7 @@ class AppointmentDataManager {
                 service: {
                     id: 4,
                     name: 'Corte de pelo',
-                    duration: 60, // minutos
+                    duration: 60,
                     price: 40.00
                 },
                 notes: 'Cliente canceló por emergencia familiar',
@@ -148,7 +146,7 @@ class AppointmentDataManager {
             },
             {
                 id: 5,
-                date: new Date(2025, 4, 18, 10, 0), // 18 de Mayo, 2025 10:00 AM
+                date: new Date(2025, 4, 18, 10, 0),
                 status: 'pending',
                 pet: {
                     id: 5,
@@ -165,7 +163,7 @@ class AppointmentDataManager {
                 service: {
                     id: 1,
                     name: 'Revisión general',
-                    duration: 30, // minutos
+                    duration: 30,
                     price: 35.00
                 },
                 notes: 'Chequeo rutinario',
@@ -260,7 +258,8 @@ class AppointmentDataManager {
      * @returns {string} - El nuevo estado de la cita
      */
     async updateAppointmentStatus(appointmentId) {
-        // En una implementación real, esto se haría mediante una llamada a la API
+        // Esto se hará mediante una llamada a la API
+        // TODO: Implementar llamada a API
         const appointments = await this.getAppointments();
         const appointment = appointments.find(app => app.id === appointmentId);
         
@@ -283,7 +282,8 @@ class AppointmentDataManager {
                 break;
         }
         
-        // En una implementación real, aquí enviaríamos el cambio a la API
+        // Aquí enviarémos el cambio a la API
+        // TODO: Implementar llamada a API
         console.log(`Cita ${appointmentId} actualizada a estado: ${appointment.status}`);
         
         return appointment.status;

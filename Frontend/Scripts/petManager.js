@@ -1,8 +1,8 @@
 class PetManager {
 
     getPetsData() {
-        // *IMPORTANTE* Cuando no hayan mascotas hay que retornar []
-
+        // Cuando no hayan mascotas retornar []
+        // TODO: Implementar llamada a API
         return [
             {
                 id: "luna",
@@ -104,18 +104,19 @@ class PetManager {
 
     createPet(petData) {
         // Método vacío para implementar en el futuro
-        // Aquí se añadiría la lógica para crear una nueva mascota
+        // TODO: Implementar llamada a API
         return true;
     }
 
     deletePet(petId) {
         // Método vacío para implementar en el futuro
-        // Aquí se añadiría la lógica para eliminar una mascota
+        // TODO: Implementar llamada a API
         return true;
     }
 
     handlePetEdit(editedData) {
-        // Placeholder method for pet editing functionality
-        console.log('Pet edit data received:', editedData);
+        // Método vacío para implementar en el futuro
+        // TODO: Implementar llamada a API
+        return true;
     }
 }

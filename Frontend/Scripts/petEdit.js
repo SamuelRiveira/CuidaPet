@@ -1,4 +1,4 @@
-// Pet Edit Functionality
+// Funcionalidad de edición de mascotas
 class PetEdit {
     constructor() {
         this.editableElements = [
@@ -41,20 +41,20 @@ class PetEdit {
     }
 
     enableEditMode() {
-        // Store original values
+        // Almacenar valores originales
         this.originalValues.clear();
 
         this.editableElements.forEach(elem => {
             const elements = document.querySelectorAll(elem.selector);
             elements.forEach(element => {
-                // Store original value
+                // Almacenar valor original
                 if (elem.type === 'html') {
                     this.originalValues.set(element, element.innerHTML);
                 } else {
                     this.originalValues.set(element, element.textContent);
                 }
 
-                // Make element editable
+                // Hacer el elemento editable
                 element.setAttribute('contenteditable', 'true');
                 element.classList.add('editing');
                 
@@ -76,7 +76,7 @@ class PetEdit {
             mainTitle.title = 'Editable - Haz clic para modificar';
         }
 
-        // Add photo edit functionality
+        // Agregar funcionalidad de edición de foto
         const petPhoto = document.querySelector('.pet-photo img');
         if (petPhoto) {
             this.originalPhotoSrc = petPhoto.src;
@@ -94,7 +94,7 @@ class PetEdit {
             photoInput.addEventListener('change', (e) => this.handlePhotoChange(e));
         }
 
-        // Replace edit button with confirm/cancel buttons
+        // Reemplazar el botón de edición con botones de confirmar/cancelar
         const editButton = document.querySelector('.edit-button');
         if (editButton) {
             editButton.remove();
@@ -137,7 +137,7 @@ class PetEdit {
         this.editableElements.forEach(elem => {
             const elements = document.querySelectorAll(elem.selector);
             elements.forEach(element => {
-                // Restore original value if cancelled
+                // Restaurar valor original si se cancela
                 if (isCancelled && this.originalValues.has(element)) {
                     if (elem.type === 'html') {
                         element.innerHTML = this.originalValues.get(element);
@@ -146,7 +146,7 @@ class PetEdit {
                     }
                 }
 
-                // Remove editable attributes
+                // Eliminar atributos editables
                 element.removeAttribute('contenteditable');
                 element.classList.remove('editing');
                 
@@ -170,7 +170,7 @@ class PetEdit {
             mainTitle.removeAttribute('title');
         }
 
-        // Restore photo if cancelled
+        // Restaurar foto si se cancela
         const petPhoto = document.querySelector('.pet-photo img');
         const photoEditOverlay = document.querySelector('.photo-edit-overlay');
         if (petPhoto && photoEditOverlay) {
@@ -181,7 +181,7 @@ class PetEdit {
             this.photoEditMode = false;
         }
 
-        // Remove confirm/cancel buttons and restore edit button
+        // Eliminar botones de confirmar/cancelar y restaurar botón de edición
         const confirmButton = document.querySelector('.confirm-edit-button');
         const cancelButton = document.querySelector('.cancel-edit-button');
         
@@ -212,7 +212,7 @@ class PetEdit {
             editedData['nombre'] = mainTitle.textContent.trim();
         }
 
-        // Add photo data if edited
+        // Agregar datos de la foto si se editó
         if (this.photoEditMode) {
             const petPhoto = document.querySelector('.pet-photo img');
             if (petPhoto) {
@@ -220,24 +220,24 @@ class PetEdit {
             }
         }
 
-        // Validate data before sending
+        // Validar datos antes de enviar
         const validationErrors = this.validateEditedData(editedData);
         if (validationErrors.length > 0) {
             this.showValidationErrors(validationErrors);
             return;
         }
 
-        // Call the empty function in petManager to handle the data
+        // Llamar a la función vacía en petManager para manejar los datos
         petManager.handlePetEdit(editedData);
 
-        // Disable edit mode
+        // Deshabilitar el modo de edición
         this.disableEditMode(false);
     }
 
     validateEditedData(data) {
         const errors = [];
 
-        // Add validation rules
+        // Agregar reglas de validación
         if (!data.nombre || data.nombre.length < 2) {
             errors.push('El nombre debe tener al menos 2 caracteres');
         }
@@ -254,7 +254,7 @@ class PetEdit {
     }
 
     showValidationErrors(errors) {
-        // Create a modal or alert to show validation errors
+        // Crear un modal o alerta para mostrar los errores de validación
         const errorModal = document.createElement('div');
         errorModal.classList.add('validation-error-modal');
         errorModal.innerHTML = `
@@ -276,7 +276,7 @@ class PetEdit {
     }
 }
 
-// Initialize the edit functionality when the page loads
+// Inicializar la funcionalidad de edición cuando se carga la página
 document.addEventListener('DOMContentLoaded', () => {
     const petEdit = new PetEdit();
     petEdit.initEditButton();

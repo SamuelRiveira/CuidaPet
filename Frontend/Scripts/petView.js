@@ -76,7 +76,7 @@ function renderPetCards() {
     addPetCardEventListeners();
 }
 
-// NUEVA FUNCIÓN: Carga los detalles de una mascota específica
+// Carga los detalles de una mascota específica
 function loadPetDetails(petId) {
     // Busca la mascota por su ID usando la clase PetManager
     const pets = petManager.getPetsData();

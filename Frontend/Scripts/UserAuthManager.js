@@ -7,8 +7,33 @@ class UserAuthManager {
      * Verifica el estado de sesión y rol del usuario actual
      * @returns {Object} Estado de sesión y datos del usuario según su rol
      */
+    /**
+     * Configura el botón de pedir cita para que siempre redirija al login
+     */
+    static configureLoginButton() {
+        const pedirCitaBtn = document.getElementById('pedir-cita-btn');
+        if (pedirCitaBtn) {
+            // Clonar el botón para eliminar event listeners previos
+            const oldBtn = pedirCitaBtn.cloneNode(true);
+            pedirCitaBtn.parentNode.replaceChild(oldBtn, pedirCitaBtn);
+            const newPedirCitaBtn = oldBtn;
+            
+            // Configurar siempre como botón de iniciar sesión
+            newPedirCitaBtn.textContent = 'Iniciar Sesión';
+            newPedirCitaBtn.removeAttribute('data-page');
+            newPedirCitaBtn.onclick = (e) => {
+                e.preventDefault();
+                window.location.href = 'login.html';
+            };
+        }
+    }
+    
+    /**
+     * Verifica el estado de sesión y rol del usuario actual
+     * @returns {Object} Estado de sesión y datos del usuario según su rol
+     */
     static getUserStatus() {
-        // En producción, esta función se conectaría con una API
+        // TODO: Implementar llamada a API
         // Por ahora, obtenemos datos del localStorage para simulación
         const storedUser = localStorage.getItem('cuidapet_user');
         
@@ -38,12 +63,12 @@ class UserAuthManager {
                     employeeId: user.employeeId || 'EMP' + Math.floor(1000 + Math.random() * 9000)
                 }
             },
-            programador: {
+            admin: {
                 permissions: ['view_profile', 'system_admin', 'code_access', 'debug_tools', 'manage_users'],
-                developerData: {
+                adminData: {
                     accessLevel: user.accessLevel || 'Full',
-                    gitUsername: user.gitUsername || 'dev_' + user.username,
-                    developerKey: user.developerKey || 'DEV' + Math.floor(100000 + Math.random() * 900000)
+                    gitUsername: user.gitUsername || 'admin_' + user.username,
+                    adminKey: user.adminKey || 'ADM' + Math.floor(100000 + Math.random() * 900000)
                 }
             }
         };
@@ -72,15 +97,15 @@ class UserAuthManager {
      * Simula inicio de sesión (para desarrollo y pruebas)
      * @param {string} username - Nombre de usuario
      * @param {string} password - Contraseña del usuario
-     * @param {string} role - Rol del usuario (cliente, empleado, programador)
+     * @param {string} role - Rol del usuario (cliente, empleado, admin)
      * @returns {boolean} - Éxito de la operación
      */
     static login(username, password, role = 'cliente') {
-        // En producción, esta función validaría las credenciales con el backend
+        // TODO: Implementar llamada a API
         // Por ahora, simplemente almacenamos los datos en localStorage
         
         // Validar que los roles sean correctos
-        if (!['cliente', 'empleado', 'programador'].includes(role)) {
+        if (!['cliente', 'empleado', 'admin'].includes(role)) {
             console.error('Rol inválido');
             return false;
         }
@@ -107,10 +132,10 @@ class UserAuthManager {
             user.department = 'General';
             user.position = 'Asistente';
             user.employeeId = 'EMP' + Math.floor(1000 + Math.random() * 9000);
-        } else if (role === 'programador') {
+        } else if (role === 'admin') {
             user.accessLevel = 'Full';
-            user.gitUsername = 'dev_' + username;
-            user.developerKey = 'DEV' + Math.floor(100000 + Math.random() * 900000);
+            user.gitUsername = 'admin_' + username;
+            user.adminKey = 'ADM' + Math.floor(100000 + Math.random() * 900000);
         }
         
         // Guardar en localStorage

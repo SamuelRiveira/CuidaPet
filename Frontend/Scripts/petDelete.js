@@ -160,7 +160,7 @@ function confirmDelete() {
 // Función para cancelar el modo de borrado
 function cancelDelete() {
     resetDeleteMode();
-    // Prevent card selection until delete mode is activated again
+    // Evitar la selección de tarjeta hasta que se active nuevamente el modo de eliminación
     deleteModeActive = false;
 }
 

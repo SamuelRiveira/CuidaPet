@@ -7,7 +7,7 @@ class ProfileManager {
      * @returns {Object} Datos del perfil
      */
     static getUserProfile() {
-        // TODO: En el futuro, esta función realizará una llamada a una API
+        // TODO: Implementar llamada a API
         // Por ahora, devuelve datos estáticos
         return {
             photo: "/Frontend/imagenes/img_perfil.png",
@@ -30,7 +30,7 @@ class ProfileManager {
      * @returns {boolean} - Éxito de la operación
      */
     static updateUserProfile(profileData) {
-        // TODO: En el futuro, esta función realizará una llamada a una API para actualizar el perfil
+        // TODO: Implementar llamada a API
         // Simulamos una operación exitosa
         return true;
     }

@@ -1,5 +1,3 @@
-
-
 /**
  * Clase para manejar la UI de citas
  */
@@ -186,7 +184,7 @@ class AppointmentUI {
     }
 
     /**
-     * Popula los select de mascotas y servicios con datos del formulario
+     * Rellena los select de mascotas y servicios con datos del formulario
      */
     async populateFormData() {
         try {

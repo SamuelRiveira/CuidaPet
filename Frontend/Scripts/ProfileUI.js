@@ -10,6 +10,9 @@ class ProfileUI {
         this.profileData = null;
         this.isEditing = false;
         this.originalHTML = '';
+        this.originalPhoto = '';
+        this.newPhotoFile = null;
+        this.newPhotoUrl = null;
         this.init();
     }
 
@@ -196,6 +199,32 @@ class ProfileUI {
             input.disabled = false;
         });
         
+        // Agregar opción para cambiar la foto de perfil
+        const photoContainer = this.profileContainer.querySelector('.profile-photo');
+        if (photoContainer) {
+            // Guardar la imagen original
+            this.originalPhoto = photoContainer.querySelector('img').src;
+            
+            // Agregar botón para cambiar la foto
+            photoContainer.innerHTML = `
+                <img src="${this.profileData.photo}" alt="Foto de perfil">
+                <div class="change-photo-overlay">
+                    <label for="profile-photo-input" class="change-photo-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        <span>Cambiar foto</span>
+                    </label>
+                    <input type="file" id="profile-photo-input" accept="image/*" style="display: none;">
+                </div>
+            `;
+            
+            // Agregar evento para cambiar la foto cuando se selecciona un archivo
+            const photoInput = photoContainer.querySelector('#profile-photo-input');
+            photoInput.addEventListener('change', (e) => this.handlePhotoChange(e));
+        }
+        
         // Cambiar el texto del botón de editar y agregar botón de cancelar
         const actionButtonsContainer = this.profileContainer.querySelector('.action-buttons2');
         if (actionButtonsContainer) {
@@ -255,61 +284,114 @@ class ProfileUI {
     }
 
     /**
-     * Cancela la edición y restaura el HTML original
+     * Cancela la edición del perfil
      */
     cancelEdit() {
+        // Restaurar el HTML original
+        if (this.profileContainer && this.originalHTML) {
+            this.profileContainer.innerHTML = this.originalHTML;
+        }
+        
+        // Limpiar variables temporales
+        this.newPhotoFile = null;
+        this.newPhotoUrl = null;
+        
+        // Cambiar el estado de edición
         this.isEditing = false;
         
-        // Restaurar HTML original
-        this.profileContainer.innerHTML = this.originalHTML;
-        
-        // Cerrar el modal si está abierto
-        this.closeModal('profile-update-modal');
+        // Ocultar modal
+        const modal = document.getElementById('profile-update-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
         
         // Reconfigurar eventos después de restaurar el HTML
         this.setupEventListeners();
     }
 
     /**
-     * Actualiza el perfil con los datos editados
+     * Maneja el cambio de foto de perfil
+     * @param {Event} event - Evento de cambio de archivo
+     */
+    handlePhotoChange(event) {
+        const file = event.target.files[0];
+        if (file) {
+            // Validar que sea una imagen
+            if (!file.type.startsWith('image/')) {
+                this.showErrorMessage('Por favor, selecciona un archivo de imagen válido');
+                return;
+            }
+            
+            // Crear una URL para la imagen seleccionada
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                // Actualizar la vista previa de la imagen
+                const photoImg = this.profileContainer.querySelector('.profile-photo img');
+                if (photoImg) {
+                    photoImg.src = e.target.result;
+                    // Guardar la nueva imagen para usarla en la actualización
+                    this.newPhotoFile = file;
+                    this.newPhotoUrl = e.target.result;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    /**
+     * Actualiza el perfil del usuario con los datos del formulario
      */
     updateProfile() {
         // Obtener los valores actualizados
-        const name = this.profileContainer.querySelector('.content-card input[type="text"]').value;
-        const phone = this.profileContainer.querySelector('.content-card input[type="tel"]').value;
-        const address = this.profileContainer.querySelectorAll('.content-card input')[2].value;
+        const nameInput = this.profileContainer.querySelector('.content-card input[value="' + this.profileData.personalInfo.name + '"]');
+        const surnamesInput = this.profileContainer.querySelector('.content-card input[value="' + this.profileData.personalInfo.surnames + '"]');
+        const addressInput = this.profileContainer.querySelector('.content-card input[value="' + this.profileData.personalInfo.address + '"]');
         
-        // Actualizar los datos del perfil
         const updatedProfileData = {
-            ...this.profileData,
-            name: name,
             personalInfo: {
-                name: name,
-                phone: phone,
-                address: address
-            }
+                name: nameInput ? nameInput.value : this.profileData.personalInfo.name,
+                surnames: surnamesInput ? surnamesInput.value : this.profileData.personalInfo.surnames,
+                address: addressInput ? addressInput.value : this.profileData.personalInfo.address
+            },
+            // Incluir la nueva foto si se ha cambiado
+            photo: this.newPhotoUrl || this.profileData.photo,
+            photoFile: this.newPhotoFile
         };
         
-        // Llamar a la función del ProfileManager (que sigue vacía por ahora)
+        // Actualizar los datos en el servidor (simulado)
         const success = ProfileManager.updateUserProfile(updatedProfileData);
         
         if (success) {
             // Actualizar los datos locales
-            this.profileData = updatedProfileData;
+            this.profileData.personalInfo = updatedProfileData.personalInfo;
+            this.profileData.name = `${updatedProfileData.personalInfo.name} ${updatedProfileData.personalInfo.surnames}`.trim();
             
-            // Cerrar el modal de confirmación
-            this.closeModal('profile-update-modal');
+            // Actualizar la foto si se ha cambiado
+            if (this.newPhotoUrl) {
+                this.profileData.photo = this.newPhotoUrl;
+            }
             
-            // Mostrar modal de éxito
-            this.showSuccessModal();
+            // Limpiar variables temporales
+            this.newPhotoFile = null;
+            this.newPhotoUrl = null;
             
-            // Resetear el estado de edición
+            // Salir del modo edición
             this.isEditing = false;
             
-            // Recargar la interfaz con los nuevos datos
+            // Recargar la interfaz
             this.loadProfileData();
             
-            // Restaurar el botón a su estado original se hace automáticamente al recargar el perfil
+            // Ocultar modal
+            const modal = document.getElementById('profile-update-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            
+            // Mostrar mensaje de éxito
+            alert('Perfil actualizado correctamente');
+        } else {
+            // Mostrar mensaje de error
+            alert('Error al actualizar el perfil');
         }
     }
 

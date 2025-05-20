@@ -69,9 +69,6 @@ export class API{
                 role: userData.rol.nombre_rol,
             };
             
-            // Guardar en localStorage para mantener la sesión
-            localStorage.setItem('cuidapet_user', JSON.stringify(userObject));
-            
             return { success: true, data: { auth: authData, user: userData, userObject } };
             
         } catch (error) {
@@ -87,7 +84,7 @@ export class API{
     static async cerrarSesion() {
         try {
             // Primero intentamos limpiar el localStorage
-            localStorage.removeItem('cuidapet_user');
+            localStorage.removeItem('sb-kmypwriazdbxpwdxfhaf-auth-token');
             
             // Luego intentamos cerrar sesión en Supabase
             try {
@@ -102,7 +99,7 @@ export class API{
             }
             
             // Forzar recarga para limpiar cualquier estado en memoria
-            window.location.href = '/Frontend/HTML/Login.html';
+            window.location.href = '/Frontend/';
             
             // Retornamos éxito ya que hemos limpiado todo lo local
             return { success: true };
@@ -110,7 +107,48 @@ export class API{
         } catch (error) {
             console.error('Error inesperado en cerrarSesion:', error);
             // Aún así redirigimos al login
-            window.location.href = '/Frontend/HTML/Login.html';
+            window.location.href = '/Frontend/';
+            return { success: false, error };
+        }
+    }
+    
+    /**
+     * Obtiene información del usuario desde la base de datos usando el ID almacenado en el token
+     * @param {string} userId - ID del usuario obtenido del token de autenticación
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
+     */
+    static async obtenerUsuarioPorToken(userId) {
+        try {
+            // Si no hay ID de usuario, devolver error
+            if (!userId) {
+                throw new Error('No se proporcionó ID de usuario');
+            }
+            
+            // Obtener datos del usuario desde la tabla usuario junto con su rol
+            const { data: userData, error: userError } = await supabase
+                .from('usuario')
+                .select('*, rol:id_rol(*)')
+                .eq('id_usuario', userId)
+                .single();
+                
+            if (userError) throw userError;
+            
+            // Si no se encuentra el usuario, lanzar error
+            if (!userData) {
+                throw new Error('Usuario no encontrado en la base de datos');
+            }
+            
+            // Preparar objeto de usuario con rol
+            const userObject = {
+                id: userData.id_usuario,
+                role: userData.rol.nombre_rol,
+                // Otros datos que puedan ser necesarios
+            };
+            
+            return { success: true, data: { user: userData, userObject } };
+            
+        } catch (error) {
+            console.error('Error al obtener información del usuario:', error);
             return { success: false, error };
         }
     }

@@ -32,67 +32,94 @@ class UserAuthManager {
     
     /**
      * Verifica el estado de sesión y rol del usuario actual
-     * @returns {Object} Estado de sesión y datos del usuario según su rol
+     * @returns {Promise<Object>} Estado de sesión y datos del usuario según su rol
      */
-    static getUserStatus() {
-        // TODO: Implementar llamada a API
-        // Por ahora, obtenemos datos del localStorage para simulación
-        const storedUser = localStorage.getItem('cuidapet_user');
+    static async getUserStatus() {
+        // Obtenemos datos del token almacenado en localStorage
+        const storedToken = localStorage.getItem('sb-kmypwriazdbxpwdxfhaf-auth-token');
         
-        // Si no hay usuario almacenado, devolver estado no autenticado
-        if (!storedUser) {
+        // Si no hay token almacenado, devolver estado no autenticado
+        if (!storedToken) {
             return { isLoggedIn: false };
         }
         
-        // Parsear datos del usuario almacenado
-        const user = JSON.parse(storedUser);
-        
-        // Definir datos específicos y permisos para cada rol
-        const roleData = {
-            cliente: {
-                permissions: ['view_profile', 'manage_pets', 'schedule_appointments', 'view_history'],
-                clientData: {
-                    petLimit: 10,
-                    loyaltyPoints: user.loyaltyPoints || 0,
-                    memberSince: user.memberSince || new Date().toISOString()
-                }
-            },
-            empleado: {
-                permissions: ['view_profile', 'manage_clients', 'manage_appointments', 'view_internal_data'],
-                employeeData: {
-                    department: user.department || 'Atención al cliente',
-                    position: user.position || 'Asistente',
-                    employeeId: user.employeeId || 'EMP' + Math.floor(1000 + Math.random() * 9000)
-                }
-            },
-            admin: {
-                permissions: ['view_profile', 'system_admin', 'code_access', 'debug_tools', 'manage_users'],
-                adminData: {
-                    accessLevel: user.accessLevel || 'Full',
-                    gitUsername: user.gitUsername || 'admin_' + user.username,
-                    adminKey: user.adminKey || 'ADM' + Math.floor(100000 + Math.random() * 900000)
-                }
+        try {
+            // Parsear datos del token para obtener el ID del usuario
+            const parsedToken = JSON.parse(storedToken);
+            
+            // Verificar si existe el ID de usuario en el token
+            if (!parsedToken.user?.id) {
+                console.error('Token inválido: no contiene ID de usuario');
+                return { isLoggedIn: false };
             }
-        };
-        
-        // Asegurar que el rol del usuario sea válido
-        const userRole = roleData[user.role] ? user.role : 'cliente';
-        
-        // Construir y devolver el objeto de estado del usuario
-        return {
-            isLoggedIn: true,
-            userRole: userRole,
-            userData: {
-                id: user.id || '1',
-                name: user.name || 'Usuario',
-                email: user.email || 'usuario@ejemplo.com',
-                photo: user.photo || '/Frontend/imagenes/img_perfil.png',
-                // Añadir datos específicos del rol
-                ...(roleData[userRole][userRole + 'Data'] || {})
-            },
-            permissions: roleData[userRole].permissions,
-            lastLogin: new Date(user.lastLogin || Date.now())
-        };
+            
+            // Obtener información del usuario desde la base de datos usando el ID del token
+            const userId = parsedToken.user.id;
+            const userResult = await API.obtenerUsuarioPorToken(userId);
+            
+            // Si hay error o no se encuentra el usuario, devolver estado no autenticado
+            if (!userResult.success) {
+                console.error('Error al obtener información del usuario:', userResult.error);
+                return { isLoggedIn: false };
+            }
+            
+            // Extraer datos del usuario y su rol desde la respuesta
+            const { user: userData, userObject } = userResult.data;
+            
+            // Definir datos específicos y permisos para cada rol
+            const roleData = {
+                cliente: {
+                    permissions: ['view_profile', 'manage_pets', 'schedule_appointments', 'view_history'],
+                    clientData: {
+                        petLimit: 10,
+                        loyaltyPoints: userData.puntos_fidelidad || 0,
+                        memberSince: userData.fecha_registro || new Date().toISOString()
+                    }
+                },
+                empleado: {
+                    permissions: ['view_profile', 'manage_clients', 'manage_appointments', 'view_internal_data'],
+                    employeeData: {
+                        department: userData.departamento || 'Atención al cliente',
+                        position: userData.cargo || 'Asistente',
+                        employeeId: userData.id_empleado || 'EMP' + Math.floor(1000 + Math.random() * 9000)
+                    }
+                },
+                admin: {
+                    permissions: ['view_profile', 'system_admin', 'code_access', 'debug_tools', 'manage_users'],
+                    adminData: {
+                        accessLevel: userData.nivel_acceso || 'Full',
+                        gitUsername: userData.git_username || 'admin_' + parsedToken.user.email?.split('@')[0],
+                        adminKey: userData.clave_admin || 'ADM' + Math.floor(100000 + Math.random() * 900000)
+                    }
+                }
+            };
+            
+            // Obtener el rol del usuario desde la base de datos
+            const userRole = userObject.role;
+            
+            // Verificar que sea un rol válido, de lo contrario usar 'cliente' como predeterminado
+            const validRole = roleData[userRole] ? userRole : 'cliente';
+            
+            // Construir y devolver el objeto de estado del usuario con el rol de la base de datos
+            return {
+                isLoggedIn: true,
+                userRole: validRole,
+                userData: {
+                    id: userData.id_usuario,
+                    name: userData.nombre || parsedToken.user.email?.split('@')[0] || 'Usuario',
+                    email: parsedToken.user.email || 'usuario@ejemplo.com',
+                    photo: userData.foto_perfil || '/Frontend/imagenes/img_perfil.png',
+                    // Añadir datos específicos del rol
+                    ...(roleData[validRole][validRole + 'Data'] || {})
+                },
+                permissions: roleData[validRole].permissions,
+                lastLogin: new Date(userData.ultimo_login || Date.now())
+            };
+            
+        } catch (error) {
+            console.error('Error al procesar el estado del usuario:', error);
+            return { isLoggedIn: false };
+        }
     }
     
     /**
@@ -142,10 +169,10 @@ class UserAuthManager {
     /**
      * Verifica si el usuario tiene un permiso específico
      * @param {string} permission - Permiso a verificar
-     * @returns {boolean} - True si tiene el permiso, false si no
+     * @returns {Promise<boolean>} - Promise que resuelve a true si tiene el permiso, false si no
      */
-    static hasPermission(permission) {
-        const userStatus = this.getUserStatus();
+    static async hasPermission(permission) {
+        const userStatus = await this.getUserStatus();
         
         // Si no hay sesión iniciada, no tiene permisos
         if (!userStatus.isLoggedIn) {
@@ -163,7 +190,7 @@ class UserAuthManager {
      */
     static updateUserData(userData) {
         // Obtener datos actuales
-        const storedUser = localStorage.getItem('cuidapet_user');
+        const storedUser = localStorage.getItem('sb-kmypwriazdbxpwdxfhaf-auth-token');
         
         if (!storedUser) {
             return false;
@@ -174,7 +201,7 @@ class UserAuthManager {
         const updatedUser = {...currentUser, ...userData};
         
         // Guardar datos actualizados
-        localStorage.setItem('cuidapet_user', JSON.stringify(updatedUser));
+        localStorage.setItem('sb-kmypwriazdbxpwdxfhaf-auth-token', JSON.stringify(updatedUser));
         
         return true;
     }

@@ -12,9 +12,9 @@ class RoleUIManager {
     /**
      * Inicializa el gestor de UI basado en roles
      */
-    init() {
+    async init() {
         // Obtener estado actual del usuario
-        this.refreshUserStatus();
+        await this.refreshUserStatus();
         
         // Configurar la UI según el estado y rol
         this.setupUI();
@@ -25,9 +25,10 @@ class RoleUIManager {
     
     /**
      * Actualiza el estado del usuario desde el gestor de autenticación
+     * @returns {Promise<void>}
      */
-    refreshUserStatus() {
-        this.userStatus = UserAuthManager.getUserStatus();
+    async refreshUserStatus() {
+        this.userStatus = await UserAuthManager.getUserStatus();
     }
     
     /**

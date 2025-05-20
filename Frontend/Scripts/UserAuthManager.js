@@ -5,30 +5,6 @@
 import { API } from "./APIS.js";
 
 class UserAuthManager {
-    /**
-     * Verifica el estado de sesión y rol del usuario actual
-     * @returns {Object} Estado de sesión y datos del usuario según su rol
-     */
-    /**
-     * Configura el botón de pedir cita para que siempre redirija al login
-     */
-    static configureLoginButton() {
-        const pedirCitaBtn = document.getElementById('pedir-cita-btn');
-        if (pedirCitaBtn) {
-            // Clonar el botón para eliminar event listeners previos
-            const oldBtn = pedirCitaBtn.cloneNode(true);
-            pedirCitaBtn.parentNode.replaceChild(oldBtn, pedirCitaBtn);
-            const newPedirCitaBtn = oldBtn;
-            
-            // Configurar siempre como botón de iniciar sesión
-            newPedirCitaBtn.textContent = 'Iniciar Sesión';
-            newPedirCitaBtn.removeAttribute('data-page');
-            newPedirCitaBtn.onclick = (e) => {
-                e.preventDefault();
-                window.location.href = 'login.html';
-            };
-        }
-    }
     
     /**
      * Verifica el estado de sesión y rol del usuario actual

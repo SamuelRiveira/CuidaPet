@@ -1,6 +1,9 @@
 /**
  * Clase encargada de la interfaz de usuario de la página de perfil
  */
+
+import { ProfileManager } from "./ProfileManager.js";
+
 class ProfileUI {
     constructor() {
         this.profileContainer = document.querySelector('.profile-container');
@@ -74,12 +77,13 @@ class ProfileUI {
     /**
      * Carga los datos del perfil y construye el HTML dinámicamente
      */
-    loadProfileData() {
-        // Obtener datos del perfil desde ProfileManager
-        this.profileData = ProfileManager.getUserProfile();
-        
-        // Limpiar el contenedor del perfil
-        if (this.profileContainer) {
+    async loadProfileData() {
+        try {
+            // Obtener datos del perfil desde ProfileManager
+            this.profileData = await ProfileManager.getUserProfile();
+            
+            // Limpiar el contenedor del perfil
+            if (this.profileContainer && this.profileData) {
             this.profileContainer.innerHTML = '';
             
             // Construir la estructura completa del perfil
@@ -97,66 +101,75 @@ class ProfileUI {
                     </div>
                     <div class="profile-name">
                         <h2>${this.profileData.name}</h2>
-                    </div>
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <div class="stat-value">${this.profileData.stats.pets}</div>
-                            <div class="stat-label">Mascotas</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">${this.profileData.stats.appointments}</div>
-                            <div class="stat-label">Citas</div>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${this.profileData.stats.pets}</div>
+                                <div class="stat-label">Mascotas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${this.profileData.stats.appointments}</div>
+                                <div class="stat-label">Citas</div>
+                            </div>
+                        </div>
+                        <div class="action-buttons2">
+                            <a href="#" class="btn btn-primary btn-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                </svg>
+                                Editar perfil
+                            </a>
+                            <a href="#" class="btn btn-outline btn-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                                Contactar Soporte
+                            </a>
                         </div>
                     </div>
-                    <div class="action-buttons2">
-                        <a href="#" class="btn btn-primary btn-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                            </svg>
-                            Editar perfil
-                        </a>
-                        <a href="#" class="btn btn-outline btn-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                            </svg>
-                            Contactar Soporte
-                        </a>
-                    </div>
-                </div>
 
-                <!-- Contenido principal del perfil -->
-                <div class="profile-content">
-                    <!-- Información personal -->
-                    <div class="content-card">
-                        <div class="card-header">
-                            <h3>Información Personal</h3>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <div class="form-group">
-                                    <label>Nombre</label>
-                                    <input type="text" class="form-control" value="${this.profileData.personalInfo.name}" disabled>
+                    <!-- Contenido principal del perfil -->
+                    <div class="profile-content">
+                        <!-- Información personal -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <h3>Información Personal</h3>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label>Nombre</label>
+                                        <input type="text" class="form-control" value="${this.profileData.personalInfo.name}" disabled>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <div class="form-group">
-                                    <label>Apellidos</label>
-                                    <input type="text" class="form-control" value="${this.profileData.personalInfo.phone}" disabled>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label>Apellidos</label>
+                                        <input type="text" class="form-control" value="${this.profileData.personalInfo.surnames}" disabled>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Dirección</label>
-                            <input type="text" class="form-control" value="${this.profileData.personalInfo.address}" disabled>
+                            <div class="form-group">
+                                <label>Dirección</label>
+                                <input type="text" class="form-control" value="${this.profileData.personalInfo.address}" disabled>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-            this.originalHTML = this.profileContainer.innerHTML;
+                `;
+                this.originalHTML = this.profileContainer.innerHTML;
+            } else {
+                console.error('No se pudo cargar el perfil: Datos no disponibles');
+                this.profileContainer.innerHTML = '<p>No se pudieron cargar los datos del perfil. Por favor, intente recargar la página.</p>';
+            }
+        } catch (error) {
+            console.error('Error al cargar el perfil:', error);
+            if (this.profileContainer) {
+                this.profileContainer.innerHTML = '<p>Error al cargar el perfil. Por favor, intente nuevamente.</p>';
+            }
         }
     }
 
@@ -329,3 +342,5 @@ document.addEventListener('DOMContentLoaded', () => {
         const profileUI = new ProfileUI();
     }
 });
+
+export { ProfileUI };

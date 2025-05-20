@@ -1,27 +1,46 @@
+import { API } from './APIS.js';
+
 /**
  * Clase encargada de la gestión de datos del perfil de usuario
  */
 class ProfileManager {
     /**
      * Obtiene los datos del perfil de usuario
-     * @returns {Object} Datos del perfil
+     * @returns {Promise<Object>} Datos del perfil
      */
-    static getUserProfile() {
-        // TODO: Implementar llamada a API
-        // Por ahora, devuelve datos estáticos
-        return {
-            photo: "/Frontend/imagenes/img_perfil.png",
-            name: "Samuel Riveira Escudero",
-            stats: {
-                pets: 5,
-                appointments: 3
-            },
-            personalInfo: {
-                name: "Samuel Riveira Escudero",
-                phone: "+34 612 345 678",
-                address: "Calle Principal 123, 28001 Madrid"
+    static async getUserProfile() {
+        try {
+            const { success, data, error } = await API.obtenerPerfilUsuario();
+            
+            if (!success) {
+                console.error('Error al obtener el perfil:', error);
+                throw new Error('No se pudo cargar el perfil del usuario');
             }
-        };
+            
+            // Formatear los datos para que coincidan con el formato esperado
+            return {
+                photo: data.imagen || "/Frontend/imagenes/img_perfil.png",
+                name: `${data.nombre || ''} ${data.apellidos || ''}`.trim() || 'Usuario',
+                stats: {
+                    pets: 5, // TODO: Obtener número real de mascotas cuando esté disponible en la API
+                    appointments: 3 // TODO: Obtener número real de citas cuando esté disponible en la API
+                },
+                personalInfo: {
+                    name: data.nombre || '',
+                    surnames: data.apellidos || '',
+                    address: data.direccion || 'Dirección no especificada'
+                }
+            };
+        } catch (error) {
+            console.error('Error en getUserProfile:', error);
+            // Devolver datos por defecto en caso de error
+            return {
+                photo: "/Frontend/imagenes/img_perfil.png",
+                name: "Usuario",
+                stats: { pets: 0, appointments: 0 },
+                personalInfo: { name: "", surnames: "", address: "" }
+            };
+        }
     }
 
     /**
@@ -35,3 +54,5 @@ class ProfileManager {
         return true;
     }
 }
+
+export { ProfileManager };

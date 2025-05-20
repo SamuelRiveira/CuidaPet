@@ -86,17 +86,31 @@ export class API{
      */
     static async cerrarSesion() {
         try {
-            // Cerrar sesión en Supabase
-            const { error } = await supabase.auth.signOut();
-            
-            if (error) throw error;
-            
-            // Eliminar datos de sesión del localStorage
+            // Primero intentamos limpiar el localStorage
             localStorage.removeItem('cuidapet_user');
             
+            // Luego intentamos cerrar sesión en Supabase
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    console.warn('Advertencia al cerrar sesión en Supabase (puede ser normal si no hay sesión activa):', error.message);
+                    // Continuamos aunque falle, ya que podríamos no tener una sesión activa
+                }
+            } catch (supabaseError) {
+                console.warn('Error al comunicarse con Supabase (puede ser normal si no hay conexión):', supabaseError.message);
+                // Continuamos aunque falle la comunicación con Supabase
+            }
+            
+            // Forzar recarga para limpiar cualquier estado en memoria
+            window.location.href = '/Frontend/HTML/Login.html';
+            
+            // Retornamos éxito ya que hemos limpiado todo lo local
             return { success: true };
+            
         } catch (error) {
-            console.error('Error al cerrar sesión:', error);
+            console.error('Error inesperado en cerrarSesion:', error);
+            // Aún así redirigimos al login
+            window.location.href = '/Frontend/HTML/Login.html';
             return { success: false, error };
         }
     }

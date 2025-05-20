@@ -7,13 +7,11 @@ CREATE TABLE rol (
 -- Tabla de usuarios con UUID
 CREATE TABLE usuario (
     id_usuario UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    nombre VARCHAR(100) NOT NULL,
-    apellidos VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
+    nombre VARCHAR(100),
+    apellidos VARCHAR(100),
     direccion TEXT,
     imagen TEXT,
-    id_rol INTEGER NOT NULL REFERENCES rol(id_rol) ON DELETE RESTRICT,
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id_rol INTEGER NOT NULL REFERENCES rol(id_rol) ON DELETE RESTRICT
 );
 
 -- Tabla de alergias
@@ -33,8 +31,7 @@ CREATE TABLE mascota (
     notas_especiales TEXT,
     historial_medico TEXT,
     imagen TEXT,
-    id_usuario UUID NOT NULL REFERENCES usuario(id_usuario) ON DELETE CASCADE,
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id_usuario UUID NOT NULL REFERENCES usuario(id_usuario) ON DELETE CASCADE
     -- Nota: La restricción CHECK que verifica el rol del propietario se implementará mediante una función y un trigger.
 );
 
@@ -67,8 +64,7 @@ CREATE TABLE cita (
     id_estado INTEGER NOT NULL DEFAULT 1 REFERENCES estado_cita(id_estado) ON DELETE RESTRICT,
     id_servicio INTEGER REFERENCES servicio(id_servicio) ON DELETE SET NULL,
     id_mascota INTEGER NOT NULL REFERENCES mascota(id_mascota) ON DELETE CASCADE,
-    id_empleado UUID REFERENCES usuario(id_usuario) ON DELETE SET NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_empleado UUID REFERENCES usuario(id_usuario) ON DELETE SET NULL
     CHECK (hora_final > hora_inicio)
     -- Nota: La restricción CHECK que verifica el rol del empleado se implementará mediante una función y un trigger.
 );
@@ -106,7 +102,6 @@ INSERT INTO servicio (nombre_servicio) VALUES
 ('Análisis de sangre');
 
 -- Crear índices para mejorar el rendimiento
-CREATE INDEX idx_usuario_email ON usuario(email);
 CREATE INDEX idx_mascota_usuario ON mascota(id_usuario);
 CREATE INDEX idx_cita_fecha ON cita(fecha);
 CREATE INDEX idx_cita_mascota ON cita(id_mascota);
@@ -124,7 +119,6 @@ SELECT
     m.nombre AS mascota,
     m.especie,
     CONCAT(u_cliente.nombre, ' ', u_cliente.apellidos) AS propietario,
-    u_cliente.email AS email_propietario,
     CONCAT(u_empleado.nombre, ' ', u_empleado.apellidos) AS empleado_asignado
 FROM cita c
 LEFT JOIN estado_cita ec ON c.id_estado = ec.id_estado

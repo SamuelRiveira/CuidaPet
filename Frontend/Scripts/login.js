@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // Mostrar estado de carga
                 const botonLogin = document.getElementById('boton-login');
-                botonLogin.textContent = 'Iniciando sesión...';
                 botonLogin.disabled = true;
                 
                 // Llamar al método login de UserAuthManager
@@ -39,10 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     formularioLogin.reset();
                     
                     // Cerrar el modal y recargar la página
-                    setTimeout(() => {
-                        document.querySelector('.contenedor').style.display = 'none';
-                        window.location.reload();
-                    }, 1000);
+                    document.querySelector('.contenedor').style.display = 'none';
+                    window.location.reload();
                 } else {
                     mostrarMensaje('Email o contraseña incorrectos', true);
                 }
@@ -50,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 mostrarMensaje(`Error: ${error.message}`, true);
             } finally {
                 const botonLogin = document.getElementById('boton-login');
-                botonLogin.textContent = 'Iniciar sesión';
                 botonLogin.disabled = false;
             }
         });

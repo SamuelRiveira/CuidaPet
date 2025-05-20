@@ -153,6 +153,78 @@ export class API{
     }
     
     /**
+     * Actualiza el perfil del usuario actual (nombre, apellidos, dirección e imagen)
+     * @param {Object} datosUsuario - Datos actualizados del usuario
+     * @param {string} datosUsuario.nombre - Nombre del usuario
+     * @param {string} datosUsuario.apellidos - Apellidos del usuario
+     * @param {string} datosUsuario.direccion - Dirección del usuario
+     * @param {string} datosUsuario.imagen - URL de la imagen de perfil
+     * @param {File} [datosUsuario.imagenFile] - Archivo de imagen para subir (opcional)
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
+     */
+    static async actualizarPerfilUsuario(datosUsuario) {
+        try {
+            // Obtener la sesión actual
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError) throw sessionError;
+            if (!session) {
+                throw new Error('No hay una sesión activa');
+            }
+            
+            const userId = session.user.id;
+            
+            // Preparar datos para actualizar
+            const updateData = {
+                nombre: datosUsuario.nombre || '',
+                apellidos: datosUsuario.apellidos || '',
+                direccion: datosUsuario.direccion || ''
+            };
+            
+            // Si hay un archivo de imagen nuevo, subirlo a Storage
+            if (datosUsuario.imagenFile) {
+                // Generar un nombre único para el archivo
+                const fileName = userId;
+                
+                // Subir el archivo a Supabase Storage
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('imagenes')
+                    .upload(`perfiles/${fileName}`, datosUsuario.imagenFile, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
+                if (uploadError) throw uploadError;
+                
+                // Obtener la URL pública del archivo
+                const { data: urlData } = await supabase.storage
+                    .from('imagenes')
+                    .getPublicUrl(`perfiles/${fileName}`);
+                
+                // Agregar la URL de la imagen a los datos a actualizar
+                updateData.imagen = urlData.publicUrl;
+            } else if (datosUsuario.imagen) {
+                // Si no hay archivo pero hay URL de imagen, usar esa URL
+                updateData.imagen = datosUsuario.imagen;
+            }
+            
+            // Actualizar los datos en la base de datos
+            const { data: updateResult, error: updateError } = await supabase
+                .from('usuario')
+                .update(updateData)
+                .eq('id_usuario', userId);
+            
+            if (updateError) throw updateError;
+            
+            return { success: true, data: updateResult };
+            
+        } catch (error) {
+            console.error('Error al actualizar el perfil del usuario:', error);
+            return { success: false, error };
+        }
+    }
+    
+    /**
      * Obtiene información del usuario desde la base de datos usando el ID almacenado en el token
      * @param {string} userId - ID del usuario obtenido del token de autenticación
      * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación

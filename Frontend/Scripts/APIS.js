@@ -103,11 +103,51 @@ export class API{
             
             // Retornamos éxito ya que hemos limpiado todo lo local
             return { success: true };
-            
         } catch (error) {
             console.error('Error inesperado en cerrarSesion:', error);
             // Aún así redirigimos al login
             window.location.href = '/Frontend/';
+            return { success: false, error };
+        }
+    }
+    
+    /**
+     * Obtiene el perfil del usuario actual basado en la sesión activa
+     * @returns {Promise<{success: boolean, data?: {nombre: string, apellidos: string, direccion: string, imagen: string}, error?: any}>} - Perfil del usuario
+     */
+    static async obtenerPerfilUsuario() {
+        try {
+            // Obtener la sesión actual
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError) throw sessionError;
+            if (!session) {
+                throw new Error('No hay una sesión activa');
+            }
+            
+            const userId = session.user.id;
+            
+            // Obtener los datos del perfil del usuario
+            const { data: perfilData, error: perfilError } = await supabase
+                .from('usuario')
+                .select('nombre, apellidos, direccion, imagen')
+                .eq('id_usuario', userId)
+                .single();
+                
+            if (perfilError) throw perfilError;
+            
+            return { 
+                success: true, 
+                data: {
+                    nombre: perfilData.nombre || '',
+                    apellidos: perfilData.apellidos || '',
+                    direccion: perfilData.direccion || '',
+                    imagen: perfilData.imagen || ''
+                } 
+            };
+            
+        } catch (error) {
+            console.error('Error al obtener el perfil del usuario:', error);
             return { success: false, error };
         }
     }

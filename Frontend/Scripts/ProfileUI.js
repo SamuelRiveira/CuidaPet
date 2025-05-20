@@ -144,8 +144,8 @@ class ProfileUI {
                         <div class="row">
                             <div class="col">
                                 <div class="form-group">
-                                    <label>Teléfono</label>
-                                    <input type="tel" class="form-control" value="${this.profileData.personalInfo.phone}" disabled>
+                                    <label>Apellidos</label>
+                                    <input type="text" class="form-control" value="${this.profileData.personalInfo.phone}" disabled>
                                 </div>
                             </div>
                         </div>

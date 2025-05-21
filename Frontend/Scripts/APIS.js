@@ -283,6 +283,91 @@ export class API{
      * Obtiene todas las mascotas del usuario actualmente autenticado
      * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de mascotas del usuario
      */
+    /**
+     * Crea una nueva mascota para el usuario actual
+     * @param {Object} datosMascota - Datos de la mascota a crear
+     * @param {string} datosMascota.nombre - Nombre de la mascota
+     * @param {string} datosMascota.especie - Especie de la mascota
+     * @param {string} datosMascota.raza - Raza de la mascota
+     * @param {string} datosMascota.fecha_nacimiento - Fecha de nacimiento de la mascota (formato YYYY-MM-DD)
+     * @param {string} [datosMascota.genero] - Género de la mascota (opcional)
+     * @param {string} [datosMascota.color] - Color de la mascota (opcional)
+     * @param {string} [datosMascota.notas] - Notas adicionales (opcional)
+     * @param {File} [datosMascota.imagen] - Archivo de imagen de la mascota (opcional)
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
+     */
+    static async crearMascota(datosMascota) {
+        try {
+            // Obtener la sesión actual
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError) throw sessionError;
+            if (!session) {
+                throw new Error('No hay sesión activa');
+            }
+            
+            const userId = session.user.id;
+            
+            // Preparar los datos básicos de la mascota
+            const mascotaData = {
+                id_usuario: userId,
+                nombre: datosMascota.nombre,
+                especie: datosMascota.especie,
+                raza: datosMascota.raza,
+                edad: datosMascota.edad,
+                peso: datosMascota.peso || null,
+                notas_especiales: datosMascota.notas_especiales || null,
+                imagen: datosMascota.imagen || null
+            };
+            
+            // Si se proporciona una imagen, subirla a Supabase Storage
+            if (datosMascota.imagen) {
+                // Generar un nombre único para el archivo
+                const fileName = userId;
+                
+                // Subir el archivo a Supabase Storage
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('imagenes')
+                    .upload(`mascotas/${fileName}`, datosMascota.imagen, {
+                        cacheControl: '3600',
+                        upsert: true
+                    });
+                
+                if (uploadError) throw uploadError;
+                
+                // Obtener la URL pública de la imagen
+                const { data: urlData } = supabase.storage
+                    .from('imagenes')
+                    .getPublicUrl(`mascotas/${fileName}`);
+                
+                // Agregar la URL de la imagen a los datos de la mascota
+                mascotaData.imagen = urlData.publicUrl;
+            }
+            
+            // Insertar la mascota en la base de datos
+            const { data: mascotaCreada, error: insertError } = await supabase
+                .from('mascota')
+                .insert([mascotaData])
+                .select();
+                
+            if (insertError) throw insertError;
+            
+            return { 
+                success: true, 
+                data: mascotaCreada[0],
+                message: 'Mascota creada exitosamente' 
+            };
+            
+        } catch (error) {
+            console.error('Error al crear la mascota:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al crear la mascota',
+                details: error 
+            };
+        }
+    }
+    
     static async obtenerMascotasUsuario() {
         try {
             // Obtener la sesión actual

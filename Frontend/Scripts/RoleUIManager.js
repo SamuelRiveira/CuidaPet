@@ -1027,9 +1027,6 @@ class RoleUIManager {
             console.log(`Editar mascota: ${petName}`);
         });
         
-        // Insertar el botón de editar junto al título
-        petNameElement.insertAdjacentElement('afterend', editButton);
-        
         // Actualizar el tipo y raza
         const petTypeElement = detailPage.querySelector('.pet-type');
         petTypeElement.innerHTML = `

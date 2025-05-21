@@ -316,6 +316,7 @@ export class API{
                 raza: datosMascota.raza,
                 edad: datosMascota.edad,
                 peso: datosMascota.peso || null,
+                alergia: datosMascota.alergia || null,
                 notas_especiales: datosMascota.notas_especiales || null,
                 imagen: datosMascota.imagen || null
             };

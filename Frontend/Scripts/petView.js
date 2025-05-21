@@ -136,10 +136,19 @@ async function loadPetDetails(petId) {
     const allergiesContainer = document.querySelector('#pet-detail-page .allergies');
     allergiesContainer.innerHTML = '<h3>Alergias</h3>';
 
-    if (pet.allergies && pet.allergies.length > 0) {
-        pet.allergies.forEach(allergy => {
-            const allergyTag = document.createElement('span');
-            allergyTag.className = 'allergy-tag';
+    let alergias = [];
+    
+    // Handle different possible formats of allergies
+    if (Array.isArray(pet.allergies)) {
+        alergias = pet.allergies;
+    } else if (typeof pet.allergies === 'string') {
+        // If it's a string, split by commas and trim whitespace
+        alergias = pet.allergies.split(',').map(a => a.trim()).filter(a => a);
+    }
+    
+    if (alergias.length > 0) {
+        alergias.forEach(allergy => {
+            const allergyTag = document.createElement('p');
             allergyTag.textContent = allergy;
             allergiesContainer.appendChild(allergyTag);
         });

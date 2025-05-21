@@ -31,31 +31,23 @@ class PetManager {
                 return [];
             }
             
-            // Obtener las alergias para cada mascota
-            const mascotasConAlergias = await Promise.all(
-                mascotas.map(async (mascota) => {
-                    const { success, data: alergias } = await API.obtenerAlergiasMascota(mascota.id_mascota);
-                    
-                    // Mapear los datos de la API al formato esperado por la aplicación
-                    return {
-                        id: mascota.id_mascota?.toString() || '',
-                        name: mascota.nombre || 'Sin nombre',
-                        type: mascota.especie || 'Sin especificar',
-                        breed: mascota.raza || 'Sin raza específica',
-                        age: mascota.edad?.toString() || '0',
-                        ageUnit: 'años',
-                        appointment: mascota.proxima_cita || 'No programada',
-                        photoUrl: mascota.url_imagen || '/Frontend/imagenes/default-pet.png',
-                        weight: mascota.peso ? `${mascota.peso} kg` : 'No especificado',
-                        owner: nombrePropietario,
-                        medicalHistory: mascota.historial_medico || [],
-                        allergies: success ? alergias.map(a => a.nombre) : [],
-                        notes: mascota.notas_especiales || ''
-                    };
-                })
-            );
+            // Mapear los datos de la API al formato esperado por la aplicación
+            return mascotas.map(mascota => ({
+                id: mascota.id_mascota?.toString() || '',
+                name: mascota.nombre || 'Sin nombre',
+                type: mascota.especie || 'Sin especificar',
+                breed: mascota.raza || 'Sin raza específica',
+                age: mascota.edad?.toString() || '0',
+                ageUnit: 'años',
+                appointment: mascota.proxima_cita || 'No programada',
+                photoUrl: mascota.url_imagen || '/Frontend/imagenes/default-pet.png',
+                weight: mascota.peso ? `${mascota.peso} kg` : 'No especificado',
+                owner: nombrePropietario,
+                medicalHistory: mascota.historial_medico || [],
+                allergies: mascota.alergia || [],
+                notes: mascota.notas_especiales || ''
+            }));
             
-            return mascotasConAlergias;
         } catch (error) {
             console.error('Error en getPetsData:', error);
             return [];

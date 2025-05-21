@@ -165,11 +165,13 @@ async function loadPetDetails(petId) {
     if (alergias.length > 0) {
         alergias.forEach(allergy => {
             const allergyTag = document.createElement('p');
+            allergyTag.classList.add('allergy-item');
             allergyTag.textContent = allergy;
             allergiesContainer.appendChild(allergyTag);
         });
     } else {
         const noAllergies = document.createElement('p');
+        noAllergies.classList.add('allergy-item');
         noAllergies.textContent = 'No se han registrado alergias';
         allergiesContainer.appendChild(noAllergies);
     }

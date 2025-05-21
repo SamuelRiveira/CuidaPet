@@ -104,15 +104,22 @@ class PetManager {
             
             // Mapear alergias (si existen)
             if (editedData.alergias) {
-                // Convertir el string de alergias en un array si es necesario
-                const alergiasArray = typeof editedData.alergias === 'string' 
-                    ? editedData.alergias.split(',').map(a => a.trim()).filter(a => a)
-                    : Array.isArray(editedData.alergias) 
-                        ? editedData.alergias 
-                        : [editedData.alergias];
-                
-                if (alergiasArray.length > 0) {
-                    datosActualizados.alergia = alergiasArray;
+                // Si es un array, convertirlo a string separado por comas
+                if (Array.isArray(editedData.alergias)) {
+                    datosActualizados.alergia = editedData.alergias.join(', ');
+                } 
+                // Si es un string, limpiarlo y asegurar el formato
+                else if (typeof editedData.alergias === 'string') {
+                    // Eliminar corchetes y comillas si existen
+                    let alergiasStr = editedData.alergias
+                        .replace(/[\[\]"]/g, '')
+                        .trim();
+                    // Asegurar que no haya comas dobles
+                    alergiasStr = alergiasStr.split(',')
+                        .map(a => a.trim())
+                        .filter(a => a)
+                        .join(', ');
+                    datosActualizados.alergia = alergiasStr;
                 }
             }
 

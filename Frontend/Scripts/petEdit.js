@@ -297,11 +297,10 @@ class PetEdit {
             { id: '#pet-detail-name', key: 'nombre' },
             { id: '.info-item:nth-child(1) .info-value', key: 'edad' },
             { id: '.info-item:nth-child(2) .info-value', key: 'peso' },
-            { id: '.allergies', key: 'alergias' },
             { id: '.medical-history ul', key: 'historial_medico', isHtml: true },
             { id: '.special-notes p', key: 'notas_especiales' }
         ];
-
+    
         // Recorrer y capturar todos los campos
         fields.forEach(field => {
             const element = document.querySelector(field.id);
@@ -312,16 +311,43 @@ class PetEdit {
             }
         });
         
-        // Capturar alergias si están en formato de párrafos dentro del contenedor
-        const allergiesContainer = document.querySelector('.allergies');
-        if (allergiesContainer) {
-            const allergyElements = allergiesContainer.querySelectorAll('p:not(#no-allergies)');
-            if (allergyElements.length > 0) {
-                const allergies = Array.from(allergyElements).map(el => el.textContent.trim());
-                editedData.alergias = allergies.join(', ');
+        // Capturar alergias desde los elementos .allergy-item
+        const allergyItems = document.querySelectorAll('.allergy-item');
+        if (allergyItems.length > 0) {
+            const allergies = [];
+            allergyItems.forEach(item => {
+                const allergyText = item.textContent.trim();
+                // Solo agregar si no es el mensaje por defecto de "no alergias"
+                if (allergyText && allergyText !== 'No se han registrado alergias') {
+                    allergies.push(allergyText);
+                }
+            });
+            
+            // Si hay alergias válidas, las guardamos; si no, guardamos un string vacío
+            editedData.alergias = allergies.length > 0 ? allergies.join('\n') : '';
+        } else {
+            // Si no hay elementos .allergy-item, intentar capturar desde el contenedor de alergias
+            const allergiesContainer = document.querySelector('.allergies');
+            if (allergiesContainer) {
+                const textarea = allergiesContainer.querySelector('textarea');
+                if (textarea) {
+                    // Si estamos en modo edición con textarea
+                    editedData.alergias = textarea.value.trim();
+                } else {
+                    // Si no hay textarea, capturar desde los párrafos
+                    const allergyParagraphs = allergiesContainer.querySelectorAll('p:not(h3)');
+                    const allergies = [];
+                    allergyParagraphs.forEach(p => {
+                        const allergyText = p.textContent.trim();
+                        if (allergyText && allergyText !== 'No se han registrado alergias') {
+                            allergies.push(allergyText);
+                        }
+                    });
+                    editedData.alergias = allergies.join('\n');
+                }
             }
         }
-
+    
         // Agregar datos de la foto si se editó
         if (this.photoEditMode) {
             const petPhoto = document.querySelector('.pet-photo img');
@@ -329,14 +355,14 @@ class PetEdit {
                 editedData['foto'] = petPhoto.src;
             }
         }
-
+    
         // Validar datos antes de enviar
         const validationErrors = this.validateEditedData(editedData);
         if (validationErrors.length > 0) {
             this.showValidationErrors(validationErrors);
             return;
         }
-
+    
         try {
             console.log('Sending data to handlePetEdit:', editedData);
             const success = await petManager.handlePetEdit(editedData);

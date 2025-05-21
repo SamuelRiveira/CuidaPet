@@ -438,7 +438,7 @@ export class API{
 
             // Preparar los datos a actualizar
             const datosActualizados = {};
-            const camposPermitidos = ['nombre', 'especie', 'raza', 'fecha_nacimiento', 'genero', 'color', 'notas'];
+            const camposPermitidos = ['nombre', 'especie', 'raza', 'edad', 'peso', 'alergia', 'notas_especiales', 'imagen', 'historial_medico'];
             
             // Agregar solo los campos que se proporcionaron
             Object.keys(datosMascota).forEach(key => {
@@ -449,7 +449,7 @@ export class API{
 
             // Si hay una nueva imagen, subirla a Supabase Storage
             if (datosMascota.imagen) {
-                const fileName = `mascota_${idMascota}_${Date.now()}.jpg`;
+                const fileName = idMascota;
                 
                 // Subir la nueva imagen
                 const { error: uploadError } = await supabase.storage

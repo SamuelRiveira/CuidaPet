@@ -1,4 +1,4 @@
-import { PetManager } from "./PetManager.js";
+import { PetManager } from "./petManager.js";
 import { showPage } from "./navigation.js";
 import { PetEdit } from "./petEdit.js";
 

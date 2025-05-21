@@ -239,6 +239,50 @@ export class API{
      * Obtiene todas las mascotas del usuario actualmente autenticado
      * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de mascotas del usuario
      */
+    /**
+     * Obtiene las alergias de una mascota específica
+     * @param {number} idMascota - ID de la mascota
+     * @returns {Promise<{success: boolean, data?: Array<{id_alergia: number, nombre: string, fecha_diagnostico: string}>, error?: any}>} - Lista de alergias de la mascota
+     */
+    static async obtenerAlergiasMascota(idMascota) {
+        try {
+            if (!idMascota) {
+                throw new Error('Se requiere el ID de la mascota');
+            }
+            
+            // Obtener las alergias de la mascota con información de la alergia
+            const { data, error } = await supabase
+                .from('mascota_alergia')
+                .select(`
+                    alergia:alergia_id (
+                        id_alergia,
+                        nombre
+                    ),
+                    fecha_diagnostico
+                `)
+                .eq('id_mascota', idMascota);
+                
+            if (error) throw error;
+            
+            // Mapear los resultados para aplanar la estructura
+            const alergias = data.map(item => ({
+                id_alergia: item.alergia.id_alergia,
+                nombre: item.alergia.nombre,
+                fecha_diagnostico: item.fecha_diagnostico || 'Fecha no especificada'
+            }));
+            
+            return { success: true, data: alergias };
+            
+        } catch (error) {
+            console.error('Error al obtener alergias de la mascota:', error);
+            return { success: false, error };
+        }
+    }
+    
+    /**
+     * Obtiene todas las mascotas del usuario actualmente autenticado
+     * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de mascotas del usuario
+     */
     static async obtenerMascotasUsuario() {
         try {
             // Obtener la sesión actual

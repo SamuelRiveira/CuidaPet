@@ -1,5 +1,5 @@
 // Funcionalidad de edición de mascotas
-import { PetManager } from './petManager.js';
+import { PetManager } from './PetManager.js';
 
 // Crear una instancia de PetManager
 const petManager = new PetManager();

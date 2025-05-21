@@ -394,6 +394,109 @@ export class API{
             return { success: false, error };
         }
     }
+
+    /**
+     * Actualiza la información de una mascota existente
+     * @param {number} idMascota - ID de la mascota a actualizar
+     * @param {Object} datosMascota - Datos actualizados de la mascota
+     * @param {string} [datosMascota.nombre] - Nuevo nombre de la mascota (opcional)
+     * @param {string} [datosMascota.especie] - Nueva especie de la mascota (opcional)
+     * @param {string} [datosMascota.raza] - Nueva raza de la mascota (opcional)
+     * @param {string} [datosMascota.fecha_nacimiento] - Nueva fecha de nacimiento (formato YYYY-MM-DD) (opcional)
+     * @param {string} [datosMascota.genero] - Nuevo género de la mascota (opcional)
+     * @param {string} [datosMascota.color] - Nuevo color de la mascota (opcional)
+     * @param {string} [datosMascota.notas] - Nuevas notas adicionales (opcional)
+     * @param {File} [datosMascota.imagen] - Nueva imagen de la mascota (opcional)
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
+     */
+    static async editarMascota(idMascota, datosMascota) {
+        try {
+            if (!idMascota) {
+                throw new Error('Se requiere el ID de la mascota para editar');
+            }
+
+            // Verificar que el usuario esté autenticado
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                throw new Error('Usuario no autenticado');
+            }
+
+            // Verificar que la mascota pertenezca al usuario
+            const { data: mascotaExistente, error: errorMascota } = await supabase
+                .from('mascota')
+                .select('id_usuario')
+                .eq('id', idMascota)
+                .single();
+
+            if (errorMascota || !mascotaExistente) {
+                throw new Error('Mascota no encontrada');
+            }
+
+            if (mascotaExistente.id_usuario !== user.id) {
+                throw new Error('No tienes permiso para editar esta mascota');
+            }
+
+            // Preparar los datos a actualizar
+            const datosActualizados = {};
+            const camposPermitidos = ['nombre', 'especie', 'raza', 'fecha_nacimiento', 'genero', 'color', 'notas'];
+            
+            // Agregar solo los campos que se proporcionaron
+            Object.keys(datosMascota).forEach(key => {
+                if (camposPermitidos.includes(key) && datosMascota[key] !== undefined) {
+                    datosActualizados[key] = datosMascota[key];
+                }
+            });
+
+            // Si hay una nueva imagen, subirla a Supabase Storage
+            if (datosMascota.imagen) {
+                const fileName = `mascota_${idMascota}_${Date.now()}.jpg`;
+                
+                // Subir la nueva imagen
+                const { error: uploadError } = await supabase.storage
+                    .from('imagenes')
+                    .upload(`mascotas/${fileName}`, datosMascota.imagen, {
+                        cacheControl: '3600',
+                        upsert: true
+                    });
+                
+                if (uploadError) throw uploadError;
+                
+                // Obtener la URL pública de la nueva imagen
+                const { data: urlData } = supabase.storage
+                    .from('imagenes')
+                    .getPublicUrl(`mascotas/${fileName}`);
+                
+                // Agregar la URL de la nueva imagen a los datos actualizados
+                datosActualizados.imagen = urlData.publicUrl;
+            }
+
+            // Si no hay datos para actualizar, retornar éxito
+            if (Object.keys(datosActualizados).length === 0) {
+                return { success: true, data: { mensaje: 'No se realizaron cambios' } };
+            }
+
+            // Actualizar la mascota en la base de datos
+            const { data: mascotaActualizada, error: updateError } = await supabase
+                .from('mascota')
+                .update(datosActualizados)
+                .eq('id', idMascota)
+                .select();
+
+            if (updateError) throw updateError;
+
+            return {
+                success: true,
+                data: mascotaActualizada[0]
+            };
+
+        } catch (error) {
+            console.error('Error al actualizar la mascota:', error);
+            return {
+                success: false,
+                error: error.message || 'Error al actualizar la mascota'
+            };
+        }
+    }
     
     static async obtenerUsuarioPorToken(userId) {
         try {

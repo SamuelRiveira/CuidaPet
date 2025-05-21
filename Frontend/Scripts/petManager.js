@@ -75,7 +75,6 @@ class PetManager {
         try {
             // Obtener el ID de la mascota de los datos editados
             const petId = editedData.id;
-            console.log('Datos recibidos para actualización:', editedData);
 
             if (!petId) {
                 console.error('No se encontró el ID de la mascota en los datos editados');
@@ -157,10 +156,6 @@ class PetManager {
                 throw new Error('ID de mascota no válido');
             }
             
-            console.log('Datos a enviar a la API:', datosActualizados);
-            
-            console.log('Actualizando mascota con ID:', petIdNum, 'Tipo:', typeof petIdNum);
-            
             // Llamar a la API para actualizar la mascota
             const { success, data, error } = await API.editarMascota(petIdNum, datosActualizados);
             
@@ -168,7 +163,6 @@ class PetManager {
                 throw new Error(error || 'Error al actualizar la mascota');
             }
             
-            console.log('Mascota actualizada correctamente:', data);
             return true;
             
         } catch (error) {

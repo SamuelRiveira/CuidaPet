@@ -290,8 +290,6 @@ class PetEdit {
             _debug_id_value: this.petId
         };
         
-        console.log('Iniciando edición para mascota ID:', this.petId, 'Tipo:', typeof this.petId);
-        
         // Capturar todos los campos editables
         const fields = [
             { id: '#pet-detail-name', key: 'nombre' },
@@ -370,7 +368,6 @@ class PetEdit {
         }
     
         try {
-            console.log('Sending data to handlePetEdit:', editedData);
             const success = await petManager.handlePetEdit(editedData);
             
             if (success) {

@@ -1,3 +1,6 @@
+import { PetManager } from "./petManager.js";
+import { showPage } from "./navigation.js";
+
 // Instanciamos la clase PetManager
 const petManager = new PetManager();
 
@@ -30,16 +33,20 @@ function createPetCardHTML(pet) {
 }
 
 // Función para renderizar todas las tarjetas de mascotas
-function renderPetCards() {
-    const petsGrid = document.querySelector('.pets-grid');
+async function renderPetCards() {
+    const petsGrid = document.getElementById('pets-grid');
+    if (!petsGrid) {
+        console.error('Elemento pets-grid no encontrado');
+        return;
+    }
 
-    // Limpia el contenedor antes de añadir nuevas tarjetas
+    // Limpia la grid antes de añadir nuevas tarjetas
     petsGrid.innerHTML = '';
 
-    // Obtiene los datos de las mascotas usando la clase PetManager
-    const pets = petManager.getPetsData();
+    // Obtiene los datos de las mascotas del PetManager
+    const pets = await petManager.getPetsData();
 
-    // Comprueba si hay mascotas disponibles
+    // Verifica si hay mascotas
     if (pets.length === 0) {
         // Cambia el estilo a flex para centrar el mensaje
         petsGrid.style.display = 'flex';
@@ -77,9 +84,9 @@ function renderPetCards() {
 }
 
 // Carga los detalles de una mascota específica
-function loadPetDetails(petId) {
+async function loadPetDetails(petId) {
     // Busca la mascota por su ID usando la clase PetManager
-    const pets = petManager.getPetsData();
+    const pets = await petManager.getPetsData();
     const pet = pets.find(p => p.id === petId);
 
     if (!pet) {
@@ -187,3 +194,5 @@ function handleCreatePet(petData) {
         return false;
     }
 }
+
+export { handleDeletePet, handleCreatePet, renderPetCards };

@@ -254,7 +254,7 @@ export class API{
             const { data, error } = await supabase
                 .from('mascota_alergia')
                 .select(`
-                    alergia:alergia_id (
+                    alergia:alergia (
                         id_alergia,
                         nombre
                     ),

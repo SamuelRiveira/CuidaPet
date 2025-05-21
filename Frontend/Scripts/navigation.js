@@ -1,3 +1,6 @@
+
+import { renderPetCards } from "./petView.js";
+
 // Función para mostrar una página específica
 function showPage(pageId) {
     document.querySelectorAll('.page').forEach(page => {
@@ -58,3 +61,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+export { showPage };

@@ -249,7 +249,7 @@ class RoleUIManager {
                                 <p><i class="fas fa-paw"></i> 2 mascotas</p>
                                 <hr class="client-card-divider">
                                 <div class="client-card-actions">
-                                    <button class="btn btn-secondary view-pets-btn" onclick="RoleUIManager.showClientPets(this)">Ver Mascotas</button>
+                                    <button class="btn btn-secondary view-pets-btn">Ver Mascotas</button>
                                 </div>
                             </div>
                         </div>
@@ -265,7 +265,7 @@ class RoleUIManager {
                                 <p><i class="fas fa-paw"></i> 1 mascota</p>
                                 <hr class="client-card-divider">
                                 <div class="client-card-actions">
-                                    <button class="btn btn-secondary view-pets-btn" onclick="RoleUIManager.showClientPets(this)">Ver Mascotas</button>
+                                    <button class="btn btn-secondary view-pets-btn">Ver Mascotas</button>
                                 </div>
                             </div>
                         </div>
@@ -281,7 +281,7 @@ class RoleUIManager {
                                 <p><i class="fas fa-paw"></i> 3 mascotas</p>
                                 <hr class="client-card-divider">
                                 <div class="client-card-actions">
-                                    <button class="btn btn-secondary view-pets-btn" onclick="RoleUIManager.showClientPets(this)">Ver Mascotas</button>
+                                    <button class="btn btn-secondary view-pets-btn">Ver Mascotas</button>
                                 </div>
                             </div>
                         </div>
@@ -297,7 +297,7 @@ class RoleUIManager {
                                 <p><i class="fas fa-paw"></i> 2 mascotas</p>
                                 <hr class="client-card-divider">
                                 <div class="client-card-actions">
-                                    <button class="btn btn-secondary view-pets-btn" onclick="RoleUIManager.showClientPets(this)">Ver Mascotas</button>
+                                    <button class="btn btn-secondary view-pets-btn">Ver Mascotas</button>
                                 </div>
                             </div>
                         </div>
@@ -306,7 +306,15 @@ class RoleUIManager {
             </div>
         `;
         container.appendChild(clientManagementPage);
-        
+
+        // Add event listeners for 'Ver Mascotas' buttons
+        const viewPetsButtons = clientManagementPage.querySelectorAll('.view-pets-btn');
+        viewPetsButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                RoleUIManager.showClientPets(this); // 'this' refers to the button clicked
+            });
+        });
+
         // Página de administración de citas
         const appointmentsAdminPage = document.createElement('div');
         appointmentsAdminPage.id = 'appointments-admin-page';
@@ -521,7 +529,7 @@ class RoleUIManager {
                 </div>
                 <div class="appointment-time">
                     <span class="time-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="18" height="18" viewBox="0 0 148.000000 148.000000" preserveAspectRatio="xMidYMid meet">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 148.000000 148.000000" preserveAspectRatio="xMidYMid meet">
                             <g transform="translate(0.000000,148.000000) scale(0.100000,-0.100000)" fill="#ffffff" stroke="none">
                             <path d="M635 1471 c-295 -47 -526 -252 -606 -536 -32 -112 -32 -278 0 -390 71 -253 263 -445 516 -516 112 -32 278 -32 390 0 253 71 445 263 516 516 29 103 31 277 5 375 -42 153 -82 202 -135 162 -33 -24 -32 -52 4 -150 157 -436 -250 -893 -710 -797 -232 48 -432 248 -480 480 -29 141 -11 268 57 405 101 200 324 339 545 340 115 0 264 -48 361 -117 54 -38 74 -41 102 -13 47 47 11 96 -120 164 -124 65 -313 98 -445 77z"></path>
                             <path d="M696 1208 c-13 -19 -16 -61 -16 -255 0 -220 1 -234 20 -253 18 -18 33 -20 195 -20 162 0 177 2 195 20 11 11 20 29 20 40 0 11 -9 29 -20 40 -18 18 -33 20 -155 20 l-135 0 0 193 c0 215 -6 237 -60 237 -18 0 -34 -8 -44 -22z"></path>
@@ -542,9 +550,11 @@ class RoleUIManager {
                 <div class="appointment-service">
                     <div class="service-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14"></path>
-                            <path d="M2 20h20"></path>
-                            <path d="M14 12v.01"></path>
+                            <path d="M12 20h9"></path>
+                            <path d="M16 14v.5"></path>
+                            <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                            <path d="M8 14v.5"></path>
+                            <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
                         </svg>
                     </div>
                     <span class="service-name">${appointment.service.name}</span>
@@ -572,7 +582,10 @@ class RoleUIManager {
                         <button class="btn-action btn-edit">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 20h9"></path>
-                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                <path d="M16 14v.5"></path>
+                                <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                                <path d="M8 14v.5"></path>
+                                <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
                             </svg>
                         </button>
                     </div>

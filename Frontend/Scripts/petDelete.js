@@ -1,3 +1,10 @@
+// Importar dependencias
+import { PetManager } from './PetManager.js';
+import { addPetCardEventListeners, renderPetCards } from './PetView.js';
+
+// Inicializar instancia de PetManager
+const petManager = new PetManager();
+
 // Funcionalidad para borrar mascotas
 
 // Variables para controlar el modo de borrado
@@ -15,7 +22,7 @@ let petActionButtons;
 // Inicialización al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
     // Obtener referencias a elementos del DOM
-    petsGrid = document.querySelector('.pets-grid');
+    petsGrid = document.getElementById('pets-grid');
     deleteBtn = document.getElementById('delete-pet-btn');
     confirmDeleteBtn = document.getElementById('confirm-delete-btn');
     cancelDeleteBtn = document.getElementById('cancel-delete-btn');
@@ -187,5 +194,7 @@ function resetDeleteMode() {
     });
     
     // Restaurar el comportamiento original de clic en las tarjetas
-    addPetCardEventListeners();
+    if (typeof addPetCardEventListeners === 'function') {
+        addPetCardEventListeners();
+    }
 }

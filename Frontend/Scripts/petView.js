@@ -1,4 +1,4 @@
-import { PetManager } from "./petManager.js";
+import { PetManager } from "./PetManager.js";
 import { showPage } from "./navigation.js";
 
 // Instanciamos la clase PetManager
@@ -219,4 +219,4 @@ function handleCreatePet(petData) {
     }
 }
 
-export { handleDeletePet, handleCreatePet, renderPetCards };
+export { handleDeletePet, handleCreatePet, renderPetCards, addPetCardEventListeners };

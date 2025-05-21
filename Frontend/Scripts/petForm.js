@@ -1,3 +1,8 @@
+import { PetManager } from './PetManager.js';
+
+// Create a global instance of PetManager
+const petManager = new PetManager();
+
 document.addEventListener('DOMContentLoaded', function() {
     const addPetBtn = document.getElementById('add-pet-btn');
     const modal = document.getElementById('add-pet-modal');
@@ -51,8 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Añadir la mascota a través de la instancia de PetManager
         petManager.createPet(newPet);
 
-        // Opcional: volver a renderizar tarjetas si corresponde
-        renderPetCards();
+        // No need to call renderPetCards here as the pet list will be refreshed when the modal is closed
 
         modal.style.display = 'none';
         addPetForm.reset();

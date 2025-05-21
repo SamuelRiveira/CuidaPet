@@ -4,8 +4,8 @@ class PetEdit {
         this.editableElements = [
             { selector: 'h1[data-component-name="<h1 />"]', type: 'text', label: 'Nombre' },
             { selector: 'h1#pet-detail-name', type: 'text', label: 'Nombre' },
-            { selector: 'h1', type: 'text', label: 'Nombre' }, // Añadido para capturar cualquier h1
-            { selector: 'span.allergy-tag', type: 'text', label: 'Alergias' },
+            { selector: 'h1', type: 'text', label: 'Nombre' },
+            { selector: 'div.allergies', type: 'allergies', label: 'Alergias' },
             { selector: 'p[data-component-name="<p />"]', type: 'text', label: 'Descripción' },
             { selector: 'div.special-notes p', type: 'text', label: 'Notas especiales' },
             { selector: 'div.info-item .info-value', type: 'text', label: 'Información' },
@@ -50,18 +50,68 @@ class PetEdit {
                 // Almacenar valor original
                 if (elem.type === 'html') {
                     this.originalValues.set(element, element.innerHTML);
+                } else if (elem.type === 'allergies') {
+                    // Guardar las alergias actuales como array
+                    const allergies = [];
+                    element.querySelectorAll('p').forEach(p => {
+                        if (p.textContent && p.textContent.trim() !== 'No se han registrado alergias') {
+                            allergies.push(p.textContent.trim());
+                        }
+                    });
+                    this.originalValues.set(element, allergies);
                 } else {
                     this.originalValues.set(element, element.textContent);
                 }
 
-                // Hacer el elemento editable
-                element.setAttribute('contenteditable', 'true');
-                element.classList.add('editing');
-                
-                // Añadir un borde o indicador visual para elementos editables
-                element.style.border = '1px dashed #3498db';
-                element.style.padding = '5px';
-                element.title = 'Editable - Haz clic para modificar';
+                if (elem.type === 'allergies') {
+                    // Guardar el título de alergias
+                    const title = element.querySelector('h3')?.outerHTML || '<h3>Alergias</h3>';
+                    
+                    // Crear contenedor para el modo edición
+                    const editContainer = document.createElement('div');
+                    
+                    // Crear textarea para editar alergias
+                    const currentAllergies = this.originalValues.get(element) || [];
+                    const textarea = document.createElement('textarea');
+                    textarea.value = currentAllergies.join('\n');
+                    textarea.style.width = '100%';
+                    textarea.style.minHeight = '60px';
+                    textarea.style.padding = '5px';
+                    textarea.style.border = '1px dashed #3498db';
+                    textarea.style.borderRadius = '4px';
+                    textarea.style.fontFamily = 'inherit';
+                    textarea.style.fontSize = 'inherit';
+                    textarea.style.lineHeight = 'inherit';
+                    textarea.style.boxSizing = 'border-box';
+                    textarea.placeholder = 'Escribe una alergia por línea';
+                    textarea.style.resize = 'none';
+                    textarea.style.overflow = 'hidden';
+                    
+                    // Ajustar altura automáticamente al contenido
+                    const adjustHeight = () => {
+                        textarea.style.height = 'auto';
+                        textarea.style.height = textarea.scrollHeight + 'px';
+                    };
+                    textarea.addEventListener('input', adjustHeight);
+                    
+                    // Forzar un ajuste inicial
+                    setTimeout(adjustHeight, 0);
+                    
+                    // Actualizar el contenido del elemento
+                    element.innerHTML = title;
+                    editContainer.appendChild(textarea);
+                    element.appendChild(editContainer);
+                    element.classList.add('editing');
+                } else {
+                    // Hacer el elemento editable
+                    element.setAttribute('contenteditable', 'true');
+                    element.classList.add('editing');
+                    
+                    // Añadir un borde o indicador visual para elementos editables
+                    element.style.border = '1px dashed #3498db';
+                    element.style.padding = '5px';
+                    element.title = 'Editable - Haz clic para modificar';
+                }
             });
         });
         
@@ -137,23 +187,58 @@ class PetEdit {
         this.editableElements.forEach(elem => {
             const elements = document.querySelectorAll(elem.selector);
             elements.forEach(element => {
-                // Restaurar valor original si se cancela
-                if (isCancelled && this.originalValues.has(element)) {
+                if (elem.type === 'allergies' && !isCancelled) {
+                    // Guardar las alergias editadas
+                    const textarea = element.querySelector('textarea');
+                    if (textarea) {
+                        const allergies = textarea.value
+                            .split('\n')
+                            .map(a => a.trim())
+                            .filter(a => a);
+                        
+                        // Actualizar la visualización de alergias
+                        element.innerHTML = '<h3>Alergias</h3>';
+                        if (allergies.length > 0) {
+                            allergies.forEach(allergy => {
+                                const p = document.createElement('p');
+                                p.textContent = allergy;
+                                element.appendChild(p);
+                            });
+                        } else {
+                            const noAllergies = document.createElement('p');
+                            noAllergies.textContent = 'No se han registrado alergias';
+                            element.appendChild(noAllergies);
+                        }
+                    }
+                } else if (isCancelled && this.originalValues.has(element)) {
+                    // Restaurar valores originales si se cancela
                     if (elem.type === 'html') {
                         element.innerHTML = this.originalValues.get(element);
+                    } else if (elem.type === 'allergies') {
+                        const allergies = this.originalValues.get(element);
+                        element.innerHTML = '<h3>Alergias</h3>';
+                        if (allergies && allergies.length > 0) {
+                            allergies.forEach(allergy => {
+                                const p = document.createElement('p');
+                                p.textContent = allergy;
+                                element.appendChild(p);
+                            });
+                        } else {
+                            const noAllergies = document.createElement('p');
+                            noAllergies.textContent = 'No se han registrado alergias';
+                            element.appendChild(noAllergies);
+                        }
                     } else {
                         element.textContent = this.originalValues.get(element);
                     }
                 }
-
-                // Eliminar atributos editables
+                
+                // Quitar atributos de edición
                 element.removeAttribute('contenteditable');
                 element.classList.remove('editing');
-                
-                // Eliminar estilos visuales de edición
                 element.style.border = '';
                 element.style.padding = '';
-                element.removeAttribute('title');
+                element.title = '';
             });
         });
         

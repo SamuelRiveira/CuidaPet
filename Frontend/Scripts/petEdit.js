@@ -1,4 +1,9 @@
 // Funcionalidad de edición de mascotas
+import { PetManager } from './petManager.js';
+
+// Crear una instancia de PetManager
+const petManager = new PetManager();
+
 class PetEdit {
     constructor() {
         this.editableElements = [

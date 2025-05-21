@@ -126,11 +126,28 @@ async function loadPetDetails(petId) {
     // Actualiza el historial médico
     const medicalList = document.querySelector('#pet-detail-page .medical-list');
     medicalList.innerHTML = '';
-    pet.medicalHistory.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = item;
-        medicalList.appendChild(li);
-    });
+    
+    let historialMedico = [];
+    
+    // Handle different possible formats of medical history
+    if (Array.isArray(pet.medicalHistory)) {
+        historialMedico = pet.medicalHistory;
+    } else if (typeof pet.medicalHistory === 'string') {
+        // If it's a string, split by newlines or other delimiters if needed
+        historialMedico = pet.medicalHistory.split('\n').filter(item => item.trim());
+    }
+    
+    if (historialMedico.length > 0) {
+        historialMedico.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            medicalList.appendChild(li);
+        });
+    } else {
+        const noHistory = document.createElement('p');
+        noHistory.textContent = 'No hay historial médico registrado';
+        medicalList.appendChild(noHistory);
+    }
 
     // Actualiza las alergias
     const allergiesContainer = document.querySelector('#pet-detail-page .allergies');

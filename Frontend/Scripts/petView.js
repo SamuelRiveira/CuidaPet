@@ -129,11 +129,9 @@ async function loadPetDetails(petId) {
     
     let historialMedico = [];
     
-    // Handle different possible formats of medical history
     if (Array.isArray(pet.medicalHistory)) {
         historialMedico = pet.medicalHistory;
     } else if (typeof pet.medicalHistory === 'string') {
-        // If it's a string, split by newlines or other delimiters if needed
         historialMedico = pet.medicalHistory.split('\n').filter(item => item.trim());
     }
     

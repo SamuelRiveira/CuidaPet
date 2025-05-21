@@ -292,24 +292,34 @@ class PetEdit {
         
         console.log('Iniciando edición para mascota ID:', this.petId, 'Tipo:', typeof this.petId);
         
-        console.log('Pet ID in confirmEdit:', this.petId); // Debug log
+        // Capturar todos los campos editables
+        const fields = [
+            { id: '#pet-detail-name', key: 'nombre' },
+            { id: '.info-item:nth-child(1) .info-value', key: 'edad' },
+            { id: '.info-item:nth-child(2) .info-value', key: 'peso' },
+            { id: '.allergies', key: 'alergias' },
+            { id: '.medical-history ul', key: 'historial_medico', isHtml: true },
+            { id: '.special-notes p', key: 'notas_especiales' }
+        ];
 
-        this.editableElements.forEach(elem => {
-            const elements = document.querySelectorAll(elem.selector);
-            elements.forEach(element => {
-                const normalizedKey = elem.label.toLowerCase().replace(/\s+/g, '_');
-                if (elem.type === 'html') {
-                    editedData[normalizedKey] = element.innerHTML.trim();
-                } else {
-                    editedData[normalizedKey] = element.textContent.trim();
-                }
-            });
+        // Recorrer y capturar todos los campos
+        fields.forEach(field => {
+            const element = document.querySelector(field.id);
+            if (element) {
+                editedData[field.key] = field.isHtml ? 
+                    element.innerHTML.trim() : 
+                    element.textContent.trim();
+            }
         });
         
-        // Asegurarse de capturar el valor del h1 principal
-        const mainTitle = document.querySelector('#pet-detail-name');
-        if (mainTitle && mainTitle.hasAttribute('contenteditable')) {
-            editedData['nombre'] = mainTitle.textContent.trim();
+        // Capturar alergias si están en formato de párrafos dentro del contenedor
+        const allergiesContainer = document.querySelector('.allergies');
+        if (allergiesContainer) {
+            const allergyElements = allergiesContainer.querySelectorAll('p:not(#no-allergies)');
+            if (allergyElements.length > 0) {
+                const allergies = Array.from(allergyElements).map(el => el.textContent.trim());
+                editedData.alergias = allergies.join(', ');
+            }
         }
 
         // Agregar datos de la foto si se editó

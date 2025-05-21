@@ -75,50 +75,59 @@ class PetManager {
         try {
             // Obtener el ID de la mascota de los datos editados
             const petId = editedData.id;
-            console.log(editedData);
+            console.log('Datos recibidos para actualización:', editedData);
 
             if (!petId) {
                 console.error('No se encontró el ID de la mascota en los datos editados');
                 return false;
             }
 
+
             // Mapear los campos editados al formato esperado por la API
             const datosActualizados = {};
             
-            // Mapear nombre
-            if (editedData.nombre) {
-                datosActualizados.nombre = editedData.nombre;
-            }
+            // Mapear campos básicos
+            const fieldMappings = {
+                'nombre': 'nombre',
+                'edad': 'edad',
+                'peso': 'peso',
+                'historial_medico': 'historial_medico',
+                'notas_especiales': 'notas_especiales'
+            };
+
+            // Mapear campos directos
+            Object.entries(fieldMappings).forEach(([source, target]) => {
+                if (editedData[source] !== undefined) {
+                    datosActualizados[target] = editedData[source];
+                }
+            });
             
             // Mapear alergias (si existen)
             if (editedData.alergias) {
                 // Convertir el string de alergias en un array si es necesario
                 const alergiasArray = typeof editedData.alergias === 'string' 
-                    ? editedData.alergias.split('\n').filter(a => a.trim() !== '')
-                    : editedData.alergias;
+                    ? editedData.alergias.split(',').map(a => a.trim()).filter(a => a)
+                    : Array.isArray(editedData.alergias) 
+                        ? editedData.alergias 
+                        : [editedData.alergias];
                 
                 if (alergiasArray.length > 0) {
                     datosActualizados.alergia = alergiasArray;
                 }
             }
-            
-            // Mapear descripción a notas_especiales
-            if (editedData.descripcion) {
-                datosActualizados.notas_especiales = editedData.descripcion;
-            }
-            
-            // Mapear notas_especiales (si se edita directamente)
-            if (editedData.notas_especiales) {
-                datosActualizados.notas_especiales = editedData.notas_especiales;
-            }
 
             // Si hay una nueva foto, agregarla a los datos
-            if (editedData.foto && editedData.foto.startsWith('data:image')) {
-                // Convertir la imagen en formato base64 a un archivo
-                const response = await fetch(editedData.foto);
-                const blob = await response.blob();
-                const file = new File([blob], 'pet_photo.jpg', { type: 'image/jpeg' });
-                datosActualizados.imagen = file;
+            if (editedData.foto && (editedData.foto.startsWith('data:image') || editedData.foto.startsWith('http'))) {
+                // Si es una URL, ya está en el servidor, solo guardar la ruta
+                if (editedData.foto.startsWith('http')) {
+                    datosActualizados.foto = editedData.foto;
+                } else {
+                    // Si es una imagen en base64, convertirla a archivo
+                    const response = await fetch(editedData.foto);
+                    const blob = await response.blob();
+                    const file = new File([blob], 'pet_photo.jpg', { type: 'image/jpeg' });
+                    datosActualizados.imagen = file;
+                }
             }
 
             // Asegurarse de que el ID sea un número
@@ -126,6 +135,8 @@ class PetManager {
             if (isNaN(petIdNum)) {
                 throw new Error('ID de mascota no válido');
             }
+            
+            console.log('Datos a enviar a la API:', datosActualizados);
             
             console.log('Actualizando mascota con ID:', petIdNum, 'Tipo:', typeof petIdNum);
             

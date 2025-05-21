@@ -1,5 +1,6 @@
 import { PetManager } from "./PetManager.js";
 import { showPage } from "./navigation.js";
+import { PetEdit } from "./petEdit.js";
 
 // Instanciamos la clase PetManager
 const petManager = new PetManager();
@@ -175,6 +176,10 @@ async function loadPetDetails(petId) {
 
     // Actualiza las notas especiales
     document.querySelector('#pet-detail-page .special-notes p').textContent = pet.notes || 'Sin notas específicas.';
+    
+    // Inicializar la funcionalidad de edición después de cargar los detalles
+    const petEdit = new PetEdit(petId);
+    petEdit.initEditButton();
 }
 
 // Función para añadir event listeners a las tarjetas de mascotas

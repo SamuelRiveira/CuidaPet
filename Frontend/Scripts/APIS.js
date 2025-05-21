@@ -396,6 +396,51 @@ export class API{
     }
 
     /**
+     * Obtiene una mascota por su ID verificando que pertenezca al usuario autenticado
+     * @param {number} idMascota - ID de la mascota a buscar
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Datos de la mascota
+     */
+    static async obtenerMascotaPorId(idMascota) {
+        try {
+            if (!idMascota) {
+                throw new Error('Se requiere el ID de la mascota');
+            }
+
+            // Verificar que el usuario esté autenticado
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            if (authError || !user) {
+                throw new Error('Usuario no autenticado');
+            }
+
+            // Obtener la mascota con el ID especificado
+            const { data: mascota, error } = await supabase
+                .from('mascota')
+                .select('*')
+                .eq('id_mascota', idMascota)
+                .single();
+
+            if (error || !mascota) {
+                throw new Error('Mascota no encontrada');
+            }
+
+            // Verificar que la mascota pertenezca al usuario
+            if (mascota.id_usuario !== user.id) {
+                throw new Error('No tienes permiso para acceder a esta mascota');
+            }
+
+            return { success: true, data: mascota };
+            
+        } catch (error) {
+            console.error('Error al obtener la mascota:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al obtener la mascota',
+                details: error 
+            };
+        }
+    }
+
+    /**
      * Actualiza la información de una mascota existente
      * @param {number} idMascota - ID de la mascota a actualizar
      * @param {Object} datosMascota - Datos actualizados de la mascota
@@ -415,25 +460,10 @@ export class API{
                 throw new Error('Se requiere el ID de la mascota para editar');
             }
 
-            // Verificar que el usuario esté autenticado
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                throw new Error('Usuario no autenticado');
-            }
-
-            // Verificar que la mascota pertenezca al usuario
-            const { data: mascotaExistente, error: errorMascota } = await supabase
-                .from('mascota')
-                .select('id_usuario')
-                .eq('id', idMascota)
-                .single();
-
-            if (errorMascota || !mascotaExistente) {
-                throw new Error('Mascota no encontrada');
-            }
-
-            if (mascotaExistente.id_usuario !== user.id) {
-                throw new Error('No tienes permiso para editar esta mascota');
+            // Verificar que la mascota existe y pertenece al usuario
+            const { success: mascotaExiste, data: mascotaExistente } = await this.obtenerMascotaPorId(idMascota);
+            if (!mascotaExiste) {
+                throw new Error('Mascota no encontrada o no tienes permiso para editarla');
             }
 
             // Preparar los datos a actualizar
@@ -479,7 +509,7 @@ export class API{
             const { data: mascotaActualizada, error: updateError } = await supabase
                 .from('mascota')
                 .update(datosActualizados)
-                .eq('id', idMascota)
+                .eq('id_mascota', idMascota)
                 .select();
 
             if (updateError) throw updateError;
@@ -498,6 +528,11 @@ export class API{
         }
     }
     
+    /**
+     * Obtiene los datos de un usuario por su ID
+     * @param {string} userId - ID del usuario
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Datos del usuario
+     */
     static async obtenerUsuarioPorToken(userId) {
         try {
             // Si no hay ID de usuario, devolver error

@@ -1,11 +1,12 @@
 // Funcionalidad de edición de mascotas
-import { PetManager } from './PetManager.js';
+import { PetManager } from './petManager.js';
 
 // Crear una instancia de PetManager
 const petManager = new PetManager();
 
 class PetEdit {
-    constructor() {
+    constructor(petId) {
+        this.petId = petId; // Store the pet ID when initializing the class
         this.editableElements = [
             { selector: 'h1[data-component-name="<h1 />"]', type: 'text', label: 'Nombre' },
             { selector: 'h1#pet-detail-name', type: 'text', label: 'Nombre' },
@@ -281,8 +282,17 @@ class PetEdit {
         this.initEditButton();
     }
 
-    confirmEdit() {
-        const editedData = {};
+    async confirmEdit() {
+        const editedData = {
+            id: this.petId, // Include the pet ID in the edited data
+            // Log the ID for debugging
+            _debug_id_type: typeof this.petId,
+            _debug_id_value: this.petId
+        };
+        
+        console.log('Iniciando edición para mascota ID:', this.petId, 'Tipo:', typeof this.petId);
+        
+        console.log('Pet ID in confirmEdit:', this.petId); // Debug log
 
         this.editableElements.forEach(elem => {
             const elements = document.querySelectorAll(elem.selector);
@@ -297,7 +307,7 @@ class PetEdit {
         });
         
         // Asegurarse de capturar el valor del h1 principal
-        const mainTitle = document.querySelector('h1');
+        const mainTitle = document.querySelector('#pet-detail-name');
         if (mainTitle && mainTitle.hasAttribute('contenteditable')) {
             editedData['nombre'] = mainTitle.textContent.trim();
         }
@@ -317,27 +327,46 @@ class PetEdit {
             return;
         }
 
-        // Llamar a la función vacía en petManager para manejar los datos
-        petManager.handlePetEdit(editedData);
-
-        // Deshabilitar el modo de edición
-        this.disableEditMode(false);
+        try {
+            console.log('Sending data to handlePetEdit:', editedData);
+            const success = await petManager.handlePetEdit(editedData);
+            
+            if (success) {
+                // Deshabilitar el modo de edición solo si la operación fue exitosa
+                this.disableEditMode(false);
+            } else {
+                alert('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
+            }
+        } catch (error) {
+            console.error('Error al guardar los cambios:', error);
+            alert('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
+        }
     }
 
     validateEditedData(data) {
         const errors = [];
 
-        // Agregar reglas de validación
-        if (!data.nombre || data.nombre.length < 2) {
+        // Validar que el nombre esté presente y tenga al menos 2 caracteres
+        if (!data.nombre || data.nombre.trim().length < 2) {
             errors.push('El nombre debe tener al menos 2 caracteres');
         }
 
-        if (data.alergias && data.alergias.length > 50) {
-            errors.push('Las alergias no pueden superar 50 caracteres');
+        // Validar longitud de alergias si existen
+        if (data.alergias) {
+            const alergiasText = typeof data.alergias === 'string' 
+                ? data.alergias 
+                : Array.isArray(data.alergias) 
+                    ? data.alergias.join('\n')
+                    : '';
+                    
+            if (alergiasText.length > 500) {
+                errors.push('Las alergias no pueden superar los 500 caracteres');
+            }
         }
 
-        if (data.descripcion && data.descripcion.length > 200) {
-            errors.push('La descripción no puede superar 200 caracteres');
+        // Validar longitud de la descripción si existe
+        if (data.descripcion && data.descripcion.length > 1000) {
+            errors.push('La descripción no puede superar los 1000 caracteres');
         }
 
         return errors;
@@ -366,8 +395,5 @@ class PetEdit {
     }
 }
 
-// Inicializar la funcionalidad de edición cuando se carga la página
-document.addEventListener('DOMContentLoaded', () => {
-    const petEdit = new PetEdit();
-    petEdit.initEditButton();
-});
+// Exportar la clase PetEdit para que pueda ser utilizada en otros archivos
+export { PetEdit };

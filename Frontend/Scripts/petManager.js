@@ -66,10 +66,85 @@ class PetManager {
         return true;
     }
 
-    handlePetEdit(editedData) {
-        // Método vacío para implementar en el futuro
-        // TODO: Implementar llamada a API
-        return true;
+    /**
+     * Maneja la edición de una mascota
+     * @param {Object} editedData - Datos editados de la mascota
+     * @returns {Promise<boolean>} - True si la operación fue exitosa, false en caso contrario
+     */
+    async handlePetEdit(editedData) {
+        try {
+            // Obtener el ID de la mascota de los datos editados
+            const petId = editedData.id;
+            console.log(editedData);
+
+            if (!petId) {
+                console.error('No se encontró el ID de la mascota en los datos editados');
+                return false;
+            }
+
+            // Mapear los campos editados al formato esperado por la API
+            const datosActualizados = {};
+            
+            // Mapear nombre
+            if (editedData.nombre) {
+                datosActualizados.nombre = editedData.nombre;
+            }
+            
+            // Mapear alergias (si existen)
+            if (editedData.alergias) {
+                // Convertir el string de alergias en un array si es necesario
+                const alergiasArray = typeof editedData.alergias === 'string' 
+                    ? editedData.alergias.split('\n').filter(a => a.trim() !== '')
+                    : editedData.alergias;
+                
+                if (alergiasArray.length > 0) {
+                    datosActualizados.alergia = alergiasArray;
+                }
+            }
+            
+            // Mapear descripción a notas_especiales
+            if (editedData.descripcion) {
+                datosActualizados.notas_especiales = editedData.descripcion;
+            }
+            
+            // Mapear notas_especiales (si se edita directamente)
+            if (editedData.notas_especiales) {
+                datosActualizados.notas_especiales = editedData.notas_especiales;
+            }
+
+            // Si hay una nueva foto, agregarla a los datos
+            if (editedData.foto && editedData.foto.startsWith('data:image')) {
+                // Convertir la imagen en formato base64 a un archivo
+                const response = await fetch(editedData.foto);
+                const blob = await response.blob();
+                const file = new File([blob], 'pet_photo.jpg', { type: 'image/jpeg' });
+                datosActualizados.imagen = file;
+            }
+
+            // Asegurarse de que el ID sea un número
+            const petIdNum = Number(petId);
+            if (isNaN(petIdNum)) {
+                throw new Error('ID de mascota no válido');
+            }
+            
+            console.log('Actualizando mascota con ID:', petIdNum, 'Tipo:', typeof petIdNum);
+            
+            // Llamar a la API para actualizar la mascota
+            const { success, data, error } = await API.editarMascota(petIdNum, datosActualizados);
+            
+            if (!success) {
+                throw new Error(error || 'Error al actualizar la mascota');
+            }
+            
+            console.log('Mascota actualizada correctamente:', data);
+            return true;
+            
+        } catch (error) {
+            console.error('Error en handlePetEdit:', error);
+            // Mostrar mensaje de error al usuario
+            alert(`Error al guardar los cambios: ${error.message}`);
+            return false;
+        }
     }
 }
 

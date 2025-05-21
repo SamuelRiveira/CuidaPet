@@ -130,12 +130,35 @@ async function loadPetDetails(petId) {
     
     let historialMedico = [];
     
+    // Procesar el historial médico que puede venir en diferentes formatos
     if (Array.isArray(pet.medicalHistory)) {
+        // Si ya es un array, usarlo directamente
         historialMedico = pet.medicalHistory;
     } else if (typeof pet.medicalHistory === 'string') {
-        historialMedico = pet.medicalHistory.split('\n').filter(item => item.trim());
+        try {
+            // Intentar parsear si es un string de array JSON
+            if (pet.medicalHistory.trim().startsWith('[')) {
+                historialMedico = JSON.parse(pet.medicalHistory);
+            } else {
+                // Si no es JSON, dividir por saltos de línea
+                historialMedico = pet.medicalHistory.split('\n')
+                    .map(item => item.trim())
+                    .filter(item => item);
+            }
+        } catch (e) {
+            // Si falla el parseo JSON, tratar como string simple
+            if (pet.medicalHistory.trim()) {
+                historialMedico = [pet.medicalHistory];
+            }
+        }
     }
     
+    // Filtrar elementos vacíos y asegurarse de que todo sea string
+    historialMedico = historialMedico
+        .map(item => String(item).trim())
+        .filter(item => item);
+    
+    // Renderizar los items
     if (historialMedico.length > 0) {
         historialMedico.forEach(item => {
             const li = document.createElement('li');

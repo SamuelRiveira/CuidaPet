@@ -305,9 +305,15 @@ class PetEdit {
         fields.forEach(field => {
             const element = document.querySelector(field.id);
             if (element) {
-                editedData[field.key] = field.isHtml ? 
-                    element.innerHTML.trim() : 
-                    element.textContent.trim();
+                if (field.key === 'historial_medico') {
+                    // Capturar el historial médico como un array de items
+                    const items = Array.from(element.querySelectorAll('li')).map(li => li.textContent.trim());
+                    editedData[field.key] = items.join('\n');
+                } else {
+                    editedData[field.key] = field.isHtml ? 
+                        element.innerHTML.trim() : 
+                        element.textContent.trim();
+                }
             }
         });
         

@@ -91,7 +91,6 @@ class PetManager {
                 'nombre': 'nombre',
                 'edad': 'edad',
                 'peso': 'peso',
-                'historial_medico': 'historial_medico',
                 'notas_especiales': 'notas_especiales'
             };
 
@@ -101,6 +100,21 @@ class PetManager {
                     datosActualizados[target] = editedData[source];
                 }
             });
+            
+            // Procesar historial médico
+            if (editedData.historial_medico !== undefined) {
+                // Si viene como string con saltos de línea, convertirlo a array
+                if (typeof editedData.historial_medico === 'string') {
+                    datosActualizados.historial_medico = editedData.historial_medico
+                        .split('\n')
+                        .filter(item => item.trim() !== '');
+                } 
+                // Si ya es un array, asegurarse de que esté en el formato correcto
+                else if (Array.isArray(editedData.historial_medico)) {
+                    datosActualizados.historial_medico = editedData.historial_medico
+                        .filter(item => item.trim() !== '');
+                }
+            }
             
             // Mapear alergias (si existen)
             if (editedData.alergias) {

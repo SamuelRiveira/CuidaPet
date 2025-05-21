@@ -1,5 +1,5 @@
 
-import { renderPetCards } from "./petView.js";
+import {renderPetCards} from "./PetView.js";
 
 // Función para mostrar una página específica
 function showPage(pageId) {

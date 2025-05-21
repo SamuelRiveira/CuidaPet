@@ -120,7 +120,7 @@ async function loadPetDetails(petId) {
 
     // Actualiza la información básica
     const infoItems = document.querySelectorAll('#pet-detail-page .info-grid .info-item');
-    infoItems[0].querySelector('.info-value').textContent = `${pet.age} ${pet.ageUnit}`;
+    infoItems[0].querySelector('.info-value').textContent = pet.age;
     infoItems[1].querySelector('.info-value').textContent = pet.weight;
     infoItems[2].querySelector('.info-value').textContent = pet.owner;
 

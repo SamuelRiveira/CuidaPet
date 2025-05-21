@@ -41,7 +41,7 @@ class PetManager {
                 ageUnit: 'años',
                 appointment: mascota.proxima_cita || 'No programada',
                 photoUrl: mascota.url_imagen || '/Frontend/imagenes/default-pet.png',
-                weight: mascota.peso ? `${mascota.peso} kg` : 'No especificado',
+                weight: mascota.peso ? `${mascota.peso}` : 'No especificado',
                 owner: nombrePropietario,
                 medicalHistory: mascota.historial_medico || [],
                 allergies: mascota.alergia || [],

@@ -10,35 +10,60 @@ class ProfileManager {
      */
     static async getUserProfile() {
         try {
-            const { data: profileData } = await API.obtenerPerfilUsuario();
-            const { data: petsData } = await API.obtenerMascotasUsuario();
-
-            const totalMascotas = petsData?.length || 0;
+            const profileResponse = await API.obtenerPerfilUsuario();
+            
+            // Si no hay sesión activa, devolver datos por defecto
+            if (profileResponse.noSession) {
+                return this.getDefaultProfile();
+            }
+            
+            // Si hay un error al obtener el perfil, lanzar el error
+            if (!profileResponse.success) {
+                throw new Error(profileResponse.error || 'Error al obtener el perfil');
+            }
+            
+            const profileData = profileResponse.data;
+            const petsResponse = await API.obtenerMascotasUsuario();
+            
+            // Si no hay sesión activa al obtener mascotas, devolver datos por defecto
+            if (petsResponse.noSession) {
+                return this.getDefaultProfile();
+            }
+            
+            const totalMascotas = petsResponse.data?.length || 0;
             const totalCitas = 0; // TODO: Obtener el número real de citas
 
             // Formatear los datos para que coincidan con el formato esperado
             return {
-                photo: profileData.imagen || "/Frontend/imagenes/img_perfil.png",
-                name: `${profileData.nombre || ''} ${profileData.apellidos || ''}`.trim() || 'Usuario',
+                photo: profileData?.imagen || "/Frontend/imagenes/img_perfil.png",
+                name: `${profileData?.nombre || ''} ${profileData?.apellidos || ''}`.trim() || 'Usuario',
                 stats: {
-                    pets: totalMascotas, // TODO: Obtener número real de mascotas cuando esté disponible en la API
-                    appointments: totalCitas // TODO: Obtener número real de citas cuando esté disponible en la API
+                    pets: totalMascotas,
+                    appointments: totalCitas
                 },
                 personalInfo: {
-                    name: profileData.nombre || '',
-                    surnames: profileData.apellidos || '',
-                    address: profileData.direccion || 'Dirección no especificada'
+                    name: profileData?.nombre || '',
+                    surnames: profileData?.apellidos || '',
+                    address: profileData?.direccion || 'Dirección no especificada'
                 }
             };
         } catch (error) {
             console.error('Error en getUserProfile:', error);
             // Devolver datos por defecto en caso de error
-            return {
-                photo: "/Frontend/imagenes/img_perfil.png",
-                name: "Usuario",
-                stats: { pets: 0, appointments: 0 },
-                personalInfo: { name: "", surnames: "", address: "" }
-            };
+            return this.getDefaultProfile();
+        }
+    }
+    
+    /**
+     * Devuelve un perfil por defecto
+     * @returns {Object} Datos de perfil por defecto
+     */
+    static getDefaultProfile() {
+        return {
+            photo: "/Frontend/imagenes/img_perfil.png",
+            name: "Usuario",
+            stats: { pets: 0, appointments: 0 },
+            personalInfo: { name: "", surnames: "", address: "" }
         }
     }
 

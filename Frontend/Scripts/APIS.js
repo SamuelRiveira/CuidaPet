@@ -129,7 +129,7 @@ export class API{
             
             if (sessionError) {
                 console.warn('Error al verificar sesión:', sessionError);
-                return { success: false, error: 'Error al verificar la sesión' };
+                return { success: false, noSession: true, error: 'Error al verificar la sesión' };
             }
             
             if (!session) {
@@ -146,21 +146,28 @@ export class API{
                 .eq('id_usuario', userId)
                 .single();
                 
-            if (perfilError) throw perfilError;
+            if (perfilError) {
+                console.warn('Error al obtener datos del perfil:', perfilError);
+                return { success: false, noSession: true, error: 'Error al obtener el perfil' };
+            }
             
             return { 
                 success: true, 
                 data: {
-                    nombre: perfilData.nombre || '',
-                    apellidos: perfilData.apellidos || '',
-                    direccion: perfilData.direccion || '',
-                    imagen: perfilData.imagen || ''
+                    nombre: perfilData?.nombre || '',
+                    apellidos: perfilData?.apellidos || '',
+                    direccion: perfilData?.direccion || '',
+                    imagen: perfilData?.imagen || ''
                 } 
             };
             
         } catch (error) {
+            // No mostrar error en consola si no hay sesión activa
+            if (error.message?.includes('No user') || error.message?.includes('No session')) {
+                return { success: false, noSession: true, error: 'No hay sesión activa' };
+            }
             console.error('Error al obtener el perfil del usuario:', error);
-            return { success: false, error };
+            return { success: false, noSession: true, error: 'Error al obtener el perfil' };
         }
     }
     
@@ -462,6 +469,7 @@ export class API{
             const { data: { session }, error: sessionError } = await supabase.auth.getSession();
             
             if (sessionError) throw sessionError;
+            if (!session) return { success: false, noSession: true };
             
             // Obtener las mascotas del usuario
             const { data: mascotas, error: mascotasError } = await supabase
@@ -474,11 +482,15 @@ export class API{
             return { success: true, data: mascotas };
             
         } catch (error) {
+            // No mostrar error en consola si no hay sesión activa
+            if (error.message?.includes('No user') || error.message?.includes('No session')) {
+                return { success: false, noSession: true };
+            }
             console.error('Error al obtener mascotas del usuario:', error);
             return { success: false, error };
         }
     }
-
+    
     /**
      * Obtiene una mascota por su ID verificando que pertenezca al usuario autenticado
      * @param {number} idMascota - ID de la mascota a buscar

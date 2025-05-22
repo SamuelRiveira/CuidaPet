@@ -633,7 +633,7 @@ export class API{
                     hora_final,
                     is_canceled,
                     mascota: id_mascota (id_mascota, nombre),
-                    servicio: id_servicio (id_servicio, nombre)
+                    servicio: id_servicio (id_servicio, nombre_servicio)
                 `)
                 .in('id_mascota', mascotasIds)
                 .order('fecha', { ascending: true })

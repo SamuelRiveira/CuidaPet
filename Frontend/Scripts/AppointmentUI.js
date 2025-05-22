@@ -1,4 +1,5 @@
 import { notificationService } from "./NotificationService.js";
+import { AppointmentManager } from "./AppointmentManager.js";
 
 /**
  * Clase para manejar la UI de citas

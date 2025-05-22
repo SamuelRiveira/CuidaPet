@@ -99,10 +99,86 @@ class PetManager {
         }
     }
 
-    deletePet(listPetId) {
-        // Método vacío para implementar en el futuro
-        // TODO: Implementar llamada a API
-        return true;
+    /**
+     * Elimina una o más mascotas por sus IDs
+     * @param {number|number[]} listPetId - ID de la mascota o array de IDs a eliminar
+     * @returns {Promise<{success: boolean, deletedCount: number, errors: Array<{id: number, error: any}>}>} - Resultado de la operación
+     */
+    async deletePet(listPetId) {
+        try {
+            // Convertir a array si se proporciona un solo ID
+            const ids = Array.isArray(listPetId) ? listPetId : [listPetId];
+            
+            if (ids.length === 0) {
+                return { success: false, deletedCount: 0, errors: [], message: 'No se proporcionaron IDs de mascotas' };
+            }
+            
+            const results = {
+                success: true,
+                deletedCount: 0,
+                errors: []
+            };
+            
+            // Procesar cada ID de mascota secuencialmente
+            for (const id of ids) {
+                try {
+                    const { success, error } = await API.borrarMascota(id);
+                    
+                    if (success) {
+                        results.deletedCount++;
+                    } else {
+                        results.success = false;
+                        results.errors.push({
+                            id,
+                            error: error || 'Error desconocido al eliminar la mascota'
+                        });
+                    }
+                } catch (error) {
+                    results.success = false;
+                    results.errors.push({
+                        id,
+                        error: error.message || 'Error al procesar la eliminación de la mascota'
+                    });
+                }
+            }
+            
+            // Si no se pudo eliminar ninguna mascota, devolver el primer error
+            if (results.deletedCount === 0 && results.errors.length > 0) {
+                return {
+                    success: false,
+                    deletedCount: 0,
+                    errors: results.errors,
+                    message: `No se pudo eliminar ninguna mascota: ${results.errors[0].error}`
+                };
+            }
+            
+            // Si se eliminaron algunas pero no todas las mascotas
+            if (results.deletedCount > 0 && results.errors.length > 0) {
+                return {
+                    success: false,
+                    deletedCount: results.deletedCount,
+                    errors: results.errors,
+                    message: `Se eliminaron ${results.deletedCount} mascotas, pero hubo errores con ${results.errors.length} mascotas`
+                };
+            }
+            
+            // Si todo fue exitoso
+            return {
+                success: true,
+                deletedCount: results.deletedCount,
+                errors: [],
+                message: `Se eliminaron exitosamente ${results.deletedCount} mascotas`
+            };
+            
+        } catch (error) {
+            console.error('Error en deletePet:', error);
+            return {
+                success: false,
+                deletedCount: 0,
+                errors: [{ id: null, error: error.message || 'Error inesperado al eliminar las mascotas' }],
+                message: 'Error inesperado al procesar la solicitud'
+            };
+        }
     }
 
     /**

@@ -40,7 +40,7 @@ class PetManager {
                 age: mascota.edad?.toString() || '0',
                 ageUnit: 'años',
                 appointment: mascota.proxima_cita || 'No programada',
-                photoUrl: mascota.url_imagen || '/Frontend/imagenes/default-pet.png',
+                photoUrl: mascota.imagen || '/Frontend/imagenes/default-pet.png',
                 weight: mascota.peso ? `${mascota.peso}` : 'No especificado',
                 owner: nombrePropietario,
                 medicalHistory: mascota.historial_medico || [],
@@ -162,7 +162,7 @@ class PetManager {
             if (!success) {
                 throw new Error(error || 'Error al actualizar la mascota');
             }
-            
+
             return true;
             
         } catch (error) {

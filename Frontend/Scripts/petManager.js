@@ -54,10 +54,45 @@ class PetManager {
         }
     }
 
-    createPet(petData) {
-        // Método vacío para implementar en el futuro
-        // TODO: Implementar llamada a API
-        return true;
+    /**
+     * Crea una nueva mascota utilizando la API
+     * @param {Object} petData - Datos de la mascota a crear
+     * @param {string} petData.name - Nombre de la mascota
+     * @param {string} petData.type - Tipo/Especie de la mascota
+     * @param {string} petData.breed - Raza de la mascota
+     * @param {number} petData.weight - Peso de la mascota
+     * @param {string|number} petData.age - Edad de la mascota
+     * @param {string} [petData.notes] - Notas adicionales
+     * @param {File} [petData.imagen] - Archivo de imagen de la mascota (opcional)
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
+     */
+    async createPet(petData) {
+        try {
+            // Mapear los datos al formato esperado por la API
+            const datosMascota = {
+                nombre: petData.name,
+                especie: petData.type,
+                raza: petData.breed,
+                peso: petData.weight,
+                edad: petData.age,
+                notas: petData.notes || '',
+                // Incluir la imagen si está presente
+                ...(petData.imagen && { imagen: petData.imagen })
+            };
+
+            // Llamar a la API para crear la mascota
+            const resultado = await API.crearMascota(datosMascota);
+            
+            if (!resultado.success) {
+                console.error('Error al crear la mascota:', resultado.error);
+                return { success: false, error: resultado.error };
+            }
+
+            return { success: true, data: resultado.data };
+        } catch (error) {
+            console.error('Error en createPet:', error);
+            return { success: false, error: error.message };
+        }
     }
 
     deletePet(petId) {

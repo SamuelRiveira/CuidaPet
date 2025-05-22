@@ -120,9 +120,14 @@ export class API{
             // Obtener la sesión actual
             const { data: { session }, error: sessionError } = await supabase.auth.getSession();
             
-            if (sessionError) throw sessionError;
+            if (sessionError) {
+                console.warn('Error al verificar sesión:', sessionError);
+                return { success: false, error: 'Error al verificar la sesión' };
+            }
+            
             if (!session) {
-                throw new Error('No hay una sesión activa');
+                // No hay sesión activa, retornamos un objeto indicando esto
+                return { success: false, noSession: true, error: 'No hay una sesión activa' };
             }
             
             const userId = session.user.id;

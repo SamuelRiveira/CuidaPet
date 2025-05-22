@@ -6,10 +6,14 @@ class PetManager {
     async getPetsData() {
         try {
             // Obtener el perfil del usuario para el nombre del propietario
-            const { success: perfilSuccess, data: perfil, error: perfilError } = await API.obtenerPerfilUsuario();
+            const { success: perfilSuccess, data: perfil, error: perfilError, noSession } = await API.obtenerPerfilUsuario();
             
             if (!perfilSuccess) {
-                console.error('Error al obtener perfil del usuario:', perfilError);
+                if (noSession) {
+                    // No hay sesión activa, no es un error
+                    return [];
+                }
+                console.warn('Error al obtener perfil del usuario:', perfilError);
                 return [];
             }
             

@@ -10,10 +10,26 @@ class ProfileManager {
      */
     static async getUserProfile() {
         try {
-            const { success, data, error } = await API.obtenerPerfilUsuario();
+            const { success, data, error, noSession } = await API.obtenerPerfilUsuario();
             
             if (!success) {
-                console.error('Error al obtener el perfil:', error);
+                if (noSession) {
+                    // No hay sesión activa, devolvemos un perfil por defecto
+                    return {
+                        photo: "/Frontend/imagenes/img_perfil.png",
+                        name: 'Invitado',
+                        stats: {
+                            pets: 0,
+                            appointments: 0
+                        },
+                        personalInfo: {
+                            name: '',
+                            surnames: '',
+                            address: 'Inicia sesión para ver tu perfil'
+                        }
+                    };
+                }
+                console.warn('Error al obtener el perfil:', error);
                 throw new Error('No se pudo cargar el perfil del usuario');
             }
             

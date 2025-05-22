@@ -25,16 +25,22 @@ class PetEdit {
     }
 
     initEditButton() {
-        const editButton = document.createElement('button');
-        editButton.textContent = 'Editar';
-        editButton.classList.add('edit-button');
+        // Check if edit button already exists
+        let editButton = document.querySelector('.edit-button');
         
-        const containerTop = document.querySelector('.container-top .container-left');
-        if (containerTop) {
-            containerTop.appendChild(editButton);
-        }
+        if (!editButton) {
+            // Only create and append the button if it doesn't exist
+            editButton = document.createElement('button');
+            editButton.textContent = 'Editar';
+            editButton.classList.add('edit-button');
+            
+            const containerTop = document.querySelector('.container-top .container-left');
+            if (containerTop) {
+                containerTop.appendChild(editButton);
+            }
 
-        editButton.addEventListener('click', () => this.toggleEditMode());
+            editButton.addEventListener('click', () => this.toggleEditMode());
+        }
     }
 
     toggleEditMode() {

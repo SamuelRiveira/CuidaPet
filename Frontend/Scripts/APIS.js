@@ -314,38 +314,13 @@ export class API{
                 nombre: datosMascota.nombre,
                 especie: datosMascota.especie,
                 raza: datosMascota.raza,
-                edad: datosMascota.edad,
-                peso: datosMascota.peso || null,
+                edad: datosMascota.edad ? Number(datosMascota.edad) : null,
+                peso: datosMascota.peso ? Number(datosMascota.peso) : null,
                 alergia: datosMascota.alergia || null,
-                notas_especiales: datosMascota.notas_especiales || null,
-                imagen: datosMascota.imagen || null
+                notas_especiales: datosMascota.notas_especiales || null
             };
             
-            // Si se proporciona una imagen, subirla a Supabase Storage
-            if (datosMascota.imagen) {
-                // Generar un nombre único para el archivo
-                const fileName = userId;
-                
-                // Subir el archivo a Supabase Storage
-                const { data: uploadData, error: uploadError } = await supabase.storage
-                    .from('imagenes')
-                    .upload(`mascotas/${fileName}`, datosMascota.imagen, {
-                        cacheControl: '3600',
-                        upsert: true
-                    });
-                
-                if (uploadError) throw uploadError;
-                
-                // Obtener la URL pública de la imagen
-                const { data: urlData } = supabase.storage
-                    .from('imagenes')
-                    .getPublicUrl(`mascotas/${fileName}`);
-                
-                // Agregar la URL de la imagen a los datos de la mascota
-                mascotaData.imagen = urlData.publicUrl;
-            }
-            
-            // Insertar la mascota en la base de datos
+            // Insertar la mascota en la base de datos sin la imagen primero
             const { data: mascotaCreada, error: insertError } = await supabase
                 .from('mascota')
                 .insert([mascotaData])
@@ -353,88 +328,33 @@ export class API{
                 
             if (insertError) throw insertError;
             
+            const idMascota = mascotaCreada[0].id_mascota;
+            
+            // Si hay una imagen, usar editarMascota para actualizarla
+            if (datosMascota.imagen) {
+                const resultadoEdicion = await this.editarMascota(idMascota, {
+                    imagen: datosMascota.imagen
+                });
+                
+                if (resultadoEdicion.success) {
+                    return { 
+                        success: true, 
+                        data: resultadoEdicion.data,
+                        message: 'Mascota creada y actualizada exitosamente' 
+                    };
+                }
+            }
+            
             return { 
                 success: true, 
                 data: mascotaCreada[0],
                 message: 'Mascota creada exitosamente' 
             };
-            
         } catch (error) {
             console.error('Error al crear la mascota:', error);
             return { 
                 success: false, 
                 error: error.message || 'Error al crear la mascota',
-                details: error 
-            };
-        }
-    }
-    
-    static async obtenerMascotasUsuario() {
-        try {
-            // Obtener la sesión actual
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-            
-            if (sessionError) throw sessionError;
-            if (!session) {
-                throw new Error('No hay sesión activa');
-            }
-            
-            // Obtener las mascotas del usuario
-            const { data: mascotas, error: mascotasError } = await supabase
-                .from('mascota')
-                .select('*')
-                .eq('id_usuario', session.user.id);
-                
-            if (mascotasError) throw mascotasError;
-            
-            return { success: true, data: mascotas };
-            
-        } catch (error) {
-            console.error('Error al obtener mascotas del usuario:', error);
-            return { success: false, error };
-        }
-    }
-
-    /**
-     * Obtiene una mascota por su ID verificando que pertenezca al usuario autenticado
-     * @param {number} idMascota - ID de la mascota a buscar
-     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Datos de la mascota
-     */
-    static async obtenerMascotaPorId(idMascota) {
-        try {
-            if (!idMascota) {
-                throw new Error('Se requiere el ID de la mascota');
-            }
-
-            // Verificar que el usuario esté autenticado
-            const { data: { user }, error: authError } = await supabase.auth.getUser();
-            if (authError || !user) {
-                throw new Error('Usuario no autenticado');
-            }
-
-            // Obtener la mascota con el ID especificado
-            const { data: mascota, error } = await supabase
-                .from('mascota')
-                .select('*')
-                .eq('id_mascota', idMascota)
-                .single();
-
-            if (error || !mascota) {
-                throw new Error('Mascota no encontrada');
-            }
-
-            // Verificar que la mascota pertenezca al usuario
-            if (mascota.id_usuario !== user.id) {
-                throw new Error('No tienes permiso para acceder a esta mascota');
-            }
-
-            return { success: true, data: mascota };
-            
-        } catch (error) {
-            console.error('Error al obtener la mascota:', error);
-            return { 
-                success: false, 
-                error: error.message || 'Error al obtener la mascota',
                 details: error 
             };
         }
@@ -529,6 +449,77 @@ export class API{
             return {
                 success: false,
                 error: error.message || 'Error al actualizar la mascota'
+            };
+        }
+    }
+    
+    static async obtenerMascotasUsuario() {
+        try {
+            // Obtener la sesión actual
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError) throw sessionError;
+            if (!session) {
+                throw new Error('No hay sesión activa');
+            }
+            
+            // Obtener las mascotas del usuario
+            const { data: mascotas, error: mascotasError } = await supabase
+                .from('mascota')
+                .select('*')
+                .eq('id_usuario', session.user.id);
+                
+            if (mascotasError) throw mascotasError;
+            
+            return { success: true, data: mascotas };
+            
+        } catch (error) {
+            console.error('Error al obtener mascotas del usuario:', error);
+            return { success: false, error };
+        }
+    }
+
+    /**
+     * Obtiene una mascota por su ID verificando que pertenezca al usuario autenticado
+     * @param {number} idMascota - ID de la mascota a buscar
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Datos de la mascota
+     */
+    static async obtenerMascotaPorId(idMascota) {
+        try {
+            if (!idMascota) {
+                throw new Error('Se requiere el ID de la mascota');
+            }
+
+            // Verificar que el usuario esté autenticado
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            if (authError || !user) {
+                throw new Error('Usuario no autenticado');
+            }
+
+            // Obtener la mascota con el ID especificado
+            const { data: mascota, error } = await supabase
+                .from('mascota')
+                .select('*')
+                .eq('id_mascota', idMascota)
+                .single();
+
+            if (error || !mascota) {
+                throw new Error('Mascota no encontrada');
+            }
+
+            // Verificar que la mascota pertenezca al usuario
+            if (mascota.id_usuario !== user.id) {
+                throw new Error('No tienes permiso para acceder a esta mascota');
+            }
+
+            return { success: true, data: mascota };
+            
+        } catch (error) {
+            console.error('Error al obtener la mascota:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al obtener la mascota',
+                details: error 
             };
         }
     }

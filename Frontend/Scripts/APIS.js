@@ -537,6 +537,57 @@ export class API{
     }
     
     /**
+     * Elimina una mascota y su imagen asociada
+     * @param {number} idMascota - ID de la mascota a eliminar
+     * @returns {Promise<{success: boolean, error?: any}>} - Resultado de la operación
+     */
+    static async borrarMascota(idMascota) {
+        try {
+            if (!idMascota) {
+                throw new Error('Se requiere el ID de la mascota');
+            }
+
+            // Verificar que la mascota existe y pertenece al usuario
+            const { success: mascotaExiste, data: mascota } = await this.obtenerMascotaPorId(idMascota);
+            if (!mascotaExiste) {
+                throw new Error('Mascota no encontrada o no tienes permiso para eliminarla');
+            }
+
+            // Eliminar la imagen de la mascota si existe
+            if (mascota.imagen) {
+                const fileName = idMascota;
+                const { error: deleteImageError } = await supabase.storage
+                    .from('imagenes')
+                    .remove([`mascotas/${fileName}`]);
+                
+                // No lanzar error si la imagen no existe, continuar con la eliminación del registro
+                if (deleteImageError && !deleteImageError.message.includes('not found')) {
+                    console.warn('Advertencia al eliminar la imagen de la mascota:', deleteImageError);
+                    // Continuar con la eliminación del registro aunque falle la eliminación de la imagen
+                }
+            }
+
+            // Eliminar la mascota de la base de datos
+            const { error: deleteError } = await supabase
+                .from('mascota')
+                .delete()
+                .eq('id_mascota', idMascota);
+                
+            if (deleteError) throw deleteError;
+            
+            return { success: true };
+            
+        } catch (error) {
+            console.error('Error al eliminar la mascota:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al eliminar la mascota',
+                details: error 
+            };
+        }
+    }
+    
+    /**
      * Obtiene los datos de un usuario por su ID
      * @param {string} userId - ID del usuario
      * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Datos del usuario

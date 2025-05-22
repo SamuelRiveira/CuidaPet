@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => {
                         document.querySelector('.contenedor').style.display = 'none';
                         window.location.reload();
-                    }, 1500);
+                    }, 500);
                 } else {
                     mostrarMensaje('Email o contraseña incorrectos', true);
                 }

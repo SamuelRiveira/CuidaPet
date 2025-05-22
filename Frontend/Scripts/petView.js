@@ -2,6 +2,10 @@ import { PetManager } from "./PetManager.js";
 import { showPage } from "./navigation.js";
 import { PetEdit } from "./PetEdit.js";
 import { notificationService } from "./NotificationService.js";
+import { AppointmentManager } from "./AppointmentManager.js";
+
+// Instanciamos el AppointmentManager
+const appointmentManager = new AppointmentManager();
 
 // Instanciamos la clase PetManager
 const petManager = new PetManager();
@@ -90,6 +94,7 @@ async function loadPetDetails(petId) {
     // Busca la mascota por su ID usando la clase PetManager
     const pets = await petManager.getPetsData();
     const pet = pets.find(p => p.id === petId);
+    const appointments = await appointmentManager.getAppointments();
 
     if (!pet) {
         console.error('Mascota no encontrada:', petId);
@@ -113,7 +118,7 @@ async function loadPetDetails(petId) {
     `;
 
     // Actualiza la próxima cita
-    document.querySelector('#pet-detail-page .container-right h2').textContent = pet.appointment;
+    document.querySelector('#pet-detail-page .container-right h2').textContent = appointments.find(appointment => appointment.petId === pet.id)?.date || 'No hay citas programadas';
 
     // Actualiza la foto
     document.querySelector('#pet-detail-page .pet-photo img').src = pet.photoUrl;

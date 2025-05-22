@@ -1,6 +1,7 @@
 import { PetManager } from "./PetManager.js";
 import { showPage } from "./navigation.js";
 import { PetEdit } from "./PetEdit.js";
+import { notificationService } from "./NotificationService.js";
 
 // Instanciamos la clase PetManager
 const petManager = new PetManager();
@@ -230,6 +231,7 @@ async function handleDeletePet(petId) {
         : '¿Estás seguro de que deseas eliminar esta mascota?';
 
     if (!confirm(confirmMessage)) {
+        notificationService.showError('Operación cancelada');
         return;
     }
 
@@ -241,7 +243,7 @@ async function handleDeletePet(petId) {
             const successMessage = deletedCount === 1 
                 ? 'Mascota eliminada correctamente' 
                 : `${deletedCount} mascotas eliminadas correctamente`;
-            alert(successMessage);
+            notificationService.showSuccess(successMessage);
             
             // Actualizar la vista
             showPage('pets');
@@ -249,15 +251,15 @@ async function handleDeletePet(petId) {
         } else {
             // Mostrar mensaje de error con detalles
             let errorMessage = message || 'Error al eliminar la(s) mascota(s)';
+            notificationService.showError(errorMessage);
             
             if (errors && errors.length > 0) {
                 const errorDetails = errors
                     .map(e => `• ID ${e.id}: ${e.error}`)
                     .join('\n');
-                errorMessage += '\n\nDetalles de errores:\n' + errorDetails;
+                const fullErrorMessage = errorMessage + '\n\nDetalles de errores:\n' + errorDetails;
+                notificationService.showError(fullErrorMessage);
             }
-            
-            alert(errorMessage);
             
             // Si al menos algunas mascotas se eliminaron, actualizar la vista
             if (deletedCount > 0) {
@@ -267,21 +269,23 @@ async function handleDeletePet(petId) {
         }
     } catch (error) {
         console.error('Error inesperado al eliminar la(s) mascota(s):', error);
-        alert('Ocurrió un error inesperado al intentar eliminar la(s) mascota(s)');
+        const errorMessage = error.message || 'Error al eliminar la(s) mascota(s)';
+        notificationService.showError(errorMessage);
     }
 }
 
 // Ejemplo de uso para crear una nueva mascota
-function handleCreatePet(petData) {
-    const success = petManager.createPet(petData);
-    if (success) {
-        alert(`${petData.name} ha sido añadido correctamente`);
-        // Actualizamos la vista de mascotas
-        renderPetCards();
-        return true;
-    } else {
-        alert('Error al añadir la mascota');
-        return false;
+async function handleCreatePet(petData) {
+    try {
+        const newPet = await petManager.createPet(petData);
+        notificationService.showSuccess('Mascota creada exitosamente');
+        await renderPetCards();
+        return newPet;
+    } catch (error) {
+        console.error('Error al crear la mascota:', error);
+        const errorMessage = error.message || 'Error al crear la mascota';
+        notificationService.showError(errorMessage);
+        throw error;
     }
 }
 

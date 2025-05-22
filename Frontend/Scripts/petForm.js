@@ -1,6 +1,6 @@
 import { PetManager } from './PetManager.js';
 import { notificationService } from './NotificationService.js';
-import { ProfileUI } from './ProfileUI.js';
+import { renderPetCards } from './PetView.js';
 
 // Create a global instance of PetManager
 const petManager = new PetManager();
@@ -76,6 +76,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Añadir la mascota a través de la instancia de PetManager
             const result = await petManager.createPet(newPet);
+
+            // Renderizar las tarjetas de mascotas
+            setTimeout(() => {
+                renderPetCards();
+            }, 500);
             
             if (result && result.success) {
                 // Cerrar el modal y resetear el formulario solo si la operación fue exitosa

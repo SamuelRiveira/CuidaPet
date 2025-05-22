@@ -1,5 +1,6 @@
 // Funcionalidad de edición de mascotas
 import { PetManager } from './PetManager.js';
+import { notificationService } from './NotificationService.js';
 
 // Crear una instancia de PetManager
 const petManager = new PetManager();
@@ -381,12 +382,13 @@ class PetEdit {
             if (success) {
                 // Deshabilitar el modo de edición solo si la operación fue exitosa
                 this.disableEditMode(false);
+                notificationService.showSuccess('Mascota editada correctamente');
             } else {
-                alert('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
+                notificationService.showError('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
             }
         } catch (error) {
             console.error('Error al guardar los cambios:', error);
-            alert('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
+            notificationService.showError('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
         }
     }
 

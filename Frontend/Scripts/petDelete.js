@@ -1,6 +1,7 @@
 // Importar dependencias
 import { PetManager } from './PetManager.js';
 import { addPetCardEventListeners, renderPetCards } from './PetView.js';
+import { notificationService } from './NotificationService.js';
 
 // Inicializar instancia de PetManager
 const petManager = new PetManager();
@@ -152,16 +153,18 @@ function confirmDelete() {
     
     // Mostrar mensaje de confirmación
     if (petIdsToDelete.length === 1) {
-        alert('Se ha eliminado 1 mascota correctamente');
+        notificationService.showSuccess('Se ha eliminado 1 mascota correctamente');
     } else {
-        alert(`Se han eliminado ${petIdsToDelete.length} mascotas correctamente`);
+        notificationService.showSuccess(`Se han eliminado ${petIdsToDelete.length} mascotas correctamente`);
     }
     
     // Resetear el modo de borrado
     resetDeleteMode();
     
     // Actualizar la vista de mascotas
-    renderPetCards();
+    setTimeout(() => {
+        renderPetCards();
+    }, 500);
 }
 
 // Función para cancelar el modo de borrado

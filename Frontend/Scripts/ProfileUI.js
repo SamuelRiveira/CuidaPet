@@ -408,7 +408,7 @@ class ProfileUI {
             // Recargar la interfaz
             setTimeout(() => {
                 this.loadProfileData();
-            }, 800);
+            }, 1150);
         } else {
             // Mostrar mensaje de error
             notificationService.showError('Error al actualizar el perfil');

@@ -1,4 +1,5 @@
 import { PetManager } from './PetManager.js';
+import { ProfileUI } from './ProfileUI.js';
 
 // Create a global instance of PetManager
 const petManager = new PetManager();
@@ -80,10 +81,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 modal.style.display = 'none';
                 addPetForm.reset();
                 
-                // Mostrar un solo mensaje de éxito
+                // Mostrar notificación de éxito
                 if (!window.petCreationAlertShown) {
                     window.petCreationAlertShown = true;
-                    alert(`¡${petName} ha sido añadida con éxito!`);
+                    // Usar la notificación existente de ProfileUI
+                    const profileUI = new ProfileUI();
+                    profileUI.showSuccessNotification(`¡${petName} ha sido añadida con éxito!`);
                     
                     // Recargar la lista de mascotas después de un breve retraso
                     setTimeout(() => {
@@ -91,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             window.location.reload();
                         }
                         window.petCreationAlertShown = false;
-                    }, 100);
+                    }, 3000);
                 }
             } else {
                 throw new Error(result?.error || 'Error desconocido al crear la mascota');

@@ -181,6 +181,38 @@ export class API{
      * @param {File} [datosUsuario.imagenFile] - Archivo de imagen para subir (opcional)
      * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
      */
+    /**
+     * Obtiene un servicio por su ID
+     * @param {number} servicioId - ID del servicio a obtener
+     * @returns {Promise<{success: boolean, data?: Object, error?: any}>} - Resultado de la operación con los datos del servicio
+     */
+    static async obtenerServicioPorId(servicioId) {
+        try {
+            const { data, error } = await supabase
+                .from('servicio')
+                .select('nombre_servicio')
+                .eq('id_servicio', servicioId)
+                .single();
+                
+            if (error) throw error;
+            
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error al obtener el servicio:', error);
+            return { success: false, error };
+        }
+    }
+    
+    /**
+     * Actualiza el perfil del usuario actual (nombre, apellidos, dirección e imagen)
+     * @param {Object} datosUsuario - Datos actualizados del usuario
+     * @param {string} datosUsuario.nombre - Nombre del usuario
+     * @param {string} datosUsuario.apellidos - Apellidos del usuario
+     * @param {string} datosUsuario.direccion - Dirección del usuario
+     * @param {string} datosUsuario.imagen - URL de la imagen de perfil
+     * @param {File} [datosUsuario.imagenFile] - Archivo de imagen para subir (opcional)
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
+     */
     static async actualizarPerfilUsuario(datosUsuario) {
         try {
             // Obtener la sesión actual

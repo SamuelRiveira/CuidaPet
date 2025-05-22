@@ -588,7 +588,7 @@ export class API{
     }
     
     /**
-     * Obtiene todas las citas del usuario actualmente autenticado
+     * Obtiene todas las citas de las mascotas del usuario actualmente autenticado
      * @returns {Promise<{success: boolean, data?: Array<{
      *   id_cita: string,
      *   fecha: string,
@@ -597,9 +597,64 @@ export class API{
      *   is_canceled: boolean,
      *   mascota: { id_mascota: string, nombre: string },
      *   servicio: { id_servicio: number, nombre: string }
-     * }>, error?: any}>} - Lista de citas del usuario
+     * }>, error?: any}>} - Lista de citas de las mascotas del usuario
      */
-    static async obtenerCitasUsuario() {}
+    static async obtenerCitasMascotas() {
+        try {
+            // Obtener la sesión actual
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError) throw sessionError;
+            if (!session) return { success: false, noSession: true };
+            
+            // 1. Obtener todas las mascotas del usuario
+            const { data: mascotas, error: mascotasError } = await supabase
+                .from('mascota')
+                .select('id_mascota')
+                .eq('id_usuario', session.user.id);
+                
+            if (mascotasError) throw mascotasError;
+            
+            // Si el usuario no tiene mascotas, retornar array vacío
+            if (!mascotas || mascotas.length === 0) {
+                return { success: true, data: [] };
+            }
+            
+            // Extraer los IDs de las mascotas
+            const mascotasIds = mascotas.map(m => m.id_mascota);
+            
+            // 2. Obtener las citas para todas las mascotas del usuario
+            const { data: citas, error: citasError } = await supabase
+                .from('cita')
+                .select(`
+                    id_cita,
+                    fecha,
+                    hora_inicio,
+                    hora_final,
+                    is_canceled,
+                    mascota: id_mascota (id_mascota, nombre),
+                    servicio: id_servicio (id_servicio, nombre)
+                `)
+                .in('id_mascota', mascotasIds)
+                .order('fecha', { ascending: true })
+                .order('hora_inicio', { ascending: true });
+                
+            if (citasError) throw citasError;
+            
+            return { 
+                success: true, 
+                data: citas || [] 
+            };
+            
+        } catch (error) {
+            console.error('Error al obtener las citas de las mascotas:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al obtener las citas de las mascotas',
+                details: error 
+            };
+        }
+    }
     
     /**
      * Obtiene los datos de un usuario por su ID

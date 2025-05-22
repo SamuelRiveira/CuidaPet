@@ -1,6 +1,7 @@
 import { PetManager } from './PetManager.js';
 import { notificationService } from './NotificationService.js';
 import { renderPetCards } from './PetView.js';
+import { ProfileUI } from './ProfileUI.js';
 
 // Create a global instance of PetManager
 const petManager = new PetManager();
@@ -77,9 +78,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Añadir la mascota a través de la instancia de PetManager
             const result = await petManager.createPet(newPet);
 
-            // Renderizar las tarjetas de mascotas
-            setTimeout(() => {
-                renderPetCards();
+            // Renderizar las tarjetas de mascotas y actualizar perfil
+            setTimeout(async () => {
+                await renderPetCards();
+                // Si estamos en la página de perfil, recargar los datos del perfil
+                const profilePage = document.getElementById('profile-page');
+                if (profilePage) {
+                    const profileUI = new ProfileUI();
+                    await profileUI.loadProfileData();
+                }
             }, 500);
             
             if (result && result.success) {

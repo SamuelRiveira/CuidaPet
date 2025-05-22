@@ -2,6 +2,7 @@
 import { PetManager } from './PetManager.js';
 import { addPetCardEventListeners, renderPetCards } from './PetView.js';
 import { notificationService } from './NotificationService.js';
+import { ProfileUI } from './ProfileUI.js';
 
 // Inicializar instancia de PetManager
 const petManager = new PetManager();
@@ -162,8 +163,14 @@ function confirmDelete() {
     resetDeleteMode();
     
     // Actualizar la vista de mascotas
-    setTimeout(() => {
-        renderPetCards();
+    setTimeout(async () => {
+        await renderPetCards();
+        // Si estamos en la página de perfil, recargar los datos del perfil
+        const profilePage = document.getElementById('profile-page');
+        if (profilePage) {
+            const profileUI = new ProfileUI();
+            await profileUI.loadProfileData();
+        }
     }, 500);
 }
 

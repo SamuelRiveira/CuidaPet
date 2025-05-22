@@ -5,6 +5,9 @@ import { notificationService } from './NotificationService.js';
 // Crear una instancia de PetManager
 const petManager = new PetManager();
 
+// Mantener referencia a la instancia actual
+let currentPetEditInstance = null;
+
 class PetEdit {
     constructor(petId) {
         this.petId = petId; // Store the pet ID when initializing the class
@@ -17,47 +20,64 @@ class PetEdit {
             { selector: 'div.special-notes p', type: 'text', label: 'Notas especiales' },
             { selector: 'div.medical-history > ul', type: 'html', label: 'Historial médico' },
             { selector: 'div[data-component-name="<div />"] > ul', type: 'html', label: 'Historial médico' },
-            // Selectores específicos para edad y peso
             { selector: '.info-grid > .info-item:nth-child(1) .info-value', type: 'text', label: 'Edad' },
             { selector: '.info-grid > .info-item:nth-child(2) .info-value', type: 'text', label: 'Peso' }
         ];
         this.originalValues = new Map();
         this.photoEditMode = false;
+        this._editButton = null;
+        this._clickHandler = null;
     }
 
     initEditButton() {
-        // Check if edit button already exists
-        let editButton = document.querySelector('.edit-button');
-        
-        if (!editButton) {
-            // Only create and append the button if it doesn't exist
-            editButton = document.createElement('button');
-            editButton.textContent = 'Editar';
-            editButton.classList.add('edit-button');
-            
-            const containerTop = document.querySelector('.container-top .container-left');
-            if (containerTop) {
-                containerTop.appendChild(editButton);
-            }
-
-            editButton.addEventListener('click', () => this.toggleEditMode());
+        // Limpiar instancia anterior si existe
+        if (currentPetEditInstance && currentPetEditInstance !== this) {
+            currentPetEditInstance.cleanup();
         }
+        currentPetEditInstance = this;
+
+        // Remover botón de edición existente si hay uno
+        const existingButton = document.querySelector('.edit-button');
+        if (existingButton) {
+            existingButton.remove();
+        }
+
+        // Crear y agregar el nuevo botón de edición
+        this._editButton = document.createElement('button');
+        this._editButton.textContent = 'Editar';
+        this._editButton.classList.add('edit-button');
+        
+        const containerTop = document.querySelector('.container-top .container-left');
+        if (containerTop) {
+            containerTop.appendChild(this._editButton);
+        }
+
+        // Usar una función con nombre para poder eliminarla después
+        this._clickHandler = () => this.toggleEditMode();
+        this._editButton.addEventListener('click', this._clickHandler);
     }
 
     toggleEditMode() {
-        const confirmButton = document.querySelector('.confirm-edit-button');
-        const cancelButton = document.querySelector('.cancel-edit-button');
-
-        if (!confirmButton) {
+        if (!this.isEditing) {
             this.enableEditMode();
         } else {
-            this.disableEditMode(false);
+            this.showConfirmationModal();
         }
     }
 
+    showConfirmationModal() {
+        // Implementar lógica de confirmación si es necesario
+        this.confirmEdit();
+    }
+
     enableEditMode() {
-        // Almacenar valores originales
         this.originalValues.clear();
+        this.isEditing = true;
+        
+        // Hide the edit button when entering edit mode
+        if (this._editButton) {
+            this._editButton.style.display = 'none';
+        }
 
         this.editableElements.forEach(elem => {
             const elements = document.querySelectorAll(elem.selector);
@@ -66,7 +86,6 @@ class PetEdit {
                 if (elem.type === 'html') {
                     this.originalValues.set(element, element.innerHTML);
                 } else if (elem.type === 'allergies') {
-                    // Guardar las alergias actuales como array
                     const allergies = [];
                     element.querySelectorAll('p').forEach(p => {
                         if (p.textContent && p.textContent.trim() !== 'No se han registrado alergias') {
@@ -160,22 +179,16 @@ class PetEdit {
         }
 
         // Reemplazar el botón de edición con botones de confirmar/cancelar
-        const editButton = document.querySelector('.edit-button');
-        if (editButton) {
-            editButton.remove();
-        }
-
         const buttonContainer = document.querySelector('.container-top .container-left');
         if (buttonContainer) {
             const confirmButton = document.createElement('button');
             confirmButton.textContent = 'Confirmar';
             confirmButton.classList.add('confirm-edit-button');
+            confirmButton.addEventListener('click', () => this.confirmEdit());
 
             const cancelButton = document.createElement('button');
             cancelButton.textContent = 'Cancelar';
             cancelButton.classList.add('cancel-edit-button');
-
-            confirmButton.addEventListener('click', () => this.confirmEdit());
             cancelButton.addEventListener('click', () => this.disableEditMode(true));
 
             buttonContainer.appendChild(confirmButton);
@@ -198,7 +211,12 @@ class PetEdit {
         }
     }
 
-    disableEditMode(isCancelled) {
+    disableEditMode(isCancelled = false) {
+        // Mostrar el botón de editar al salir del modo edición
+        if (this._editButton) {
+            this._editButton.style.display = 'inline-block';
+        }
+        
         this.editableElements.forEach(elem => {
             const elements = document.querySelectorAll(elem.selector);
             elements.forEach(element => {
@@ -253,53 +271,63 @@ class PetEdit {
                 element.classList.remove('editing');
                 element.style.border = '';
                 element.style.padding = '';
-                element.title = '';
             });
         });
-        
-        // Asegurarse de que el h1 principal también vuelva a su estado normal
-        const mainTitle = document.querySelector('h1');
-        if (mainTitle) {
-            if (isCancelled && this.originalValues.has(mainTitle)) {
-                mainTitle.textContent = this.originalValues.get(mainTitle);
-            }
-            mainTitle.removeAttribute('contenteditable');
-            mainTitle.classList.remove('editing');
-            mainTitle.style.border = '';
-            mainTitle.style.padding = '';
-            mainTitle.removeAttribute('title');
+
+        // Restaurar el botón de editar
+        if (this._editButton) {
+            this._editButton.style.display = 'inline-block';
         }
 
-        // Restaurar foto si se cancela
-        const petPhoto = document.querySelector('.pet-photo img');
-        const photoEditOverlay = document.querySelector('.photo-edit-overlay');
-        if (petPhoto && photoEditOverlay) {
-            if (isCancelled && this.originalPhotoSrc) {
-                petPhoto.src = this.originalPhotoSrc;
-            }
-            photoEditOverlay.remove();
-            this.photoEditMode = false;
-        }
-
-        // Eliminar botones de confirmar/cancelar y restaurar botón de edición
+        // Eliminar botones de confirmar/cancelar
         const confirmButton = document.querySelector('.confirm-edit-button');
         const cancelButton = document.querySelector('.cancel-edit-button');
-        
         if (confirmButton) confirmButton.remove();
         if (cancelButton) cancelButton.remove();
 
-        this.initEditButton();
+        // Restaurar el cursor normal en todos los elementos editables
+        document.querySelectorAll('.editable').forEach(el => {
+            if (document.body.contains(el)) {
+                el.classList.remove('editable');
+                el.removeAttribute('contenteditable');
+            }
+        });
+        
+        // Limpiar el overlay de edición de foto si existe
+        const photoOverlay = document.querySelector('.photo-edit-overlay');
+        if (photoOverlay) {
+            photoOverlay.remove();
+        }
+        
+        this.photoEditMode = false;
+        this.isEditing = false;
+    }
+
+    cleanup() {
+        // Remover event listeners
+        if (this._editButton && this._clickHandler) {
+            this._editButton.removeEventListener('click', this._clickHandler);
+        }
+        
+        // Limpiar referencias
+        this._editButton = null;
+        this._clickHandler = null;
+        this.originalValues.clear();
+        
+        // Deshabilitar modo de edición si está activo
+        if (this.isEditing) {
+            this.disableEditMode(true);
+        }
     }
 
     async confirmEdit() {
         const editedData = {
-            id: this.petId, // Include the pet ID in the edited data
-            // Log the ID for debugging
+            id: this.petId,
             _debug_id_type: typeof this.petId,
             _debug_id_value: this.petId
         };
         
-        // Capturar todos los campos editables
+        // Definir campos a capturar
         const fields = [
             { id: '#pet-detail-name', key: 'nombre' },
             { id: '.info-item:nth-child(1) .info-value', key: 'edad' },
@@ -307,7 +335,7 @@ class PetEdit {
             { id: '.medical-history ul', key: 'historial_medico', isHtml: true },
             { id: '.special-notes p', key: 'notas_especiales' }
         ];
-    
+        
         // Recorrer y capturar todos los campos
         fields.forEach(field => {
             const element = document.querySelector(field.id);
@@ -324,40 +352,24 @@ class PetEdit {
             }
         });
         
-        // Capturar alergias desde los elementos .allergy-item
-        const allergyItems = document.querySelectorAll('.allergy-item');
-        if (allergyItems.length > 0) {
-            const allergies = [];
-            allergyItems.forEach(item => {
-                const allergyText = item.textContent.trim();
-                // Solo agregar si no es el mensaje por defecto de "no alergias"
-                if (allergyText && allergyText !== 'No se han registrado alergias') {
-                    allergies.push(allergyText);
-                }
-            });
-            
-            // Si hay alergias válidas, las guardamos; si no, guardamos un string vacío
-            editedData.alergias = allergies.length > 0 ? allergies.join('\n') : '';
-        } else {
-            // Si no hay elementos .allergy-item, intentar capturar desde el contenedor de alergias
-            const allergiesContainer = document.querySelector('.allergies');
-            if (allergiesContainer) {
-                const textarea = allergiesContainer.querySelector('textarea');
-                if (textarea) {
-                    // Si estamos en modo edición con textarea
-                    editedData.alergias = textarea.value.trim();
-                } else {
-                    // Si no hay textarea, capturar desde los párrafos
-                    const allergyParagraphs = allergiesContainer.querySelectorAll('p:not(h3)');
-                    const allergies = [];
-                    allergyParagraphs.forEach(p => {
-                        const allergyText = p.textContent.trim();
-                        if (allergyText && allergyText !== 'No se han registrado alergias') {
-                            allergies.push(allergyText);
-                        }
-                    });
-                    editedData.alergias = allergies.join('\n');
-                }
+        // Capturar alergias
+        const allergiesContainer = document.querySelector('.allergies');
+        if (allergiesContainer) {
+            const textarea = allergiesContainer.querySelector('textarea');
+            if (textarea) {
+                // Si estamos en modo edición con textarea
+                editedData.alergias = textarea.value.trim();
+            } else {
+                // Si no hay textarea, capturar desde los párrafos
+                const allergyParagraphs = allergiesContainer.querySelectorAll('p:not(h3)');
+                const allergies = [];
+                allergyParagraphs.forEach(p => {
+                    const allergyText = p.textContent.trim();
+                    if (allergyText && allergyText !== 'No se han registrado alergias') {
+                        allergies.push(allergyText);
+                    }
+                });
+                editedData.alergias = allergies.join('\n');
             }
         }
     
@@ -365,7 +377,7 @@ class PetEdit {
         if (this.photoEditMode) {
             const petPhoto = document.querySelector('.pet-photo img');
             if (petPhoto) {
-                editedData['foto'] = petPhoto.src;
+                editedData.foto = petPhoto.src;
             }
         }
     

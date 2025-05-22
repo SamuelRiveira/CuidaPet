@@ -34,12 +34,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const success = await UserAuthManager.login(email, password);
                 
                 if (success) {
+                    // Mostrar mensaje de éxito
                     mostrarMensaje('¡Inicio de sesión exitoso!', false);
                     formularioLogin.reset();
                     
-                    // Cerrar el modal y recargar la página
-                    document.querySelector('.contenedor').style.display = 'none';
-                    window.location.reload();
+                    // Cerrar el modal después de un breve retraso para que se vea el mensaje
+                    setTimeout(() => {
+                        document.querySelector('.contenedor').style.display = 'none';
+                        window.location.reload();
+                    }, 1500);
                 } else {
                     mostrarMensaje('Email o contraseña incorrectos', true);
                 }

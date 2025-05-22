@@ -99,7 +99,7 @@ class PetManager {
         }
     }
 
-    deletePet(petId) {
+    deletePet(listPetId) {
         // Método vacío para implementar en el futuro
         // TODO: Implementar llamada a API
         return true;

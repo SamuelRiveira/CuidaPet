@@ -590,12 +590,14 @@ export class API{
     /**
      * Obtiene todas las citas del usuario actualmente autenticado
      * @returns {Promise<{success: boolean, data?: Array<{
-     *   id_cita: number,
+     *   id_cita: string,
      *   fecha: string,
-     *   hora: string,
-     *   estado: string,
-     *   mascota: { id_mascota: number, nombre: string },
-     *   servicio: { id_servicio: number, nombre: string }
+     *   hora_inicio: string,
+     *   hora_final: string,
+     *   is_canceled: boolean,
+     *   mascota: { id_mascota: string, nombre: string },
+     *   servicio: { id_servicio: number, nombre: string },
+     *   empleado: { id_usuario: string, nombre: string, apellidos: string } | null
      * }>, error?: any}>} - Lista de citas del usuario
      */
     static async obtenerCitasUsuario() {
@@ -606,20 +608,22 @@ export class API{
                 throw new Error('Usuario no autenticado');
             }
 
-            // Obtener las citas del usuario con información de mascota y servicio
+            // Obtener las citas del usuario con información de mascota, servicio y empleado
             const { data: citas, error } = await supabase
                 .from('cita')
                 .select(`
                     id_cita,
                     fecha,
-                    hora,
-                    estado,
+                    hora_inicio,
+                    hora_final,
+                    is_canceled,
                     mascota: id_mascota (id_mascota, nombre),
-                    servicio: id_servicio (id_servicio, nombre)
+                    servicio: id_servicio (id_servicio, nombre),
+                    empleado: id_empleado (id_usuario, nombre, apellidos)
                 `)
-                .eq('id_usuario', user.id)
+                .or(`id_empleado.eq.${user.id},mascota.id_usuario.eq.${user.id}`)
                 .order('fecha', { ascending: true })
-                .order('hora', { ascending: true });
+                .order('hora_inicio', { ascending: true });
 
             if (error) throw error;
 

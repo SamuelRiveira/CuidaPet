@@ -209,8 +209,8 @@ class AppointmentUI {
             // Añadir opciones de mascotas
             formData.pets.forEach(pet => {
                 const option = document.createElement('option');
-                option.value = pet.value;
-                option.textContent = pet.label;
+                option.value = pet.id;
+                option.textContent = pet.name;
                 petSelect.appendChild(option);
             });
 
@@ -306,11 +306,19 @@ class AppointmentUI {
      * @returns {Object|null} Intervalo ocupado o null si no está ocupado
      */
     findOccupiedSlot(date, time, occupiedSlots) {
+        // Convertir la hora actual a minutos para facilitar las comparaciones
+        const [hours, minutes] = time.split(':').map(Number);
+        const currentTimeInMinutes = hours * 60 + minutes;
+        
         return occupiedSlots.find(slot => {
-            const startTime = slot.start;
-            const endTime = slot.end;
-            // Solo verificamos si el tiempo está ocupado para la fecha seleccionada
-            return slot.date === date && time >= startTime && time < endTime;
+            if (slot.date !== date) return false;
+            
+            // Convertir hora de inicio a minutos
+            const [startHours, startMinutes] = slot.start.split(':').map(Number);
+            const slotStartInMinutes = startHours * 60 + startMinutes;
+            
+            // Verificar si el tiempo actual está dentro de 30 minutos antes o después de la hora de inicio
+            return Math.abs(currentTimeInMinutes - slotStartInMinutes) <= 29;
         }) || null;
     }
     

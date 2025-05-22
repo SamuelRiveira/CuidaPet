@@ -132,37 +132,71 @@ class AppointmentManager {
     }
 
     /**
-     * Obtiene los datos para el formulario de citas
-     * @returns {Promise} Promesa que resuelve con los datos del formulario
+     * Obtiene los datos necesarios para el formulario de citas
+     * @returns {Promise<{pets: Array<{id: string, name: string}>, services: Array<{value: string, label: string}>, occupiedTimeSlots: Array<{date: string, start: string, end: string}>}>}
      */
-    getAppointmentFormData() {
-        // TODO: Implementar llamada a API
-        return new Promise((resolve) => {
-            const formData = {
-                pets: [
-                    { value: 'luna', label: 'Luna' },
-                    { value: 'simba', label: 'Simba' },
-                    { value: 'rocky', label: 'Rocky' },
-                    { value: 'mia', label: 'Mia' },
-                    { value: 'max', label: 'Max' }
-                ],
-                services: [
-                    { value: 'vacunas', label: 'Vacunas' },
-                    { value: 'revision', label: 'Revisión general' },
-                    { value: 'esterilizacion', label: 'Esterilización/Castración' },
-                    { value: 'peluqueria', label: 'Peluquería' },
-                    { value: 'desparasitacion', label: 'Desparasitación' }
-                ],
-                occupiedTimeSlots: [
-                    { date: '2025-05-15', start: '09:00', end: '09:30' },
-                    { date: '2025-05-15', start: '10:15', end: '10:45' },
-                    { date: '2025-05-16', start: '14:30', end: '15:00' },
-                    { date: '2025-05-17', start: '16:45', end: '17:15' },
-                    { date: '2025-05-20', start: '09:00', end: '09:30' }
-                ]
+    async getAppointmentFormData() {
+        try {
+            // Obtener mascotas del usuario
+            const { success: petsSuccess, data: petsData } = await API.obtenerMascotasUsuario();
+            
+            if (!petsSuccess) {
+                throw new Error('No se pudieron cargar las mascotas');
+            }
+            
+            // Mapear las mascotas al formato esperado
+            const pets = petsData.map(pet => ({
+                id: pet.id_mascota,
+                name: pet.nombre
+            }));
+            
+            // Obtener servicios desde la API
+            const { success: servicesSuccess, data: servicesData } = await API.obtenerServicios();
+            
+            if (!servicesSuccess) {
+                throw new Error('No se pudieron cargar los servicios');
+            }
+            
+            // Mapear los servicios al formato esperado
+            const services = servicesData.map(servicio => ({
+                value: servicio.id_servicio.toString(),
+                label: servicio.nombre_servicio,
+                description: servicio.descripcion || ''
+            }));
+            
+            // Obtener citas existentes para determinar horarios ocupados
+            const { success: appointmentsSuccess, data: appointments } = await API.obtenerTodasLasCitas();
+            
+            // Mapear citas al formato de horarios ocupados
+            const occupiedTimeSlots = [];
+            
+            if (appointmentsSuccess && Array.isArray(appointments)) {
+                appointments.forEach(appointment => {
+                    if (appointment.fecha && appointment.hora_inicio && appointment.hora_final) {
+                        occupiedTimeSlots.push({
+                            date: appointment.fecha,
+                            start: appointment.hora_inicio,
+                            end: appointment.hora_final
+                        });
+                    }
+                });
+            }
+            
+            return {
+                pets,
+                services,
+                occupiedTimeSlots
             };
-            resolve(formData);
-        });
+            
+        } catch (error) {
+            console.error('Error al obtener datos del formulario de citas:', error);
+            // Retornar datos por defecto en caso de error
+            return {
+                pets: [],
+                services: [],
+                occupiedTimeSlots: []
+            };
+        }
     }
 }
 

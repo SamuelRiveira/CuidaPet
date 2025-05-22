@@ -3,6 +3,7 @@
  */
 
 import { ProfileManager } from "./ProfileManager.js";
+import { notificationService } from "./NotificationService.js";
 
 class ProfileUI {
     constructor() {
@@ -405,69 +406,20 @@ class ProfileUI {
             }
             
             // Mostrar mensaje de éxito con notificación
-            this.showSuccessNotification('Perfil actualizado correctamente');
+            notificationService.showSuccess('Perfil actualizado correctamente');
         } else {
             // Mostrar mensaje de error
-            alert('Error al actualizar el perfil');
+            notificationService.showError('Error al actualizar el perfil');
         }
     }
 
     /**
      * Muestra una notificación de éxito
      * @param {string} message - Mensaje a mostrar en la notificación
+     * @deprecated Use notificationService.showSuccess() instead
      */
     showSuccessNotification(message) {
-        // Crear elemento para el mensaje
-        const messageContainer = document.createElement('div');
-        messageContainer.className = 'success-message';
-        messageContainer.style.position = 'fixed';
-        messageContainer.style.bottom = '20px';
-        messageContainer.style.right = '20px';
-        messageContainer.style.backgroundColor = '#d4edda';
-        messageContainer.style.color = '#28a745';
-        messageContainer.style.padding = '15px 20px';
-        messageContainer.style.borderRadius = '4px';
-        messageContainer.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-        messageContainer.style.zIndex = '1000';
-        messageContainer.style.transition = 'all 0.3s ease';
-        messageContainer.style.animation = 'slideIn 0.3s forwards';
-        messageContainer.innerHTML = `
-            <div style="display: flex; align-items: center;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                <span>${message}</span>
-            </div>
-        `;
-        
-        // Agregar estilos de animación al documento si no existen
-        if (!document.getElementById('notification-styles')) {
-            const styleEl = document.createElement('style');
-            styleEl.id = 'notification-styles';
-            styleEl.textContent = `
-                @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes fadeOut {
-                    from { opacity: 1; }
-                    to { opacity: 0; }
-                }
-            `;
-            document.head.appendChild(styleEl);
-        }
-        
-        // Agregar el mensaje al DOM
-        document.body.appendChild(messageContainer);
-        
-        // Eliminar el mensaje después de 4 segundos
-        setTimeout(() => {
-            messageContainer.style.animation = 'fadeOut 0.3s forwards';
-            setTimeout(() => {
-                messageContainer.remove();
-            }, 300);
-        }, 4000);
+        notificationService.showSuccess(message);
     }
     
     /**

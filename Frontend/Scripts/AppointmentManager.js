@@ -20,8 +20,32 @@ class AppointmentManager {
                 return [];
             }
             
+            // Obtener la fecha y hora actual
+            const ahora = new Date();
+            const fechaActual = ahora.toISOString().split('T')[0];
+            const horaActual = ahora.toTimeString().slice(0, 5);
+            
+            // Filtrar citas canceladas y pasadas
+            const citasFiltradas = citas.filter(cita => {
+                if (cita.is_canceled) return false;
+                
+                const fechaCita = cita.fecha;
+                const horaCita = cita.hora_inicio?.split(':').slice(0, 2).join(':');
+                
+                // Si la fecha de la cita es posterior a hoy, mantenerla
+                if (fechaCita > fechaActual) return true;
+                
+                // Si la cita es hoy, verificar la hora
+                if (fechaCita === fechaActual) {
+                    return horaCita && horaCita >= horaActual;
+                }
+                
+                // Si la cita es de un día anterior, descartarla
+                return false;
+            });
+            
             // Procesar las citas en paralelo para mejorar el rendimiento
-            const citasProcesadas = await Promise.all(citas.map(async (cita) => {
+            const citasProcesadas = await Promise.all(citasFiltradas.map(async (cita) => {
                 // Obtener datos de la mascota
                 let nombreMascota = cita.mascota?.nombre || 'Mascota sin nombre';
                 let imagenMascota = "/Frontend/imagenes/default-pet.jpg";

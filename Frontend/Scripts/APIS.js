@@ -491,13 +491,18 @@ export class API{
                 
                 if (uploadError) throw uploadError;
                 
-                // Obtener la URL pública de la nueva imagen
-                const { data: urlData } = supabase.storage
+                // Generar una URL firmada con validez de 1 año (en segundos)
+                const EXPIRES_IN = 60 * 60 * 24 * 365; // 1 año en segundos
+                const { data: signedUrlData } = await supabase.storage
                     .from('imagenes')
-                    .getPublicUrl(`mascotas/${fileName}`);
+                    .createSignedUrl(`mascotas/${fileName}`, EXPIRES_IN);
                 
-                // Agregar la URL de la nueva imagen a los datos actualizados
-                datosActualizados.imagen = urlData.publicUrl;
+                if (!signedUrlData || !signedUrlData.signedUrl) {
+                    throw new Error('No se pudo generar la URL firmada para la imagen');
+                }
+                
+                // Usar la URL firmada en lugar de la URL pública
+                datosActualizados.imagen = signedUrlData.signedUrl;
             }
 
             // Si no hay datos para actualizar, retornar éxito

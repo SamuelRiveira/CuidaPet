@@ -204,6 +204,46 @@ export class API{
     }
     
     /**
+     * Obtiene todos los servicios disponibles
+     * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de servicios o error
+     */
+    static async obtenerServicios() {
+        try {
+            const { data, error } = await supabase
+                .from('servicio')
+                .select('*');
+                
+            if (error) throw error;
+            
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error al obtener servicios:', error);
+            return { success: false, error };
+        }
+    }
+
+    /**
+     * Obtiene todas las citas del sistema
+     * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de citas o error
+     */
+    static async obtenerTodasLasCitas() {
+        try {
+            const { data, error } = await supabase
+                .from('cita')
+                .select(`*`)
+                .order('fecha', { ascending: true })
+                .order('hora_inicio', { ascending: true });
+                
+            if (error) throw error;
+            
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error al obtener las citas:', error);
+            return { success: false, error };
+        }
+    }
+    
+    /**
      * Actualiza el perfil del usuario actual (nombre, apellidos, dirección e imagen)
      * @param {Object} datosUsuario - Datos actualizados del usuario
      * @param {string} datosUsuario.nombre - Nombre del usuario
@@ -683,39 +723,6 @@ export class API{
             return { 
                 success: false, 
                 error: error.message || 'Error al obtener las citas de las mascotas',
-                details: error 
-            };
-        }
-    }
-    
-    /**
-     * Obtiene los datos de un usuario por su ID
-     * @param {string} userId - ID del usuario
-     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Datos del usuario
-     */
-    /**
-     * Obtiene todos los servicios disponibles
-     * @returns {Promise<{success: boolean, data?: Array<{id_servicio: number, nombre_servicio: string, descripcion?: string}>, error?: any}>} - Lista de servicios
-     */
-    static async obtenerServicios() {
-        try {
-            const { data, error } = await supabase
-                .from('servicio')
-                .select('id_servicio, nombre_servicio')
-                .order('nombre_servicio', { ascending: true });
-                
-            if (error) throw error;
-            
-            return { 
-                success: true, 
-                data: data || [] 
-            };
-            
-        } catch (error) {
-            console.error('Error al obtener los servicios:', error);
-            return { 
-                success: false, 
-                error: error.message || 'Error al obtener los servicios',
                 details: error 
             };
         }

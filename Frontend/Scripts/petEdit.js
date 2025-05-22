@@ -14,9 +14,11 @@ class PetEdit {
             { selector: 'div.allergies', type: 'allergies', label: 'Alergias' },
             { selector: 'p[data-component-name="<p />"]', type: 'text', label: 'Descripción' },
             { selector: 'div.special-notes p', type: 'text', label: 'Notas especiales' },
-            { selector: 'div.info-item .info-value', type: 'text', label: 'Información' },
             { selector: 'div.medical-history > ul', type: 'html', label: 'Historial médico' },
-            { selector: 'div[data-component-name="<div />"] > ul', type: 'html', label: 'Historial médico' }
+            { selector: 'div[data-component-name="<div />"] > ul', type: 'html', label: 'Historial médico' },
+            // Selectores específicos para edad y peso
+            { selector: '.info-grid > .info-item:nth-child(1) .info-value', type: 'text', label: 'Edad' },
+            { selector: '.info-grid > .info-item:nth-child(2) .info-value', type: 'text', label: 'Peso' }
         ];
         this.originalValues = new Map();
         this.photoEditMode = false;

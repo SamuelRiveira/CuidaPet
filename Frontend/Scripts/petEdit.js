@@ -396,15 +396,6 @@ class PetEdit {
                 // Deshabilitar el modo de edición solo si la operación fue exitosa
                 this.disableEditMode(false);
                 notificationService.showSuccess('Mascota editada correctamente');
-                
-                // Actualizar la lista de mascotas
-                await renderPetCards();
-                
-                // Volver a la vista de lista de mascotas
-                const backButton = document.querySelector('.back-button');
-                if (backButton) {
-                    backButton.click();
-                }
             } else {
                 notificationService.showError('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
             }

@@ -40,6 +40,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const targetPage = this.getAttribute('data-page');
             showPage(targetPage);
 
+            // Si volvemos a la página de mascotas, actualizamos la lista
+            if (targetPage === 'pets') {
+                renderPetCards();
+            }
+
             navLinks.forEach(link => {
                 link.classList.toggle('active', link.getAttribute('data-page') === targetPage);
             });

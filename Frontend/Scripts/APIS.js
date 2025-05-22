@@ -9,10 +9,17 @@ export class API{
      */
     static async registrarUsuario(email, password) {
         try {
-            // Registrar usuario con Supabase Auth
+            // Registrar usuario con Supabase Auth sin iniciar sesión automáticamente
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email,
                 password,
+                options: {
+                    emailRedirectTo: window.location.origin + '/Frontend/index.html',
+                    data: {
+                        // No guardar la sesión en el almacenamiento local
+                        skipSession: true
+                    }
+                }
             });
             
             if (authError) throw authError;

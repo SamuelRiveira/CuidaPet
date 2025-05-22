@@ -51,12 +51,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 const resultado = await API.registrarUsuario(email, password);
                 
                 if (resultado.success) {
-                    mostrarMensaje('¡Registro exitoso! Ahora puedes iniciar sesión', false);
+                    // Limpiar cualquier sesión que se haya podido crear
+                    await API.cerrarSesion();
+                    
+                    // Mostrar mensaje de éxito
+                    mostrarMensaje('¡Registro exitoso! Por favor revisa tu correo electrónico para confirmar tu cuenta.', false);
                     formularioRegistro.reset();
                     
                     // Redirigir al login después de un breve retraso
                     setTimeout(() => {
                         desactivar(); // Cambiar de registro a login
+                        // Limpiar el mensaje después de cambiar a login
+                        const mensajeLogin = document.getElementById('login-mensaje');
+                        if (mensajeLogin) {
+                            mensajeLogin.textContent = 'Por favor inicia sesión con tus credenciales';
+                            mensajeLogin.style.display = 'block';
+                        }
                     }, 2000);
                 } else {
                     mostrarMensaje(`Error al registrar: ${resultado.error?.message || 'Intenta nuevamente'}`, true);

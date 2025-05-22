@@ -588,6 +588,54 @@ export class API{
     }
     
     /**
+     * Obtiene todas las citas del usuario actualmente autenticado
+     * @returns {Promise<{success: boolean, data?: Array<{
+     *   id_cita: number,
+     *   fecha: string,
+     *   hora: string,
+     *   estado: string,
+     *   mascota: { id_mascota: number, nombre: string },
+     *   servicio: { id_servicio: number, nombre: string }
+     * }>, error?: any}>} - Lista de citas del usuario
+     */
+    static async obtenerCitasUsuario() {
+        try {
+            // Obtener el ID del usuario autenticado
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                throw new Error('Usuario no autenticado');
+            }
+
+            // Obtener las citas del usuario con información de mascota y servicio
+            const { data: citas, error } = await supabase
+                .from('cita')
+                .select(`
+                    id_cita,
+                    fecha,
+                    hora,
+                    estado,
+                    mascota: id_mascota (id_mascota, nombre),
+                    servicio: id_servicio (id_servicio, nombre)
+                `)
+                .eq('id_usuario', user.id)
+                .order('fecha', { ascending: true })
+                .order('hora', { ascending: true });
+
+            if (error) throw error;
+
+            return { success: true, data: citas };
+            
+        } catch (error) {
+            console.error('Error al obtener las citas del usuario:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al obtener las citas',
+                details: error 
+            };
+        }
+    }
+    
+    /**
      * Obtiene los datos de un usuario por su ID
      * @param {string} userId - ID del usuario
      * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Datos del usuario

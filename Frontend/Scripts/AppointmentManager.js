@@ -43,13 +43,18 @@ class AppointmentManager {
                     }
                 }
                 
+                // Formatear la hora para mostrar solo horas y minutos
+                const horaFormateada = cita.hora_inicio 
+                    ? cita.hora_inicio.split(':').slice(0, 2).join(':')
+                    : '';
+                
                 return {
                     id: cita.id_cita,
                     petId: cita.mascota?.id_mascota,
                     petName: nombreMascota,
                     petImage: imagenMascota,
                     date: cita.fecha,
-                    time: cita.hora_inicio,
+                    time: horaFormateada,
                     type: nombreServicio,
                     status: cita.is_canceled ? 'cancelled' : 'pending'
                 };

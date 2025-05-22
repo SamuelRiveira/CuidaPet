@@ -693,6 +693,34 @@ export class API{
      * @param {string} userId - ID del usuario
      * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Datos del usuario
      */
+    /**
+     * Obtiene todos los servicios disponibles
+     * @returns {Promise<{success: boolean, data?: Array<{id_servicio: number, nombre_servicio: string, descripcion?: string}>, error?: any}>} - Lista de servicios
+     */
+    static async obtenerServicios() {
+        try {
+            const { data, error } = await supabase
+                .from('servicio')
+                .select('id_servicio, nombre_servicio')
+                .order('nombre_servicio', { ascending: true });
+                
+            if (error) throw error;
+            
+            return { 
+                success: true, 
+                data: data || [] 
+            };
+            
+        } catch (error) {
+            console.error('Error al obtener los servicios:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al obtener los servicios',
+                details: error 
+            };
+        }
+    }
+
     static async obtenerUsuarioPorToken(userId) {
         try {
             // Si no hay ID de usuario, devolver error

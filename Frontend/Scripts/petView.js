@@ -1,6 +1,6 @@
-import { PetManager } from "./petManager.js";
+import { PetManager } from "./PetManager.js";
 import { showPage } from "./navigation.js";
-import { PetEdit } from "./petEdit.js";
+import { PetEdit } from "./PetEdit.js";
 
 // Instanciamos la clase PetManager
 const petManager = new PetManager();

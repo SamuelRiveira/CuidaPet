@@ -189,14 +189,8 @@ class PetManager {
                 }
             }
 
-            // Asegurarse de que el ID sea un número
-            const petIdNum = Number(petId);
-            if (isNaN(petIdNum)) {
-                throw new Error('ID de mascota no válido');
-            }
-            
             // Llamar a la API para actualizar la mascota
-            const { success, data, error } = await API.editarMascota(petIdNum, datosActualizados);
+            const { success, data, error } = await API.editarMascota(petId, datosActualizados);
             
             if (!success) {
                 throw new Error(error || 'Error al actualizar la mascota');

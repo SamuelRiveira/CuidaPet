@@ -596,8 +596,7 @@ export class API{
      *   hora_final: string,
      *   is_canceled: boolean,
      *   mascota: { id_mascota: string, nombre: string },
-     *   servicio: { id_servicio: number, nombre: string },
-     *   empleado: { id_usuario: string, nombre: string, apellidos: string } | null
+     *   servicio: { id_servicio: number, nombre: string }
      * }>, error?: any}>} - Lista de citas del usuario
      */
     static async obtenerCitasUsuario() {
@@ -618,8 +617,7 @@ export class API{
                     hora_final,
                     is_canceled,
                     mascota: id_mascota (id_mascota, nombre),
-                    servicio: id_servicio (id_servicio, nombre),
-                    empleado: id_empleado (id_usuario, nombre, apellidos)
+                    servicio: id_servicio (id_servicio, nombre)
                 `)
                 .or(`id_empleado.eq.${user.id},mascota.id_usuario.eq.${user.id}`)
                 .order('fecha', { ascending: true })

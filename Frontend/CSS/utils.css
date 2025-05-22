@@ -197,3 +197,14 @@ input:checked + .slider:before {
 .card-header h3 {
     color: var(--primary-color);
 }
+
+#cancel-profile-edit-btn{
+    background-color: var(--primary-color);
+    color: var(--white);
+    transition: ease .2s;
+}
+
+#cancel-profile-edit-btn:hover{
+    --tw-bg-opacity: 1;
+    background-color: rgb(61 82 106 / var(--tw-bg-opacity));
+}

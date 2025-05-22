@@ -243,15 +243,6 @@ export class API{
     }
     
     /**
-     * Obtiene información del usuario desde la base de datos usando el ID almacenado en el token
-     * @param {string} userId - ID del usuario obtenido del token de autenticación
-     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
-     */
-    /**
-     * Obtiene todas las mascotas del usuario actualmente autenticado
-     * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de mascotas del usuario
-     */
-    /**
      * Obtiene las alergias de una mascota específica
      * @param {number} idMascota - ID de la mascota
      * @returns {Promise<{success: boolean, data?: Array<{id_alergia: number, nombre: string, fecha_diagnostico: string}>, error?: any}>} - Lista de alergias de la mascota
@@ -291,10 +282,6 @@ export class API{
         }
     }
     
-    /**
-     * Obtiene todas las mascotas del usuario actualmente autenticado
-     * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de mascotas del usuario
-     */
     /**
      * Crea una nueva mascota para el usuario actual
      * @param {Object} datosMascota - Datos de la mascota a crear
@@ -465,15 +452,16 @@ export class API{
         }
     }
     
+    /**
+     * Obtiene todas las mascotas del usuario actualmente autenticado
+     * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de mascotas del usuario
+     */
     static async obtenerMascotasUsuario() {
         try {
             // Obtener la sesión actual
             const { data: { session }, error: sessionError } = await supabase.auth.getSession();
             
             if (sessionError) throw sessionError;
-            if (!session) {
-                throw new Error('No hay sesión activa');
-            }
             
             // Obtener las mascotas del usuario
             const { data: mascotas, error: mascotasError } = await supabase

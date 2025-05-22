@@ -10,41 +10,24 @@ class ProfileManager {
      */
     static async getUserProfile() {
         try {
-            const { success, data, error, noSession } = await API.obtenerPerfilUsuario();
-            
-            if (!success) {
-                if (noSession) {
-                    // No hay sesión activa, devolvemos un perfil por defecto
-                    return {
-                        photo: "/Frontend/imagenes/img_perfil.png",
-                        name: 'Invitado',
-                        stats: {
-                            pets: 0,
-                            appointments: 0
-                        },
-                        personalInfo: {
-                            name: '',
-                            surnames: '',
-                            address: 'Inicia sesión para ver tu perfil'
-                        }
-                    };
-                }
-                console.warn('Error al obtener el perfil:', error);
-                throw new Error('No se pudo cargar el perfil del usuario');
-            }
-            
+            const { data: profileData } = await API.obtenerPerfilUsuario();
+            const { data: petsData } = await API.obtenerMascotasUsuario();
+
+            const totalMascotas = petsData?.length || 0;
+            const totalCitas = 0; // TODO: Obtener el número real de citas
+
             // Formatear los datos para que coincidan con el formato esperado
             return {
-                photo: data.imagen || "/Frontend/imagenes/img_perfil.png",
-                name: `${data.nombre || ''} ${data.apellidos || ''}`.trim() || 'Usuario',
+                photo: profileData.imagen || "/Frontend/imagenes/img_perfil.png",
+                name: `${profileData.nombre || ''} ${profileData.apellidos || ''}`.trim() || 'Usuario',
                 stats: {
-                    pets: 5, // TODO: Obtener número real de mascotas cuando esté disponible en la API
-                    appointments: 3 // TODO: Obtener número real de citas cuando esté disponible en la API
+                    pets: totalMascotas, // TODO: Obtener número real de mascotas cuando esté disponible en la API
+                    appointments: totalCitas // TODO: Obtener número real de citas cuando esté disponible en la API
                 },
                 personalInfo: {
-                    name: data.nombre || '',
-                    surnames: data.apellidos || '',
-                    address: data.direccion || 'Dirección no especificada'
+                    name: profileData.nombre || '',
+                    surnames: profileData.apellidos || '',
+                    address: profileData.direccion || 'Dirección no especificada'
                 }
             };
         } catch (error) {

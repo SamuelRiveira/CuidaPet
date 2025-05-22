@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const petAge = document.getElementById('pet-age').value;
         const petAgeUnit = document.getElementById('pet-age-unit').value;
         const petNotes = document.getElementById('pet-notes').value;
+        const petImage = document.getElementById('pet-photo').files[0];
 
         const petId = petName.toLowerCase().replace(/\s+/g, '-');
 
@@ -49,8 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
             age: petAge,
             ageUnit: petAgeUnit,
             notes: petNotes || null,
-            // TODO: Tener en cuenta la imagen
-            photoUrl: "/api/placeholder/400/320"
+            photoUrl: petImage
         };
 
         // Añadir la mascota a través de la instancia de PetManager

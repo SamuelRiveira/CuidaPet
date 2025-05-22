@@ -1,4 +1,5 @@
 import { PetManager } from './PetManager.js';
+import { notificationService } from './NotificationService.js';
 import { ProfileUI } from './ProfileUI.js';
 
 // Create a global instance of PetManager
@@ -84,9 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Mostrar notificación de éxito
                 if (!window.petCreationAlertShown) {
                     window.petCreationAlertShown = true;
-                    // Usar la notificación existente de ProfileUI
-                    const profileUI = new ProfileUI();
-                    profileUI.showSuccessNotification(`¡${petName} ha sido añadida con éxito!`);
+                    notificationService.showSuccess(`¡${petName} ha sido añadida con éxito!`);
                     
                     // Recargar la lista de mascotas después de un breve retraso
                     setTimeout(() => {
@@ -103,8 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error al crear la mascota:', error);
             if (!window.errorAlertShown) {
                 window.errorAlertShown = true;
-                alert(`Error al crear la mascota: ${error.message}`);
-                setTimeout(() => { window.errorAlertShown = false; }, 1000);
+                notificationService.showError(`Error al crear la mascota: ${error.message}`);
+                setTimeout(() => { window.errorAlertShown = false; }, 3000);
             }
         } finally {
             // Restaurar el estado del formulario

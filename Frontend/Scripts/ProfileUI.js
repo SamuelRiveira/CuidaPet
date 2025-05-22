@@ -137,22 +137,22 @@ class ProfileUI {
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label>Nombre</label>
-                                        <input type="text" class="form-control" value="${this.profileData.personalInfo.name}" disabled>
+                                        <label for="profile-name-input">Nombre</label>
+                                        <input type="text" id="profile-name-input" class="form-control" value="${this.profileData.personalInfo.name}" disabled>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label>Apellidos</label>
-                                        <input type="text" class="form-control" value="${this.profileData.personalInfo.surnames}" disabled>
+                                        <label for="profile-surnames-input">Apellidos</label>
+                                        <input type="text" id="profile-surnames-input" class="form-control" value="${this.profileData.personalInfo.surnames}" disabled>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>Dirección</label>
-                                <input type="text" class="form-control" value="${this.profileData.personalInfo.address}" disabled>
+                                <label for="profile-address-input">Dirección</label>
+                                <input type="text" id="profile-address-input" class="form-control" value="${this.profileData.personalInfo.address}" disabled>
                             </div>
                         </div>
                     </div>
@@ -193,11 +193,14 @@ class ProfileUI {
         // Cambiar el estado de edición
         this.isEditing = true;
         
-        // Buscar todos los inputs en el área de información personal y habilitarlos
-        const inputs = this.profileContainer.querySelectorAll('.content-card input');
-        inputs.forEach(input => {
-            input.disabled = false;
-        });
+        // Habilitar los campos del formulario usando sus IDs
+        const nameInput = this.profileContainer.querySelector('#profile-name-input');
+        const surnamesInput = this.profileContainer.querySelector('#profile-surnames-input');
+        const addressInput = this.profileContainer.querySelector('#profile-address-input');
+        
+        if (nameInput) nameInput.disabled = false;
+        if (surnamesInput) surnamesInput.disabled = false;
+        if (addressInput) addressInput.disabled = false;
         
         // Agregar opción para cambiar la foto de perfil
         const photoContainer = this.profileContainer.querySelector('.profile-photo');
@@ -342,21 +345,35 @@ class ProfileUI {
      * Actualiza el perfil del usuario con los datos del formulario
      */
     updateProfile() {
-        // Obtener los valores actualizados
-        const nameInput = this.profileContainer.querySelector('.content-card input[value="' + this.profileData.personalInfo.name + '"]');
-        const surnamesInput = this.profileContainer.querySelector('.content-card input[value="' + this.profileData.personalInfo.surnames + '"]');
-        const addressInput = this.profileContainer.querySelector('.content-card input[value="' + this.profileData.personalInfo.address + '"]');
+        // Obtener los valores actualizados usando IDs únicos
+        const nameInput = this.profileContainer.querySelector('#profile-name-input');
+        const surnamesInput = this.profileContainer.querySelector('#profile-surnames-input');
+        const addressInput = this.profileContainer.querySelector('#profile-address-input');
+        
+        // Validar que los campos requeridos tengan valor
+        if (!nameInput || !surnamesInput || !addressInput) {
+            console.error('No se encontraron todos los campos del formulario');
+            alert('Error: No se pudieron obtener los datos del formulario');
+            return;
+        }
         
         const updatedProfileData = {
             personalInfo: {
-                name: nameInput ? nameInput.value : this.profileData.personalInfo.name,
-                surnames: surnamesInput ? surnamesInput.value : this.profileData.personalInfo.surnames,
-                address: addressInput ? addressInput.value : this.profileData.personalInfo.address
+                name: nameInput.value.trim(),
+                surnames: surnamesInput.value.trim(),
+                address: addressInput.value.trim()
             },
             // Incluir la nueva foto si se ha cambiado
             photo: this.newPhotoUrl || this.profileData.photo,
             photoFile: this.newPhotoFile
         };
+        
+        // Validar datos requeridos
+        if (!updatedProfileData.personalInfo.name) {
+            alert('Por favor ingresa tu nombre');
+            nameInput.focus();
+            return;
+        }
         
         // Actualizar los datos en el servidor (simulado)
         const success = ProfileManager.updateUserProfile(updatedProfileData);

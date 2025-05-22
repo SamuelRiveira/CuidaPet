@@ -222,6 +222,77 @@ export class API{
         }
     }
 
+    /* Crea una nueva cita en la base de datos
+     * @param {string} idMascota - ID de la mascota para la cita
+     * @param {string} fecha - Fecha de la cita en formato YYYY-MM-DD
+     * @param {string} horaInicio - Hora de inicio de la cita en formato HH:MM
+     * @param {string} horaFinal - Hora de finalización de la cita en formato HH:MM
+     * @param {string} idServicio - ID del servicio solicitado
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
+     */
+    static async crearCita(idMascota, fecha, horaInicio, horaFinal, idServicio) {
+        try {
+            // Verificar que todos los campos requeridos estén presentes
+            if (!idMascota || !fecha || !horaInicio || !horaFinal || !idServicio) {
+                throw new Error('Los campos id_mascota, fecha, hora_inicio, hora_final y id_servicio son obligatorios');
+            }
+
+            // Validar que la hora de inicio sea anterior a la hora final
+            const inicio = new Date(`2000-01-01T${horaInicio}`);
+            const fin = new Date(`2000-01-01T${horaFinal}`);
+            
+            if (inicio >= fin) {
+                throw new Error('La hora de inicio debe ser anterior a la hora final');
+            }
+
+            // Obtener el ID del usuario autenticado
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                throw new Error('Usuario no autenticado');
+            }
+
+            // Verificar si ya existe una cita que se solape con el horario
+            const { data: citasExistentes, error: errorCitas } = await supabase
+                .from('cita')
+                .select('id_cita, hora_inicio, hora_final')
+                .eq('fecha', fecha)
+                .or(`and(hora_inicio.lte.${horaFinal},hora_final.gte.${horaInicio})`);
+
+            if (errorCitas) throw errorCitas;
+            if (citasExistentes && citasExistentes.length > 0) {
+                throw new Error('Ya existe una cita programada que se solapa con el horario seleccionado');
+            }
+
+            // Crear la cita
+            const datosCita = {
+                id_mascota: idMascota,
+                fecha: fecha,
+                hora_inicio: horaInicio,
+                hora_final: horaFinal,
+                is_canceled: false // Estado inicial: no cancelada
+            };
+
+            // Agregar id_servicio solo si se proporciona
+            if (idServicio) {
+                datosCita.id_servicio = idServicio;
+            }
+
+            const { data, error } = await supabase
+                .from('cita')
+                .insert([datosCita])
+                .select();
+
+            if (error) throw error;
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error al crear la cita:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al crear la cita' 
+            };
+        }
+    }
+
     /**
      * Obtiene todas las citas del sistema
      * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de citas o error

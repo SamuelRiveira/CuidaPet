@@ -115,7 +115,6 @@ class AppointmentUI {
                     <div class="pet-details">
                         <h3 class="pet-name">${appointment.petName}</h3>
                         <p class="appointment-type">${appointment.type}</p>
-                        <p class="appointment-vet">${appointment.veterinarian}</p>
                     </div>
                 </div>
                 <div class="appointment-status">

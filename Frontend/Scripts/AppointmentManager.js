@@ -20,18 +20,42 @@ class AppointmentManager {
                 return [];
             }
             
-            // Mapear los datos de la API al formato esperado por la aplicación
-            return citas.map(cita => ({
-                id: cita.id_cita,
-                petId: cita.mascota.id_mascota,
-                petName: cita.mascota.nombre,
-                petImage: "/Frontend/imagenes/default-pet.jpg", // Imagen por defecto o podrías obtenerla de la mascota si está disponible
-                date: cita.fecha,
-                time: cita.hora_inicio,
-                type: cita.servicio?.nombre || 'Sin especificar',
-                veterinarian: 'Veterinario por asignar', // Este dato no viene en la API actual
-                status: cita.is_canceled ? 'cancelled' : 'pending' // Mapear el estado según corresponda
+            // Procesar las citas en paralelo para mejorar el rendimiento
+            const citasProcesadas = await Promise.all(citas.map(async (cita) => {
+                // Obtener datos de la mascota
+                let nombreMascota = cita.mascota?.nombre || 'Mascota sin nombre';
+                let imagenMascota = "/Frontend/imagenes/default-pet.jpg";
+                
+                if (cita.mascota?.id_mascota) {
+                    const { success: mascotaSuccess, data: mascotaData } = await API.obtenerMascotaPorId(cita.mascota.id_mascota);
+                    if (mascotaSuccess && mascotaData) {
+                        nombreMascota = mascotaData.nombre || nombreMascota;
+                        imagenMascota = mascotaData.imagen || imagenMascota;
+                    }
+                }
+                
+                // Obtener nombre del servicio
+                let nombreServicio = 'Sin especificar';
+                if (cita.servicio?.id_servicio) {
+                    const { success: servicioSuccess, data: servicioData } = await API.obtenerServicioPorId(cita.servicio.id_servicio);
+                    if (servicioSuccess && servicioData) {
+                        nombreServicio = servicioData.nombre_servicio || nombreServicio;
+                    }
+                }
+                
+                return {
+                    id: cita.id_cita,
+                    petId: cita.mascota?.id_mascota,
+                    petName: nombreMascota,
+                    petImage: imagenMascota,
+                    date: cita.fecha,
+                    time: cita.hora_inicio,
+                    type: nombreServicio,
+                    status: cita.is_canceled ? 'cancelled' : 'pending'
+                };
             }));
+            
+            return citasProcesadas;
         } catch (error) {
             console.error('Error inesperado al obtener las citas:', error);
             return [];

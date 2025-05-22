@@ -396,9 +396,6 @@ class ProfileUI {
             // Salir del modo edición
             this.isEditing = false;
             
-            // Recargar la interfaz
-            this.loadProfileData();
-            
             // Ocultar modal
             const modal = document.getElementById('profile-update-modal');
             if (modal) {
@@ -407,6 +404,11 @@ class ProfileUI {
             
             // Mostrar mensaje de éxito con notificación
             notificationService.showSuccess('Perfil actualizado correctamente');
+
+            // Recargar la interfaz
+            setTimeout(() => {
+                this.loadProfileData();
+            }, 800);
         } else {
             // Mostrar mensaje de error
             notificationService.showError('Error al actualizar el perfil');

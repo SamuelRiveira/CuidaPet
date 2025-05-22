@@ -220,18 +220,54 @@ function addPetCardEventListeners() {
     });
 }
 
-// Ejemplo de uso para eliminar una mascota
-function handleDeletePet(petId) {
-    if (confirm(`¿Estás seguro de que deseas eliminar esta mascota?`)) {
-        const success = petManager.deletePet(petId);
+/**
+ * Maneja la eliminación de una o más mascotas
+ * @param {number|number[]} petId - ID de la mascota o array de IDs a eliminar
+ */
+async function handleDeletePet(petId) {
+    const confirmMessage = Array.isArray(petId) 
+        ? `¿Estás seguro de que deseas eliminar las ${petId.length} mascotas seleccionadas?`
+        : '¿Estás seguro de que deseas eliminar esta mascota?';
+
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+
+    try {
+        const { success, deletedCount, errors, message } = await petManager.deletePet(petId);
+        
         if (success) {
-            alert('Mascota eliminada correctamente');
-            // Volvemos a la lista de mascotas y actualizamos la vista
+            // Mostrar mensaje de éxito
+            const successMessage = deletedCount === 1 
+                ? 'Mascota eliminada correctamente' 
+                : `${deletedCount} mascotas eliminadas correctamente`;
+            alert(successMessage);
+            
+            // Actualizar la vista
             showPage('pets');
-            renderPetCards();
+            await renderPetCards();
         } else {
-            alert('Error al eliminar la mascota');
+            // Mostrar mensaje de error con detalles
+            let errorMessage = message || 'Error al eliminar la(s) mascota(s)';
+            
+            if (errors && errors.length > 0) {
+                const errorDetails = errors
+                    .map(e => `• ID ${e.id}: ${e.error}`)
+                    .join('\n');
+                errorMessage += '\n\nDetalles de errores:\n' + errorDetails;
+            }
+            
+            alert(errorMessage);
+            
+            // Si al menos algunas mascotas se eliminaron, actualizar la vista
+            if (deletedCount > 0) {
+                showPage('pets');
+                await renderPetCards();
+            }
         }
+    } catch (error) {
+        console.error('Error inesperado al eliminar la(s) mascota(s):', error);
+        alert('Ocurrió un error inesperado al intentar eliminar la(s) mascota(s)');
     }
 }
 

@@ -1,6 +1,7 @@
 // Funcionalidad de edición de mascotas
 import { PetManager } from './PetManager.js';
 import { notificationService } from './NotificationService.js';
+import { renderPetCards } from './PetView.js';
 
 // Crear una instancia de PetManager
 const petManager = new PetManager();
@@ -395,6 +396,15 @@ class PetEdit {
                 // Deshabilitar el modo de edición solo si la operación fue exitosa
                 this.disableEditMode(false);
                 notificationService.showSuccess('Mascota editada correctamente');
+                
+                // Actualizar la lista de mascotas
+                await renderPetCards();
+                
+                // Volver a la vista de lista de mascotas
+                const backButton = document.querySelector('.back-button');
+                if (backButton) {
+                    backButton.click();
+                }
             } else {
                 notificationService.showError('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
             }

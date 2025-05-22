@@ -72,13 +72,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 imagen: petImage
             };
 
-            console.log('Creando mascota con datos:', newPet);
-
             // Añadir la mascota a través de la instancia de PetManager
             const result = await petManager.createPet(newPet);
             
             if (result && result.success) {
-                console.log('Mascota creada exitosamente:', result.data);
                 // Cerrar el modal y resetear el formulario solo si la operación fue exitosa
                 modal.style.display = 'none';
                 addPetForm.reset();

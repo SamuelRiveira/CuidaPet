@@ -3,6 +3,7 @@
  * Controla la visualización de elementos y opciones de menú basado en permisos
  */
 import { UserAuthManager } from "./UserAuthManager.js";
+import { ProfileManager } from "./ProfileManager.js";
 // La función abrir está disponible globalmente desde openLogin.js
 class RoleUIManager {
     constructor() {
@@ -265,75 +266,24 @@ class RoleUIManager {
                 <div class="content-card">
                     <div class="card-header">
                         <h3>Listado de Usuarios</h3>
-                        <div class="search-container">
-                            <input type="text" class="search-input" placeholder="Buscar usuario...">
-                            <button class="btn btn-primary">Buscar</button>
+                        <div class="search-filter-container">
+                            <div class="search-container">
+                                <input type="text" id="user-search-input" class="search-input" placeholder="Buscar usuario...">
+                                <button id="user-search-btn" class="btn btn-primary">Buscar</button>
+                            </div>
+                            <div class="filter-container">
+                                <select id="user-role-filter" class="filter-select">
+                                    <option value="all">Todos los usuarios</option>
+                                    <option value="cliente">Solo clientes</option>
+                                    <option value="empleado">Solo empleados</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div class="client-list">
-                        <!-- Tarjetas de clientes de ejemplo -->
-                        <div class="client-card">
-                            <div class="client-avatar">
-                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
-                            </div>
-                            <div class="client-info">
-                                <h4>Ana García Martínez</h4>
-                                <p><i class="fas fa-phone"></i> +34 612 345 678</p>
-                                <p><i class="fas fa-map-marker-alt"></i> Calle Mayor 123, Madrid</p>
-                                <p><i class="fas fa-paw"></i> 2 mascotas</p>
-                                <hr class="client-card-divider">
-                                <div class="client-card-actions">
-                                    <button class="btn btn-secondary view-pets-btn">Ver Mascotas</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="client-card">
-                            <div class="client-avatar">
-                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
-                            </div>
-                            <div class="client-info">
-                                <h4>Carlos Rodríguez López</h4>
-                                <p><i class="fas fa-phone"></i> +34 623 456 789</p>
-                                <p><i class="fas fa-map-marker-alt"></i> Avenida de la Paz 45, Barcelona</p>
-                                <p><i class="fas fa-paw"></i> 1 mascota</p>
-                                <hr class="client-card-divider">
-                                <div class="client-card-actions">
-                                    <button class="btn btn-secondary view-pets-btn">Ver Mascotas</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="client-card">
-                            <div class="client-avatar">
-                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
-                            </div>
-                            <div class="client-info">
-                                <h4>Elena Fernández Sánchez</h4>
-                                <p><i class="fas fa-phone"></i> +34 634 567 890</p>
-                                <p><i class="fas fa-map-marker-alt"></i> Plaza del Sol 7, Valencia</p>
-                                <p><i class="fas fa-paw"></i> 3 mascotas</p>
-                                <hr class="client-card-divider">
-                                <div class="client-card-actions">
-                                    <button class="btn btn-secondary view-pets-btn">Ver Mascotas</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="client-card">
-                            <div class="client-avatar">
-                                <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
-                            </div>
-                            <div class="client-info">
-                                <h4>Miguel Torres Ruiz</h4>
-                                <p><i class="fas fa-phone"></i> +34 645 678 901</p>
-                                <p><i class="fas fa-map-marker-alt"></i> Rambla de Cataluña 22, Sevilla</p>
-                                <p><i class="fas fa-paw"></i> 2 mascotas</p>
-                                <hr class="client-card-divider">
-                                <div class="client-card-actions">
-                                    <button class="btn btn-secondary view-pets-btn">Ver Mascotas</button>
-                                </div>
-                            </div>
+                    <div id="client-list" class="client-list">
+                        <div class="loading-container">
+                            <div class="loader"></div>
+                            <p>Cargando usuarios...</p>
                         </div>
                     </div>
                 </div>
@@ -341,12 +291,29 @@ class RoleUIManager {
         `;
         container.appendChild(clientManagementPage);
 
-        // Add event listeners for 'Ver Mascotas' buttons
-        const viewPetsButtons = clientManagementPage.querySelectorAll('.view-pets-btn');
-        viewPetsButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                RoleUIManager.showClientPets(this); // 'this' refers to the button clicked
-            });
+        // Cargar usuarios cuando se crea la página
+        this.loadAndDisplayUsers();
+
+        // Configurar eventos de búsqueda y filtrado
+        const searchInput = document.getElementById('user-search-input');
+        const searchButton = document.getElementById('user-search-btn');
+        const roleFilter = document.getElementById('user-role-filter');
+
+        // Evento para el botón de búsqueda
+        searchButton.addEventListener('click', () => {
+            this.filterUsers(searchInput.value, roleFilter.value);
+        });
+
+        // Evento para buscar al presionar Enter en el campo de búsqueda
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.filterUsers(searchInput.value, roleFilter.value);
+            }
+        });
+
+        // Evento para el filtro de rol
+        roleFilter.addEventListener('change', () => {
+            this.filterUsers(searchInput.value, roleFilter.value);
         });
 
         // Página de administración de citas
@@ -381,6 +348,155 @@ class RoleUIManager {
             </div>
         `;
         container.appendChild(appointmentsAdminPage);
+    }
+    
+    /**
+     * Carga y muestra todos los usuarios en la página de gestión de usuarios
+     */
+    async loadAndDisplayUsers() {
+        try {
+            const clientList = document.getElementById('client-list');
+            if (!clientList) return;
+
+            // Intentar obtener todos los usuarios mediante el ProfileManager
+            const { success, data, error } = await ProfileManager.getAllUsers();
+            
+            if (!success || !data) {
+                throw new Error(error || 'Error al cargar los usuarios');
+            }
+            
+            // Guardar los datos originales para usarlos en filtrado
+            this.allUsers = data;
+            
+            // Mostrar los usuarios
+            this.renderUserCards(data);
+            
+        } catch (error) {
+            console.error('Error al cargar usuarios:', error);
+            const clientList = document.getElementById('client-list');
+            if (clientList) {
+                clientList.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Error al cargar los usuarios. Por favor, intenta nuevamente.</p>
+                    </div>
+                `;
+            }
+        }
+    }
+    
+    /**
+     * Renderiza las tarjetas de usuarios basado en los datos proporcionados
+     * @param {Array} users - Array de objetos usuario para mostrar
+     */
+    renderUserCards(users) {
+        const clientList = document.getElementById('client-list');
+        if (!clientList) return;
+        
+        // Si no hay usuarios para mostrar
+        if (!users || users.length === 0) {
+            clientList.innerHTML = '<p class="no-results">No se encontraron usuarios con los criterios especificados.</p>';
+            return;
+        }
+        
+        // Limpiar la lista antes de agregar nuevas tarjetas
+        clientList.innerHTML = '';
+        
+        // Crear una tarjeta para cada usuario
+        users.forEach(user => {
+            const userCard = document.createElement('div');
+            userCard.className = 'client-card';
+            userCard.dataset.userId = user.id_usuario;
+            userCard.dataset.userRole = user.rol?.nombre_rol || 'N/A';
+            
+            // Determinar los botones según el rol
+            let actionButtons = '';
+            if (user.rol?.nombre_rol === 'cliente') {
+                actionButtons = `
+                    <button class="btn btn-secondary view-profile-btn" data-user-id="${user.id_usuario}">Ver Perfil</button>
+                    <button class="btn btn-secondary view-pets-btn" data-user-id="${user.id_usuario}">Ver Mascotas</button>
+                `;
+            } else {
+                actionButtons = `
+                    <button class="btn btn-secondary view-profile-btn" data-user-id="${user.id_usuario}">Ver Perfil</button>
+                `;
+            }
+            
+            // Construir HTML de la tarjeta
+            userCard.innerHTML = `
+                <div class="client-avatar">
+                    <img src="${user.imagen || '/Frontend/imagenes/img_perfil.png'}" alt="Avatar" 
+                         onerror="this.src='/Frontend/imagenes/img_perfil.png'">
+                </div>
+                <div class="client-info">
+                    <h4>${user.nombre || ''} ${user.apellidos || ''}</h4>
+                    <p><i class="fas fa-user-tag"></i> ${user.rol?.nombre_rol || 'Sin rol'}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> ${user.direccion || 'Dirección no especificada'}</p>
+                    <hr class="client-card-divider">
+                    <div class="client-card-actions">
+                        ${actionButtons}
+                    </div>
+                </div>
+            `;
+            
+            clientList.appendChild(userCard);
+        });
+        
+        // Agregar event listeners para los botones
+        this.setupUserCardEventListeners();
+    }
+    
+    /**
+     * Configura los event listeners para los botones en las tarjetas de usuario
+     */
+    setupUserCardEventListeners() {
+        // Event listener para botones "Ver Mascotas"
+        const viewPetsButtons = document.querySelectorAll('.view-pets-btn');
+        viewPetsButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                RoleUIManager.showClientPets(this);
+            });
+        });
+        
+        // Event listener para botones "Ver Perfil"
+        const viewProfileButtons = document.querySelectorAll('.view-profile-btn');
+        viewProfileButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Aquí iría el código para mostrar el perfil del usuario
+                // Por ejemplo:
+                alert('Ver perfil del usuario: ' + this.dataset.userId);
+                // Implementar la funcionalidad de ver perfil
+            });
+        });
+    }
+    
+    /**
+     * Filtra los usuarios según el texto de búsqueda y el rol seleccionado
+     * @param {string} searchText - Texto para buscar en nombres de usuarios
+     * @param {string} roleFilter - Filtro de rol ('all', 'cliente', 'empleado')
+     */
+    filterUsers(searchText, roleFilter) {
+        // Si no tenemos datos de usuarios, no podemos filtrar
+        if (!this.allUsers) return;
+        
+        // Convertir a minúsculas para comparación insensible a mayúsculas/minúsculas
+        const search = searchText.toLowerCase();
+        
+        // Filtrar los usuarios
+        const filteredUsers = this.allUsers.filter(user => {
+            // Filtrar por texto de búsqueda en nombre y apellidos
+            const fullName = `${user.nombre || ''} ${user.apellidos || ''}`.toLowerCase();
+            const matchesSearch = search === '' || fullName.includes(search);
+            
+            // Filtrar por rol
+            const userRole = user.rol?.nombre_rol || '';
+            const matchesRole = roleFilter === 'all' || userRole === roleFilter;
+            
+            return matchesSearch && matchesRole;
+        });
+        
+        // Renderizar los usuarios filtrados
+        this.renderUserCards(filteredUsers);
     }
     
     /**

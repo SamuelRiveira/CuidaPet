@@ -119,24 +119,6 @@ class AppointmentManager {
     }
 
     /**
-     * Manejador para editar una cita
-     * @param {number} appointmentId - ID de la cita a editar
-     * @returns {Promise<{success: boolean, error?: string}>} - Resultado de la operación
-     */
-    async handleEditAppointment(appointmentId) {
-        return true
-    }
-
-    /**
-     * Manejador para eliminar una cita
-     * @param {number} appointmentId - ID de la cita a eliminar
-     */
-    handleDeleteAppointment(appointmentId) {
-        // TODO: Implementar llamada a API
-        return true;
-    }
-
-    /**
      * Manejador para crear una cita
      * @param {string} petId - ID de la mascota
      * @param {string} serviceId - ID del servicio

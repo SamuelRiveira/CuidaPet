@@ -121,9 +121,8 @@ class AppointmentUI {
                     <span class="status-badge ${statusClass}">${statusLabel}</span>
                 </div>
                 <div class="appointment-actions">
-                    <!-- Estos botones solo se mostrarán si el usuario tiene permisos -->
+                    <!-- Botón de cancelar cita -->
                     <button class="btn btn-cancel" data-id="${appointment.id}">Cancelar cita</button>
-                    <button class="btn btn-primary" data-id="${appointment.id}">Modificar</button>
                 </div>
             </div>
         `;
@@ -131,12 +130,9 @@ class AppointmentUI {
         // Los botones de acción se muestran por defecto
         // El RoleUIManager se encarga de mostrar/ocultar según el rol
 
-        // Agregar eventos a los botones
+        // Agregar evento al botón de cancelar
         const cancelBtn = card.querySelector('.btn-cancel');
-        const editBtn = card.querySelector('.btn-primary');
-        
         cancelBtn.addEventListener('click', () => this.showCancelConfirmation(appointment.id));
-        editBtn.addEventListener('click', () => this.appointmentsService.handleEditAppointment(appointment.id));
 
         return card;
     }

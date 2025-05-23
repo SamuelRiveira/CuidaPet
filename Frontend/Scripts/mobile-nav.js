@@ -1,19 +1,41 @@
-// Mobile Navigation Toggle
 document.addEventListener('DOMContentLoaded', function() {
     const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
-    const nav = document.querySelector('nav');
+    const nav = document.querySelector('#main-nav'); // Más específico para tu nav
     const overlay = document.querySelector('.mobile-nav-overlay');
-    const body = document.body;
-    
-    // Función para alternar el menú
-    function toggleMenu(show) {
+    const body = document.body; // Definir body aquí
+
+    // --- Inicio: Verificación de selectores (para depuración) ---
+    if (!mobileNavToggle) {
+        console.error('Error: No se encontró el elemento .mobile-nav-toggle');
+    }
+    if (!nav) {
+        console.error('Error: No se encontró el elemento #main-nav');
+    }
+    if (!overlay) {
+        console.error('Error: No se encontró el elemento .mobile-nav-overlay');
+    }
+    // --- Fin: Verificación de selectores ---
+
+    // Función para alternar el menú (CORREGIDA)
+    function toggleMenu(explicitShow) { // Renombrada la variable para claridad
+        // Si alguno de los elementos cruciales no existe, no hagas nada.
+        if (!nav || !overlay || !mobileNavToggle) {
+            console.error('Faltan elementos esenciales para el menú (nav, overlay o toggle).');
+            return;
+        }
+
         const isOpen = nav.classList.contains('active');
-        
-        // Si no se especifica show, alternamos el estado actual
-        if (show === undefined) {
-            show = !isOpen;
-        
-        if (show) {
+        let showEffective; // El estado final (mostrar u ocultar)
+
+        if (explicitShow === undefined) {
+            // Si no se especifica explicitShow, alternamos el estado actual
+            showEffective = !isOpen;
+        } else {
+            // Si se especifica, usamos ese valor
+            showEffective = explicitShow;
+        }
+
+        if (showEffective) {
             // Abrir menú
             body.style.overflow = 'hidden';
             nav.classList.add('active');
@@ -21,9 +43,10 @@ document.addEventListener('DOMContentLoaded', function() {
             mobileNavToggle.setAttribute('aria-expanded', 'true');
             
             // Agregar evento de clic en el documento para cerrar al hacer clic fuera
+            // Usamos setTimeout para evitar que se cierre inmediatamente si el toggle está "fuera"
             setTimeout(() => {
                 document.addEventListener('click', closeMenuOnClickOutside);
-            }, 10);
+            }, 0); // 0 o 10 ms suele ser suficiente
         } else {
             // Cerrar menú
             nav.classList.remove('active');
@@ -38,6 +61,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para cerrar el menú al hacer clic fuera
     function closeMenuOnClickOutside(e) {
+        if (!nav || !mobileNavToggle) return; // Seguridad
+
         const isClickInsideNav = nav.contains(e.target);
         const isClickOnToggle = mobileNavToggle.contains(e.target);
         
@@ -49,23 +74,28 @@ document.addEventListener('DOMContentLoaded', function() {
     // Evento para el botón de menú
     if (mobileNavToggle) {
         mobileNavToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            toggleMenu();
+            e.stopPropagation(); // Detiene la propagación para closeMenuOnClickOutside
+            console.log('Botón de menú clickeado'); // Para depuración
+            toggleMenu(); // Llama sin argumentos para que alterne
         });
     }
     
     // Evento para el overlay
     if (overlay) {
         overlay.addEventListener('click', function() {
-            toggleMenu(false);
+            console.log('Overlay clickeado'); // Para depuración
+            toggleMenu(false); // Cierra el menú
         });
     }
     
-    // Cerrar menú al hacer clic en un enlace
-    const navLinks = document.querySelectorAll('nav a');
+    // Cerrar menú al hacer clic en un enlace (si están dentro del <nav>)
+    const navLinks = nav ? nav.querySelectorAll('a') : []; // Asegúrate que nav existe
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            if (window.innerWidth <= 767) {
+            // Solo cerrar si el menú está visible (móvil) y es un enlace de navegación normal
+            if (nav.classList.contains('active') && window.innerWidth <= 767) {
+                // Podrías añadir una comprobación para no cerrar en enlaces que abren submenús, si los tuvieras
+                console.log('Enlace de navegación clickeado, cerrando menú.'); // Para depuración
                 toggleMenu(false);
             }
         });
@@ -73,22 +103,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Cerrar menú con la tecla Escape
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && nav.classList.contains('active')) {
+        if (e.key === 'Escape' && nav && nav.classList.contains('active')) { // Asegúrate que nav existe
+            console.log('Tecla Escape presionada, cerrando menú.'); // Para depuración
             toggleMenu(false);
         }
     });
     
-    // Cerrar menú al redimensionar la pantalla
+    // Manejo de redimensionamiento (opcional, pero buena práctica)
     let resizeTimer;
     window.addEventListener('resize', function() {
+        if (!nav) return; // Asegúrate que nav existe
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
-            if (window.innerWidth > 767) {
-                toggleMenu(false);
+            if (window.innerWidth > 767 && nav.classList.contains('active')) {
+                console.log('Redimensionado a pantalla grande, cerrando menú si estaba abierto.'); // Para depuración
+                toggleMenu(false); // Cierra el menú si se pasa a vista de escritorio y estaba abierto
             }
         }, 250);
     });
     
-    // Inicializar estado del menú
-    toggleMenu(false);
-}});
+    // Inicializar estado del menú (asegurarse de que esté cerrado al cargar)
+    // Esto es importante si el HTML no garantiza el estado cerrado por defecto
+    // El HTML ya tiene aria-expanded="false", lo que es bueno.
+    // Llamar a toggleMenu(false) aquí asegura que todo (clases, overflow) esté correcto.
+    // toggleMenu(false); // Descomentar si es necesario forzar el cierre inicial
+
+    console.log('Script de navegación móvil cargado y configurado.');
+});

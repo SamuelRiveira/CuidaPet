@@ -42,10 +42,9 @@ CREATE TABLE cita (
     fecha DATE NOT NULL,
     hora_inicio TIME NOT NULL,
     hora_final TIME NOT NULL,
-    is_canceled BOOLEAN ,
-    id_servicio INTEGER REFERENCES servicio(id_servicio) ON DELETE SET NULL,
-    id_mascota UUID NOT NULL REFERENCES mascota(id_mascota) ON DELETE CASCADE,
-    id_empleado UUID REFERENCES usuario(id_usuario) ON DELETE SET NULL
+    is_canceled BOOLEAN NOT NULL,
+    id_servicio INTEGER NOT NULL REFERENCES servicio(id_servicio) ON DELETE SET NULL,
+    id_mascota UUID NOT NULL REFERENCES mascota(id_mascota) ON DELETE CASCADE
     CHECK (hora_final > hora_inicio)
     -- Nota: La restricción CHECK que verifica el rol del empleado se implementará mediante una función y un trigger.
 );

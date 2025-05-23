@@ -5,12 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const overlay = document.querySelector('.mobile-nav-overlay');
     const body = document.body;
     
-    console.log('Elements found:', {
-        toggle: !!mobileNavToggle,
-        nav: !!nav,
-        overlay: !!overlay
-    });
-    
     // Función para alternar el menú
     function toggleMenu(show) {
         const isOpen = nav.classList.contains('active');
@@ -18,9 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Si no se especifica show, alternamos el estado actual
         if (show === undefined) {
             show = !isOpen;
-        }
-        
-        console.log('Toggle menu:', { show, isOpen });
         
         if (show) {
             // Abrir menú
@@ -59,7 +50,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mobileNavToggle) {
         mobileNavToggle.addEventListener('click', function(e) {
             e.stopPropagation();
-            console.log('Toggle button clicked');
             toggleMenu();
         });
     }
@@ -67,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Evento para el overlay
     if (overlay) {
         overlay.addEventListener('click', function() {
-            console.log('Overlay clicked');
             toggleMenu(false);
         });
     }
@@ -77,7 +66,6 @@ document.addEventListener('DOMContentLoaded', function() {
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             if (window.innerWidth <= 767) {
-                console.log('Nav link clicked on mobile');
                 toggleMenu(false);
             }
         });
@@ -86,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cerrar menú con la tecla Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && nav.classList.contains('active')) {
-            console.log('Escape key pressed');
             toggleMenu(false);
         }
     });
@@ -97,7 +84,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
             if (window.innerWidth > 767) {
-                console.log('Window resized to desktop');
                 toggleMenu(false);
             }
         }, 250);
@@ -105,4 +91,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar estado del menú
     toggleMenu(false);
-});
+}});

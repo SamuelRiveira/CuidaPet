@@ -696,6 +696,33 @@ export class API{
     }
     
     /**
+     * Obtiene todas las mascotas de un usuario específico por su ID
+     * @param {string} userId - ID del usuario cuyas mascotas se quieren obtener
+     * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de mascotas del usuario especificado
+     */
+    static async obtenerMascotasPorUsuario(userId) {
+        try {
+            if (!userId) {
+                throw new Error('Se requiere el ID del usuario');
+            }
+            
+            // Obtener las mascotas del usuario especificado
+            const { data: mascotas, error: mascotasError } = await supabase
+                .from('mascota')
+                .select('*')
+                .eq('id_usuario', userId);
+                
+            if (mascotasError) throw mascotasError;
+            
+            return { success: true, data: mascotas };
+            
+        } catch (error) {
+            console.error(`Error al obtener mascotas del usuario ID ${userId}:`, error);
+            return { success: false, error: error.message || 'Error al obtener las mascotas' };
+        }
+    }
+    
+    /**
      * Obtiene una mascota por su ID verificando que pertenezca al usuario autenticado
      * @param {number} idMascota - ID de la mascota a buscar
      * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Datos de la mascota

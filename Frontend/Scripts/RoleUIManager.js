@@ -73,8 +73,8 @@ class RoleUIManager {
         }
         
         // Si hay sesión iniciada, agregar enlaces según el rol
-        if (this.userStatus.userRole === 'cliente') {
-            // Para clientes: mostrar enlaces existentes (mascotas, citas, etc.)
+        if (this.userStatus.userRole === 'usuario') {
+            // Para usuarios: mostrar enlaces existentes (mascotas, citas, etc.)
             existingLinks.forEach(link => {
                 const page = link.getAttribute('data-page');
                 if (page !== 'home') { // Home ya fue agregado
@@ -83,7 +83,7 @@ class RoleUIManager {
             });
         } else if (this.userStatus.userRole === 'empleado') {
             // Para empleados: enlaces específicos
-            this.addNavLink(nav, 'client-management', 'Clientes', `
+            this.addNavLink(nav, 'client-management', 'Usuarios', `
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2"
                     style="transform: translateY(1.3px);">
@@ -217,26 +217,26 @@ class RoleUIManager {
      * @param {HTMLElement} container - Contenedor donde se agregarán las páginas
      */
     createEmployeePages(container) {
-        // Página de gestión de clientes
+        // Página de gestión de usuarios
         const clientManagementPage = document.createElement('div');
         clientManagementPage.id = 'client-management-page';
         clientManagementPage.className = 'page';
         clientManagementPage.innerHTML = `
             <div class="container">
                 <div class="page-header">
-                    <h1>Gestión de Clientes</h1>
-                    <p>Administra la información de los clientes de CuidaPet</p>
+                    <h1>Gestión de Usuarios</h1>
+                    <p>Administra la información de los usuarios de CuidaPet</p>
                 </div>
                 <div class="content-card">
                     <div class="card-header">
-                        <h3>Listado de Clientes</h3>
+                        <h3>Listado de Usuarios</h3>
                         <div class="search-container">
-                            <input type="text" class="search-input" placeholder="Buscar cliente...">
+                            <input type="text" class="search-input" placeholder="Buscar usuario...">
                             <button class="btn btn-primary">Buscar</button>
                         </div>
                     </div>
                     <div class="client-list">
-                        <!-- Tarjetas de clientes de ejemplo -->
+                        <!-- Tarjetas de usuarios de ejemplo -->
                         <div class="client-card">
                             <div class="client-avatar">
                                 <img src="/Frontend/imagenes/img_perfil.png" alt="Avatar" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
@@ -650,7 +650,7 @@ class RoleUIManager {
                     }
                 });
             } else {
-                // Ocultar el botón para clientes
+                // Ocultar el botón para usuarios
                 editButton.style.display = 'none';
             }
         }
@@ -700,19 +700,19 @@ class RoleUIManager {
     }
     
     /**
-     * Muestra las mascotas de un cliente específico en una página dedicada
+     * Muestra las mascotas de un usuario específico en una página dedicada
      * @param {HTMLElement} button - Botón que activó la acción
      * @static
      */
     static showClientPets(button) {
-        // Obtener la tarjeta del cliente desde el botón
+        // Obtener la tarjeta del usuario desde el botón
         const clientCard = button.closest('.client-card');
         if (!clientCard) return;
         
-        // Obtener el nombre del cliente
+        // Obtener el nombre del usuario
         const clientName = clientCard.querySelector('h4').textContent;
         
-        // Almacenar el nombre del cliente para usarlo en la página
+        // Almacenar el nombre del usuario para usarlo en la página
         localStorage.setItem('currentClientName', clientName);
         
         // Obtener la página actual para poder volver a ella después
@@ -730,14 +730,14 @@ class RoleUIManager {
         const petsList = document.querySelector('#client-pets-page .pets-list');
         petsList.innerHTML = '<p>Cargando mascotas...</p>';
         
-        // Cambiar a la página de mascotas del cliente
+        // Cambiar a la página de mascotas del usuario
         RoleUIManager.navigateToPage('client-pets');
         
         // Simular carga de mascotas (en una implementación real, esto vendría de una API)
         setTimeout(() => {
             const petsList = document.querySelector('#client-pets-page .pets-list');
             
-            // Generar mascotas de ejemplo basadas en el cliente
+            // Generar mascotas de ejemplo basadas en el usuario
             if (clientName.includes('Ana')) {
                 petsList.innerHTML = `
                     <div class="pet-card" data-pet-id="1" data-pet-name="Luna" data-pet-type="Perro" data-pet-breed="Labrador" data-pet-age="5 años">
@@ -997,8 +997,8 @@ class RoleUIManager {
         // Obtener la imagen de la mascota
         const petImage = petCard.querySelector('img').src;
         
-        // Obtener el nombre del cliente (dueño de la mascota)
-        const clientName = localStorage.getItem('currentClientName') || 'Cliente';
+        // Obtener el nombre del usuario (dueño de la mascota)
+        const clientName = localStorage.getItem('currentClientName') || 'usuario';
         
         // Guardar la página actual para poder volver
         const currentPage = document.querySelector('.active-page').id;

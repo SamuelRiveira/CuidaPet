@@ -182,6 +182,33 @@ export class API{
      * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
      */
     /**
+     * Obtiene todos los usuarios registrados en el sistema con su información de rol
+     * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de usuarios con sus datos
+     */
+    static async obtenerTodosLosUsuarios() {
+        try {
+            const { data: usuarios, error } = await supabase
+                .from('usuario')
+                .select(`
+                    id_usuario,
+                    nombre,
+                    apellidos,
+                    direccion,
+                    imagen,
+                    rol: id_rol (id_rol, nombre_rol)
+                `)
+                .order('nombre', { ascending: true });
+                
+            if (error) throw error;
+            
+            return { success: true, data: usuarios };
+        } catch (error) {
+            console.error('Error al obtener los usuarios:', error);
+            return { success: false, error };
+        }
+    }
+    
+    /**
      * Obtiene un servicio por su ID
      * @param {number} servicioId - ID del servicio a obtener
      * @returns {Promise<{success: boolean, data?: Object, error?: any}>} - Resultado de la operación con los datos del servicio

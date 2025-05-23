@@ -109,24 +109,6 @@ class RoleUIManager {
             if (profileLink) {
                 nav.appendChild(profileLink);
             }
-        } else if (this.userStatus.userRole === 'admin') {
-            // Para admins: enlaces de administración y desarrollo
-            
-            this.addNavLink(nav, 'users-admin', 'Usuarios', `
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2"
-                    style="transform: translateY(1.3px);">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-            `);
-            
-            // Agregar enlace de perfil
-            if (profileLink) {
-                nav.appendChild(profileLink);
-            }
         }
     }
     
@@ -203,11 +185,6 @@ class RoleUIManager {
             // Crear páginas de empleado si no existen
             if (!document.getElementById('client-management-page')) {
                 this.createEmployeePages(main);
-            }
-        } else if (this.userStatus.userRole === 'admin') {
-            // Crear páginas de admin si no existen
-            if (!document.getElementById('system-admin-page')) {
-                this.createDeveloperPages(main);
             }
         }
     }
@@ -348,50 +325,7 @@ class RoleUIManager {
         container.appendChild(appointmentsAdminPage);
     }
     
-    /**
-     * Crea las páginas específicas para admins
-     * @param {HTMLElement} container - Contenedor donde se agregarán las páginas
-     */
-    createDeveloperPages(container) {        
-        // Página de administración de usuarios
-        const usersAdminPage = document.createElement('div');
-        usersAdminPage.id = 'users-admin-page';
-        usersAdminPage.className = 'page';
-        usersAdminPage.innerHTML = `
-            <div class="container">
-                <div class="page-header">
-                    <h1>Administración de Usuarios</h1>
-                    <p>Gestiona los usuarios y sus roles en el sistema</p>
-                </div>
-                <div class="content-card">
-                    <div class="card-header">
-                        <h3>Usuarios del Sistema</h3>
-                        <button class="btn btn-primary">Crear usuario</button>
-                    </div>
-                    <div class="users-list">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nombre</th>
-                                    <th>Email</th>
-                                    <th>Rol</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="6">Cargando usuarios...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        `;
-        container.appendChild(usersAdminPage);
-    }
+    
     
     /**
      * Configura los listeners de eventos para la UI

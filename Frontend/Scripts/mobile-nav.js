@@ -127,6 +127,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // El HTML ya tiene aria-expanded="false", lo que es bueno.
     // Llamar a toggleMenu(false) aquí asegura que todo (clases, overflow) esté correcto.
     // toggleMenu(false); // Descomentar si es necesario forzar el cierre inicial
-
-    console.log('Script de navegación móvil cargado y configurado.');
 });

@@ -515,21 +515,26 @@ class AppointmentUI {
         
         // Evento para confirmar la cancelación
         confirmBtn.onclick = () => {
-            // Llamar al método para eliminar la cita
-            const result = this.appointmentsService.handleDeleteAppointment(this.currentAppointmentId);
-            
-            if (result) {
-                // Cerrar el modal
-                closeModal();
-
-                this.appointmentsService.handleCancelAppointment(this.currentAppointmentId);
-                
-                // Mostrar mensaje de éxito
-                this.showCancellationSuccessMessage();
-                
-                // Actualizar la lista de citas
-                this.initAppointments();
-            }
+            // Llamar al método para cancelar la cita
+            this.appointmentsService.handleCancelAppointment(this.currentAppointmentId)
+                .then(result => {
+                    if (result.success) {
+                        // Cerrar el modal
+                        closeModal();
+                        // Mostrar mensaje de éxito
+                        this.showCancellationSuccessMessage();
+                        // Actualizar la lista de citas
+                        this.initAppointments();
+                    } else {
+                        console.error('Error al cancelar la cita:', result.error);
+                        // Mostrar mensaje de error
+                        this.showFormError(result.error || 'Error al cancelar la cita');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cancelar la cita:', error);
+                    this.showFormError('Error inesperado al cancelar la cita');
+                });
         };
         
         // Cerrar el modal si se hace clic fuera de él
@@ -538,7 +543,7 @@ class AppointmentUI {
                 closeModal();
             }
         };
-    }
+    };
     
     /**
      * Muestra un mensaje de éxito al cancelar una cita

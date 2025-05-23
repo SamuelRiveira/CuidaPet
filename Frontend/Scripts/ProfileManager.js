@@ -31,7 +31,35 @@ class ProfileManager {
             }
             
             const totalMascotas = petsResponse.data?.length || 0;
-            const totalCitas = 0; // TODO: Obtener el número real de citas
+            
+            // Obtener las citas del usuario
+            let totalCitas = 0;
+            const citasResponse = await API.obtenerCitasMascotas();
+            if (citasResponse.success && citasResponse.data) {
+                const ahora = new Date();
+                const fechaActual = ahora.toISOString().split('T')[0];
+                const horaActual = ahora.getHours().toString().padStart(2, '0') + ':' + 
+                                 ahora.getMinutes().toString().padStart(2, '0');
+                
+                // Filtrar citas: no canceladas y futuras (fecha y hora)
+                const citasFuturas = citasResponse.data.filter(cita => {
+                    // Si la cita está cancelada, la descartamos
+                    if (cita.is_canceled) return false;
+                    
+                    // Si la cita es de una fecha posterior a hoy, la contamos
+                    if (cita.fecha > fechaActual) return true;
+                    
+                    // Si es hoy, comprobamos la hora
+                    if (cita.fecha === fechaActual) {
+                        return cita.hora_inicio >= horaActual;
+                    }
+                    
+                    // Si es de una fecha pasada, la descartamos
+                    return false;
+                });
+                
+                totalCitas = citasFuturas.length;
+            }
 
             // Formatear los datos para que coincidan con el formato esperado
             return {

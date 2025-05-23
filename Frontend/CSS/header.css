@@ -4,7 +4,7 @@ header {
     color: var(--white);
     padding: 1rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: start;
     align-items: center;
 }
 
@@ -31,6 +31,8 @@ header {
 nav {
     display: flex;
     gap: .5rem;
+    align-items: center;
+    flex-grow: 1;
 }
 
 nav a {
@@ -46,12 +48,12 @@ nav a {
     border-radius: 6px;
 }
 
-nav a.active{
+nav a.active {
     --tw-bg-opacity: 1;
     background-color: rgb(61 82 106 / var(--tw-bg-opacity));
 }
 
-nav a:hover{
+nav a:hover {
     --tw-bg-opacity: 1;
     background-color: rgb(61 82 106 / var(--tw-bg-opacity));
 }

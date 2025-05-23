@@ -166,15 +166,12 @@ class RoleUIManager {
             `;
             
             // Agregar el evento de cierre de sesión
-            const logoutButton = document.getElementById('logout-button');
-            if (logoutButton) {
-                logoutButton.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    UserAuthManager.logout();
-                    // Recargar la página para actualizar el estado
-                    window.location.reload();
-                });
-            }
+            sessionControl.onclick = (e) => {
+                e.preventDefault();
+                UserAuthManager.logout();
+                // Recargar la página para actualizar el estado
+                window.location.reload();
+            };
         } else {
             // Mostrar botón de inicio de sesión si no está autenticado
             sessionControl.innerHTML = `
@@ -187,6 +184,12 @@ class RoleUIManager {
                 </svg>
                 Iniciar Sesión
             `;
+            
+            // Agregar el evento de inicio de sesión
+            sessionControl.onclick = (e) => {
+                e.preventDefault();
+                abrir();
+            };
         }
     }
     

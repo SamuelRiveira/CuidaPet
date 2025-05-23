@@ -92,6 +92,7 @@
 
 .profile-stats {
     display: flex;
+    flex-direction: row;
     justify-content: center;
     gap: 16px;
     margin-bottom: 24px;
@@ -362,6 +363,7 @@ input:checked + .slider:before {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 20px;
 }
 
 .validation-error-modal .error-content {
@@ -510,4 +512,354 @@ input:checked + .slider:before {
 .photo-edit-label::before {
     content: '📷';
     font-size: 20px;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN - MEDIA QUERIES
+======================================== */
+
+/* Tablets y pantallas medianas (768px - 1024px) */
+@media screen and (max-width: 1024px) {
+    .profile-container {
+        grid-template-columns: 1fr 1.5fr;
+        gap: 20px;
+    }
+    
+    .content-card {
+        padding: 20px;
+    }
+    
+    .profile-sidebar {
+        padding: 20px;
+    }
+    
+    .col {
+        min-width: 180px;
+    }
+}
+
+/* Tablets verticales (768px - 900px) */
+@media screen and (max-width: 900px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .profile-photo {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
+    
+    .plan-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .plan-price {
+        font-size: 18px;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .card-header h3 {
+        margin-bottom: 0;
+    }
+}
+
+/* Móviles grandes (480px - 768px) */
+@media screen and (max-width: 768px) {
+    .profile-container {
+        gap: 12px;
+    }
+    
+    .content-card {
+        padding: 16px;
+    }
+    
+    .profile-sidebar {
+        padding: 16px;
+    }
+    
+    .profile-photo {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .profile-stats {
+        gap: 12px;
+    }
+    
+    .stat-value {
+        font-size: 18px;
+    }
+    
+    .stat-label {
+        font-size: 12px;
+    }
+    
+    .row {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .col {
+        min-width: unset;
+        width: 100%;
+    }
+    
+    .notification {
+        padding: 12px;
+    }
+    
+    .notification-content {
+        gap: 8px;
+    }
+    
+    .notification-icon {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+    }
+    
+    .subscription-plan {
+        padding: 12px;
+    }
+    
+    .plan-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .promo-code {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .setting-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px 0;
+    }
+    
+    .container-top .edit-button,
+    .container-top .confirm-edit-button,
+    .container-top .cancel-edit-button {
+        padding: 6px 12px;
+        font-size: 12px;
+        margin-left: 8px;
+    }
+    
+    .change-photo-btn {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+    
+    .photo-edit-label {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Móviles pequeños (hasta 480px) */
+@media screen and (max-width: 480px) {
+
+    .page-header {
+        padding-top: 1rem;
+    }
+
+    .profile-container {
+        gap: 8px;
+    }
+    
+    .content-card {
+        padding: 12px;
+    }
+    
+    .profile-sidebar {
+        padding: 12px;
+    }
+    
+    .profile-photo {
+        width: 150px;
+        height: 150px;
+        margin-bottom: 16px;
+    }
+    
+    .profile-stats {
+        flex-direction: row;
+        gap: 8px;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 24px;
+    }
+    
+    .stat-label {
+        font-size: 16px;
+    }
+    
+    .action-buttons2 {
+        gap: 8px;
+    }
+    
+    .notification {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px;
+    }
+    
+    .notification-content {
+        width: 100%;
+    }
+    
+    .notification-time {
+        align-self: flex-end;
+    }
+    
+    .card-header {
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+    
+    .card-header h3 {
+        font-size: 18px;
+    }
+    
+    .validation-error-modal {
+        padding: 16px;
+    }
+    
+    .validation-error-modal .error-content {
+        padding: 20px;
+        max-width: 320px;
+    }
+    
+    .container-top .edit-button,
+    .container-top .confirm-edit-button,
+    .container-top .cancel-edit-button {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 8px;
+        justify-content: center;
+    }
+    
+    .switch {
+        width: 44px;
+        height: 22px;
+    }
+    
+    .slider:before {
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        bottom: 3px;
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(22px);
+    }
+}
+
+/* Móviles extra pequeños (hasta 360px) */
+@media screen and (max-width: 360px) {
+    .profile-photo {
+        width: 130px;
+        height: 130px;
+    }
+    
+    .content-card {
+        padding: 10px;
+    }
+    
+    .profile-sidebar {
+        padding: 10px;
+    }
+    
+    .stat-value {
+        font-size: 14px;
+    }
+    
+    .notification-icon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .card-header h3 {
+        font-size: 16px;
+    }
+    
+    .validation-error-modal .error-content {
+        padding: 16px;
+        max-width: 280px;
+    }
+    
+    .change-photo-btn {
+        padding: 4px 8px;
+        font-size: 9px;
+    }
+    
+    .photo-edit-label {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}
+
+/* Ajustes para landscape en móviles */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .profile-container {
+        grid-template-columns: 1fr 2fr;
+    }
+    
+    .profile-photo {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .profile-stats {
+        flex-direction: row;
+        gap: 8px;
+    }
+    
+    .validation-error-modal {
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+}
+
+/* Modo oscuro responsive adjustments */
+@media (prefers-color-scheme: dark) {
+    .change-photo-overlay {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .change-photo-btn {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .profile-photo {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .content-card {
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    }
 }

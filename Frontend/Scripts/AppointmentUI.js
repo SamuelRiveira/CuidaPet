@@ -1,5 +1,6 @@
 import { notificationService } from "./NotificationService.js";
 import { AppointmentManager } from "./AppointmentManager.js";
+import { ProfileUI } from "./ProfileUI.js";
 
 /**
  * Clase para manejar la UI de citas
@@ -403,6 +404,9 @@ class AppointmentUI {
                 
                 // Actualizar la lista de citas
                 this.initAppointments();
+
+                // Obtener la instancia de ProfileUI si existe
+                ProfileUI.loadProfileData();
                 
                 // Eliminar mensaje de éxito después de 3 segundos
                 setTimeout(() => {
@@ -525,6 +529,10 @@ class AppointmentUI {
                         this.showCancellationSuccessMessage();
                         // Actualizar la lista de citas
                         this.initAppointments();
+                        
+                        // Obtener la instancia de ProfileUI si existe
+                        ProfileUI.loadProfileData();
+
                     } else {
                         console.error('Error al cancelar la cita:', result.error);
                         // Mostrar mensaje de error
@@ -565,7 +573,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (appointmentsPage && appointmentsPage.classList.contains('active-page')) {
             // Si no existe una instancia, crearla
             if (!appointmentUI) {
-                appointmentUI = new AppointmentUI();
+                // Obtener la instancia de ProfileUI si existe
+                const profileUI = window.profileUIInstance;
+                // Pasar la función loadProfileData como callback
+                appointmentUI = new AppointmentUI(() => {
+                    if (profileUI && typeof profileUI.loadProfileData === 'function') {
+                        profileUI.loadProfileData();
+                    }
+                });
             }
             
             // Solo configurar los listeners del formulario una vez

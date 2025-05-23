@@ -444,8 +444,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Solo inicializar si estamos en la página de perfil
     const profilePage = document.getElementById('profile-page');
     if (profilePage) {
-        const profileUI = new ProfileUI();
+        // Almacenar la instancia en window para acceso global
+        window.profileUI = new ProfileUI();
     }
 });
+
+// Método estático para cargar los datos del perfil desde cualquier parte de la aplicación
+ProfileUI.loadProfileData = async function() {
+    if (window.profileUI && typeof window.profileUI.loadProfileData === 'function') {
+        return window.profileUI.loadProfileData();
+    }
+    return null;
+};
 
 export { ProfileUI };

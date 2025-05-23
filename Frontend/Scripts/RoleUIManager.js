@@ -87,7 +87,7 @@ class RoleUIManager {
             });
         } else if (this.userStatus.userRole === 'empleado') {
             // Para empleados: enlaces específicos
-            this.addNavLink(nav, 'client-management', 'Clientes', `
+            this.addNavLink(nav, 'client-management', 'Usuarios', `
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2"
                     style="transform: translateY(1.3px);">
@@ -259,14 +259,14 @@ class RoleUIManager {
         clientManagementPage.innerHTML = `
             <div class="container">
                 <div class="page-header">
-                    <h1>Gestión de Clientes</h1>
-                    <p>Administra la información de los clientes de CuidaPet</p>
+                    <h1>Gestión de Usuarios</h1>
+                    <p>Administra la información de los Usuarios de CuidaPet</p>
                 </div>
                 <div class="content-card">
                     <div class="card-header">
-                        <h3>Listado de Clientes</h3>
+                        <h3>Listado de Usuarios</h3>
                         <div class="search-container">
-                            <input type="text" class="search-input" placeholder="Buscar cliente...">
+                            <input type="text" class="search-input" placeholder="Buscar usuario...">
                             <button class="btn btn-primary">Buscar</button>
                         </div>
                     </div>

@@ -140,6 +140,26 @@ class ProfileManager {
             return { success: false, error };
         }
     }
+
+    /**
+     * Obtiene todos los usuarios registrados en el sistema
+     * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de usuarios con todos sus datos
+     */
+    static async getAllUsers() {
+        try {
+            const resultado = await API.obtenerTodosLosUsuarios();
+            
+            if (!resultado.success) {
+                throw resultado.error || new Error('Error al obtener los usuarios');
+            }
+            
+            return { success: true, data: resultado.data };
+            
+        } catch (error) {
+            console.error('Error al obtener todos los usuarios:', error);
+            return { success: false, error };
+        }
+    }
 }
 
 export { ProfileManager };

@@ -3,6 +3,7 @@
  * Controla la visualización de elementos y opciones de menú basado en permisos
  */
 import { UserAuthManager } from "./UserAuthManager.js";
+// La función abrir está disponible globalmente desde openLogin.js
 class RoleUIManager {
     constructor() {
         this.userStatus = null;
@@ -58,6 +59,7 @@ class RoleUIManager {
         const existingLinks = Array.from(nav.querySelectorAll('a'));
         const homeLink = existingLinks.find(link => link.getAttribute('data-page') === 'home');
         const profileLink = existingLinks.find(link => link.getAttribute('data-page') === 'profile');
+        const sessionControl = existingLinks.find(link => link.classList.contains('session-control'));
         
         // Limpiar el menú actual
         nav.innerHTML = '';
@@ -67,8 +69,10 @@ class RoleUIManager {
             nav.appendChild(homeLink);
         }
         
-        // Si no hay sesión iniciada, solo mostrar "Inicio"
+        // Si no hay sesión iniciada, solo mostrar "Inicio" y el botón de iniciar sesión
         if (!this.userStatus.isLoggedIn) {
+            // Añadir el botón de iniciar sesión al final del menú
+            this.addSessionControlButton(nav, false);
             return;
         }
         
@@ -77,7 +81,7 @@ class RoleUIManager {
             // Para clientes: mostrar enlaces existentes (mascotas, citas, etc.)
             existingLinks.forEach(link => {
                 const page = link.getAttribute('data-page');
-                if (page !== 'home') { // Home ya fue agregado
+                if (page !== 'home' && !link.classList.contains('session-control')) {
                     nav.appendChild(link);
                 }
             });
@@ -128,6 +132,9 @@ class RoleUIManager {
                 nav.appendChild(profileLink);
             }
         }
+        
+        // Añadir el botón de cerrar sesión al final del menú
+        this.addSessionControlButton(nav, true);
     }
     
     /**
@@ -146,15 +153,18 @@ class RoleUIManager {
     }
     
     /**
-     * Configura los botones de control de sesión
+     * Añade el botón de control de sesión al menú de navegación
+     * @param {HTMLElement} navEl - Elemento de navegación donde añadir el botón
+     * @param {boolean} isLoggedIn - Si el usuario está autenticado
      */
-    setupSessionButtons() {
-        const sessionControl = document.querySelector('.session-control');
-        if (!sessionControl) return;
+    addSessionControlButton(navEl, isLoggedIn) {
+        const sessionControlButton = document.createElement('a');
+        sessionControlButton.href = 'javascript:void(0);'; // Usar javascript:void(0) para prevenir navegación
+        sessionControlButton.classList.add('btn', 'btn-outline', 'session-control');
         
-        if (this.userStatus.isLoggedIn) {
+        if (isLoggedIn) {
             // Mostrar botón de cierre de sesión si está autenticado
-            sessionControl.innerHTML = `
+            sessionControlButton.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2"
                     style="transform: translateY(1.3px);">
@@ -166,15 +176,16 @@ class RoleUIManager {
             `;
             
             // Agregar el evento de cierre de sesión
-            sessionControl.onclick = (e) => {
+            sessionControlButton.addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation(); // Detener la propagación del evento
                 UserAuthManager.logout();
                 // Recargar la página para actualizar el estado
                 window.location.reload();
-            };
+            });
         } else {
             // Mostrar botón de inicio de sesión si no está autenticado
-            sessionControl.innerHTML = `
+            sessionControlButton.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2"
                     style="transform: translateY(1.3px);">
@@ -186,12 +197,36 @@ class RoleUIManager {
             `;
             
             // Agregar el evento de inicio de sesión
-            sessionControl.onclick = (e) => {
+            sessionControlButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                abrir();
-            };
+                e.stopPropagation(); // Detener la propagación del evento
+                // Mostrar el popup de login sin afectar la navegación
+                this.openLoginPopup(e);
+            });
         }
+        
+        // Asegurarnos de que el botón se agregue al final del menú
+        navEl.appendChild(sessionControlButton);
     }
+
+    /**
+     * Abre el popup de inicio de sesión
+     * @param {Event} e - Evento del clic
+     */
+    openLoginPopup(e) {
+        e.preventDefault();
+        // Llamamos a la función abrir importada desde openLogin.js
+        // pero también nos aseguramos que el evento funcione con el onclick
+        abrir();
+    }
+
+    /**
+     * Configura los botones de control de sesión (mantenido por compatibilidad)
+     */
+    setupSessionButtons() {
+        // Esta función se mantiene para compatibilidad con código existente
+        // Toda la funcionalidad ahora está en setupNavigation y addSessionControlButton
+    };
     
     /**
      * Crea las páginas específicas para cada rol

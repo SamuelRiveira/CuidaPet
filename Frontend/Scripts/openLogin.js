@@ -20,3 +20,5 @@ function cerrar() {
     }, 500);
 }
 
+// Las funciones están definidas como globales para ser accesibles desde otros scripts
+

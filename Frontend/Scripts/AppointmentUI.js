@@ -330,8 +330,33 @@ class AppointmentUI {
         const appointmentForm = document.querySelector('.appointment-form');
         
         if (appointmentForm) {
+            // Clonar el formulario para eliminar cualquier listener existente
+            const newForm = appointmentForm.cloneNode(true);
+            appointmentForm.parentNode.replaceChild(newForm, appointmentForm);
+            
             // Agregar listener al evento submit del formulario
-            appointmentForm.addEventListener('submit', this.submitAppointmentForm.bind(this));
+            newForm.addEventListener('submit', (e) => {
+                // Prevenir el comportamiento por defecto del formulario
+                e.preventDefault();
+                
+                // Deshabilitar el botón de envío para evitar múltiples envíos
+                const submitButton = newForm.querySelector('button[type="submit"]');
+                if (submitButton && !submitButton.disabled) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Procesando...';
+                    
+                    // Llamar al manejador de envío
+                    this.submitAppointmentForm(e).finally(() => {
+                        // Re-habilitar el botón después de procesar
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                            submitButton.textContent = 'Programar cita';
+                        }
+                    });
+                }
+                
+                return false;
+            });
         }
     }
     
@@ -339,119 +364,69 @@ class AppointmentUI {
      * Maneja el envío del formulario de citas
      * @param {Event} event - Evento de submit
      */
-    submitAppointmentForm(event) {
+    async submitAppointmentForm(event) {
         // Prevenir comportamiento por defecto del formulario
         event.preventDefault();
         
-        // Eliminar mensajes de error previos (excepto time-warning que se genera en otro lugar)
-        this.removeFormWarnings();
-        
-        // Obtener los valores del formulario
-        const petId = document.getElementById('pet-select').value;
-        const serviceId = document.getElementById('service-select').value;
-        const date = document.getElementById('appointment-date').value;
-        const time = document.getElementById('appointment-time').value;
-        
-        // Verificar si existe un mensaje de advertencia de horario ocupado
-        const timeWarning = document.getElementById('time-warning');
-        if (timeWarning) {
-            // Crear y mostrar mensaje de error bloqueante
-            const form = document.querySelector('.appointment-form');
-            const errorElement = document.createElement('div');
-            errorElement.id = 'form-error';
-            errorElement.className = 'error-message';
-            errorElement.textContent = 'No es posible programar la cita en un horario ocupado. Por favor, selecciona otro horario.';
-            errorElement.style.color = '#d9534f'; // color rojo para errores
-            errorElement.style.marginTop = '10px';
-            errorElement.style.marginBottom = '10px';
-            errorElement.style.padding = '8px';
-            errorElement.style.borderRadius = '4px';
-            errorElement.style.backgroundColor = '#f8d7da';
-            errorElement.style.borderLeft = '3px solid #d9534f';
-            
-            // Insertar mensaje de error antes del botón submit
-            const submitButton = form.querySelector('.submit-btn');
-            form.insertBefore(errorElement, submitButton);
-            return;
+        // Deshabilitar el botón de envío
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Procesando...';
         }
-        
-        // Validar que todos los campos estén completos
-        if (!petId || !serviceId || !date || !time) {
-            // Crear y mostrar mensaje de error
-            const form = document.querySelector('.appointment-form');
-            const warningElement = document.createElement('div');
-            warningElement.id = 'form-warning';
-            warningElement.className = 'warning-message';
-            warningElement.textContent = 'Por favor, completa todos los campos del formulario';
-            warningElement.style.color = '#d9534f'; // color rojo para errores
-            warningElement.style.marginTop = '10px';
-            warningElement.style.marginBottom = '10px';
-            warningElement.style.padding = '8px';
-            warningElement.style.borderRadius = '4px';
-            warningElement.style.backgroundColor = '#f8d7da';
-            warningElement.style.borderLeft = '3px solid #d9534f';
+
+        try {
+            // Obtener los valores del formulario
+            const petId = document.getElementById('pet-select').value;
+            const serviceId = document.getElementById('service-select').value;
+            const date = document.getElementById('appointment-date').value;
+            const time = document.getElementById('appointment-time').value;
             
-            // Insertar mensaje de error antes del botón submit
-            const submitButton = form.querySelector('.submit-btn');
-            form.insertBefore(warningElement, submitButton);
-            return;
-        }
-        
-        // Llamar al método handleCreateAppointment del servicio
-        const result = this.appointmentsService.handleCreateAppointment(petId, serviceId, date, time);
-        
-        if (result) {
-            // Si la operación fue exitosa, mostrar mensaje de éxito
-            const form = document.querySelector('.appointment-form');
-            const successElement = document.createElement('div');
-            successElement.id = 'form-success';
-            successElement.className = 'success-message';
-            successElement.textContent = '¡Cita programada con éxito!';
-            successElement.style.color = '#28a745'; // color verde para éxito
-            successElement.style.marginTop = '10px';
-            successElement.style.marginBottom = '10px';
-            successElement.style.padding = '8px';
-            successElement.style.borderRadius = '4px';
-            successElement.style.backgroundColor = '#d4edda';
-            successElement.style.borderLeft = '3px solid #28a745';
+            // Validar que todos los campos estén completos
+            if (!petId || !serviceId || !date || !time) {
+                this.showFormError('Por favor, completa todos los campos del formulario');
+                return;
+            }
             
-            // Insertar mensaje de éxito antes del botón submit
-            const submitButton = form.querySelector('.submit-btn');
-            form.insertBefore(successElement, submitButton);
+            // Verificar si existe un mensaje de advertencia de horario ocupado
+            const timeWarning = document.getElementById('time-warning');
+            if (timeWarning) {
+                this.showFormError('No es posible programar la cita en un horario ocupado. Por favor, selecciona otro horario.');
+                return;
+            }
             
-            // Actualizar la lista de citas
-            this.initAppointments(); // Recargar las citas
+            // Llamar al método handleCreateAppointment del servicio
+            const result = await this.appointmentsService.handleCreateAppointment(petId, serviceId, date, time);
             
-            // Limpiar el formulario después de un breve retraso
-            setTimeout(() => {
-                document.getElementById('pet-select').value = '';
-                document.getElementById('service-select').value = '';
-                document.getElementById('appointment-date').value = '';
-                document.getElementById('appointment-time').value = '';
+            if (result && result.success) {
+                // Si la operación fue exitosa, mostrar mensaje de éxito
+                this.showFormSuccess('¡Cita programada con éxito!');
+                
+                // Limpiar el formulario
+                document.querySelector('.appointment-form').reset();
+                
+                // Actualizar la lista de citas
+                this.initAppointments();
+                
                 // Eliminar mensaje de éxito después de 3 segundos
                 setTimeout(() => {
                     const successMsg = document.getElementById('form-success');
                     if (successMsg) successMsg.remove();
                 }, 3000);
-            }, 500);
-        } else {
-            // Mostrar mensaje de error
-            const form = document.querySelector('.appointment-form');
-            const errorElement = document.createElement('div');
-            errorElement.id = 'form-error';
-            errorElement.className = 'error-message';
-            errorElement.textContent = 'Ha ocurrido un error al programar la cita. Por favor, intenta de nuevo.';
-            errorElement.style.color = '#d9534f'; // color rojo para errores
-            errorElement.style.marginTop = '10px';
-            errorElement.style.marginBottom = '10px';
-            errorElement.style.padding = '8px';
-            errorElement.style.borderRadius = '4px';
-            errorElement.style.backgroundColor = '#f8d7da';
-            errorElement.style.borderLeft = '3px solid #d9534f';
-            
-            // Insertar mensaje de error antes del botón submit
-            const submitButton = form.querySelector('.submit-btn');
-            form.insertBefore(errorElement, submitButton);
+            } else {
+                // Mostrar mensaje de error
+                const errorMessage = result?.error?.message || 'Ha ocurrido un error al programar la cita. Por favor, intenta de nuevo.';
+                this.showFormError(errorMessage);
+            }
+        } catch (error) {
+            console.error('Error al procesar el formulario:', error);
+            this.showFormError('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
+        } finally {
+            // Re-habilitar el botón de envío
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Programar Cita';
+            }
         }
     }
     
@@ -468,6 +443,52 @@ class AppointmentUI {
         warnings.forEach(warning => {
             if (warning) warning.remove();
         });
+    }
+    
+    /**
+     * Muestra un mensaje de error en el formulario
+     * @param {string} message - Mensaje de error a mostrar
+     */
+    showFormError(message) {
+        this.removeFormWarnings();
+        
+        const form = document.querySelector('.appointment-form');
+        const errorElement = document.createElement('div');
+        errorElement.id = 'form-error';
+        errorElement.className = 'error-message';
+        errorElement.textContent = message;
+        errorElement.style.color = '#d9534f';
+        errorElement.style.margin = '10px 0';
+        errorElement.style.padding = '8px';
+        errorElement.style.borderRadius = '4px';
+        errorElement.style.backgroundColor = '#f8d7da';
+        errorElement.style.borderLeft = '3px solid #d9534f';
+        
+        const submitButton = form.querySelector('.submit-btn');
+        form.insertBefore(errorElement, submitButton);
+    }
+    
+    /**
+     * Muestra un mensaje de éxito en el formulario
+     * @param {string} message - Mensaje de éxito a mostrar
+     */
+    showFormSuccess(message) {
+        this.removeFormWarnings();
+        
+        const form = document.querySelector('.appointment-form');
+        const successElement = document.createElement('div');
+        successElement.id = 'form-success';
+        successElement.className = 'success-message';
+        successElement.textContent = message;
+        successElement.style.color = '#28a745';
+        successElement.style.margin = '10px 0';
+        successElement.style.padding = '8px';
+        successElement.style.borderRadius = '4px';
+        successElement.style.backgroundColor = '#d4edda';
+        successElement.style.borderLeft = '3px solid #28a745';
+        
+        const submitButton = form.querySelector('.submit-btn');
+        form.insertBefore(successElement, submitButton);
     }
     
     /**
@@ -531,24 +552,38 @@ class AppointmentUI {
 
 // Inicializar el gestor de citas cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
-    // Solo inicializa si la página de citas está activa o cuando se navegue a ella
-    const initAppointments = () => {
+    // Variable para mantener la instancia única
+    let appointmentUI = null;
+    let formListenerAttached = false;
+    
+    // Función para inicializar la aplicación de citas
+    function initializeAppointments() {
         const appointmentsPage = document.getElementById('appointments-page');
         if (appointmentsPage && appointmentsPage.classList.contains('active-page')) {
-            const appointmentUI = new AppointmentUI();
+            // Si no existe una instancia, crearla
+            if (!appointmentUI) {
+                appointmentUI = new AppointmentUI();
+            }
+            
+            // Solo configurar los listeners del formulario una vez
+            if (!formListenerAttached) {
+                appointmentUI.setupFormListeners();
+                formListenerAttached = true;
+            }
+            
+            // Actualizar los datos del formulario
             appointmentUI.populateFormData();
-            appointmentUI.setupFormListeners(); // Asegurar que los listeners estén configurados
         }
-    };
-
+    }
+    
     // Inicializar en la carga de la página
-    initAppointments();
+    initializeAppointments();
 
     // Agregar un observador para cuando cambie la página activa
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                initAppointments();
+                initializeAppointments();
             }
         });
     });

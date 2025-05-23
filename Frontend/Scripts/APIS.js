@@ -252,15 +252,15 @@ export class API{
             }
 
             // Verificar si ya existe una cita que se solape con el horario
+            // Primero, obtener todas las citas existentes para la fecha
             const { data: citasExistentes, error: errorCitas } = await supabase
                 .from('cita')
                 .select('id_cita, hora_inicio, hora_final')
-                .eq('fecha', fecha)
-                .or(`and(hora_inicio.lte.${horaFinal},hora_final.gte.${horaInicio})`);
+                .eq('fecha', fecha);
 
-            if (errorCitas) throw errorCitas;
-            if (citasExistentes && citasExistentes.length > 0) {
-                throw new Error('Ya existe una cita programada que se solapa con el horario seleccionado');
+            if (errorCitas) {
+                console.error('Error al verificar citas existentes:', errorCitas);
+                throw errorCitas;
             }
 
             // Crear la cita
@@ -833,5 +833,16 @@ export class API{
             console.error('Error al obtener información del usuario:', error);
             return { success: false, error };
         }
+    }
+
+    /**
+     * Convierte una hora en formato HH:MM a minutos desde la medianoche
+     * @param {string} timeString - Hora en formato HH:MM
+     * @returns {number} Minutos desde la medianoche
+     */
+    static timeToMinutes(timeString) {
+        if (!timeString) return 0;
+        const [hours, minutes] = timeString.split(':').map(Number);
+        return hours * 60 + minutes;
     }
 }

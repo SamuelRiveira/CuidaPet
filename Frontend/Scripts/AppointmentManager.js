@@ -122,13 +122,45 @@ class AppointmentManager {
      * Manejador para crear una cita
      * @param {string} petId - ID de la mascota
      * @param {string} serviceId - ID del servicio
-     * @param {string} date - Fecha de la cita
-     * @param {string} time - Hora de la cita
-     * @returns {boolean} - Resultado de la operación
+     * @param {string} date - Fecha de la cita en formato YYYY-MM-DD
+     * @param {string} time - Hora de la cita en formato HH:MM
+     * @returns {Promise<{success: boolean, data?: any, error?: string}>} - Resultado de la operación
      */
-    handleCreateAppointment(petId, serviceId, date, time) {
-        // TODO: Implementar llamada a API
-        return true;
+    async handleCreateAppointment(petId, serviceId, date, time) {
+        try {
+            // Validar parámetros requeridos
+            if (!petId || !serviceId || !date || !time) {
+                throw new Error('Todos los campos son obligatorios');
+            }
+
+            // Calcular hora final (30 minutos después de la hora de inicio por defecto)
+            const [hours, minutes] = time.split(':').map(Number);
+            const [year, month, day] = date.split('-').map(Number);
+            const startTime = new Date(year, month - 1, day, hours, minutes); // month is 0-indexed in JS Date
+            const endTime = new Date(startTime.getTime() + (30 * 60 * 1000)); // Add 30 minutes in milliseconds
+            const endTimeStr = `${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}`;
+
+            // Llamar a la API para crear la cita
+            const { success, data, error } = await API.crearCita(
+                petId,
+                date,
+                time,
+                endTimeStr,
+                serviceId
+            );
+
+            if (!success) {
+                throw new Error(error || 'Error al crear la cita');
+            }
+
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error en handleCreateAppointment:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al procesar la solicitud de cita' 
+            };
+        }
     }
 
     /**

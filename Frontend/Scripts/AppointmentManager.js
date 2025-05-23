@@ -95,18 +95,36 @@ class AppointmentManager {
      * Manejador para cancelar una cita
      * @param {number} appointmentId - ID de la cita a cancelar
      */
-    handleCancelAppointment(appointmentId) {
-        // TODO: Implementar llamada a API
-        return true;
+    async handleCancelAppointment(appointmentId) {
+        try {
+            if (!appointmentId) {
+                throw new Error('ID de cita no proporcionado');
+            }
+
+            // Llamar a la API para eliminar la cita
+            const { success, error } = await API.eliminarCita(appointmentId);
+            
+            if (!success) {
+                throw new Error(error || 'Error al eliminar la cita');
+            }
+
+            return { success: true };
+        } catch (error) {
+            console.error('Error en handleEditAppointment:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al procesar la solicitud de eliminación de cita' 
+            };
+        }
     }
 
     /**
      * Manejador para editar una cita
      * @param {number} appointmentId - ID de la cita a editar
+     * @returns {Promise<{success: boolean, error?: string}>} - Resultado de la operación
      */
-    handleEditAppointment(appointmentId) {
-        // TODO: Implementar llamada a API
-        return true;
+    async handleEditAppointment(appointmentId) {
+        return true
     }
 
     /**

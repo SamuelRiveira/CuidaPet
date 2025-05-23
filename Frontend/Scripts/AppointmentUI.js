@@ -525,6 +525,8 @@ class AppointmentUI {
             if (result) {
                 // Cerrar el modal
                 closeModal();
+
+                this.appointmentsService.handleCancelAppointment(this.currentAppointmentId);
                 
                 // Mostrar mensaje de éxito
                 this.showCancellationSuccessMessage();

@@ -324,6 +324,40 @@ export class API{
      * @param {File} [datosUsuario.imagenFile] - Archivo de imagen para subir (opcional)
      * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
      */
+    /**
+     * Elimina una cita por su ID
+     * @param {string} citaId - ID de la cita a eliminar
+     * @returns {Promise<{success: boolean, error?: any}>} - Resultado de la operación
+     */
+    static async eliminarCita(citaId) {
+        try {
+            const { error } = await supabase
+                .from('cita')
+                .delete()
+                .eq('id_cita', citaId);
+                
+            if (error) throw error;
+            
+            return { success: true };
+        } catch (error) {
+            console.error('Error al eliminar la cita:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al eliminar la cita' 
+            };
+        }
+    }
+    
+    /**
+     * Actualiza el perfil del usuario actual (nombre, apellidos, dirección e imagen)
+     * @param {Object} datosUsuario - Datos actualizados del usuario
+     * @param {string} datosUsuario.nombre - Nombre del usuario
+     * @param {string} datosUsuario.apellidos - Apellidos del usuario
+     * @param {string} datosUsuario.direccion - Dirección del usuario
+     * @param {string} datosUsuario.imagen - URL de la imagen de perfil
+     * @param {File} [datosUsuario.imagenFile] - Archivo de imagen para subir (opcional)
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
+     */
     static async actualizarPerfilUsuario(datosUsuario) {
         try {
             // Obtener la sesión actual

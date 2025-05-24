@@ -277,36 +277,60 @@ textarea{
 
 .client-card .client-card-actions {
     display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: auto;
+    padding: 10px 0 0;
+}
+
+.client-card .client-card-actions .btn {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    padding: 10px;
+    gap: 8px;
+}
+
+.client-card .client-card-actions .view-profile-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: 2px solid var(--primary-color);
 }
 
 .client-card .client-card-actions .view-pets-btn {
-    width: calc(100% - 20px);
-    margin: 0 10px;
-    padding: 12px 20px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: center;
+    background-color: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.client-card .client-card-actions .view-profile-btn:hover {
+    background-color: #2a3a4a;
+    border-color: #2a3a4a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .client-card .client-card-actions .view-pets-btn:hover {
-    --tw-bg-opacity: 1;
-    background-color: rgb(61 82 106 / var(--tw-bg-opacity));
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.client-card .client-card-actions .view-pets-btn:active {
-    transform: translateY(1px);
+.client-card .client-card-actions .btn:active {
+    transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.client-card .client-card-actions .btn i {
+    font-size: 0.9em;
+    margin-right: 4px;
 }
 
 .client-info p {

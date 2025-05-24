@@ -417,12 +417,18 @@ class RoleUIManager {
             let actionButtons = '';
             if (user.rol?.nombre_rol === 'cliente') {
                 actionButtons = `
-                    <button class="btn btn-secondary view-profile-btn" data-user-id="${user.id_usuario}">Ver Perfil</button>
-                    <button class="btn btn-secondary view-pets-btn" data-user-id="${user.id_usuario}">Ver Mascotas</button>
+                    <button class="btn view-profile-btn" data-user-id="${user.id_usuario}">
+                        <i class="fas fa-user-circle"></i> Ver Perfil
+                    </button>
+                    <button class="btn view-pets-btn" data-user-id="${user.id_usuario}">
+                        <i class="fas fa-paw"></i> Ver Mascotas
+                    </button>
                 `;
             } else {
                 actionButtons = `
-                    <button class="btn btn-secondary view-profile-btn" data-user-id="${user.id_usuario}">Ver Perfil</button>
+                    <button class="btn view-profile-btn" data-user-id="${user.id_usuario}">
+                        <i class="fas fa-user-circle"></i> Ver Perfil
+                    </button>
                 `;
             }
             

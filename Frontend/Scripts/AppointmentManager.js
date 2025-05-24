@@ -167,11 +167,18 @@ class AppointmentManager {
      * Obtiene los datos necesarios para el formulario de citas
      * @returns {Promise<{pets: Array<{id: string, name: string}>, services: Array<{value: string, label: string}>, occupiedTimeSlots: Array<{date: string, start: string, end: string}>}>}
      */
-    async getAppointmentFormData() {
+    async getAppointmentFormData(userId = null) {
         try {
-            // Obtener mascotas del usuario
-            const { success: petsSuccess, data: petsData } = await API.obtenerMascotasUsuario();
-            
+
+            let petsSuccess = false;
+            let petsData = [];
+
+            if (!userId) {
+                ({ success: petsSuccess, data: petsData } = await API.obtenerMascotasUsuario());
+            } else {
+                ({ success: petsSuccess, data: petsData } = await API.obtenerMascotasPorUsuario(userId));
+            }
+
             if (!petsSuccess) {
                 throw new Error('No se pudieron cargar las mascotas');
             }

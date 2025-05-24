@@ -3,6 +3,7 @@ import { showPage } from "./navigation.js";
 import { PetEdit } from "./PetEdit.js";
 import { notificationService } from "./NotificationService.js";
 import { AppointmentManager } from "./AppointmentManager.js";
+import { API } from "./APIS.js";
 
 // Instanciamos el AppointmentManager
 const appointmentManager = new AppointmentManager();
@@ -39,7 +40,7 @@ function createPetCardHTML(pet) {
 }
 
 // Función para renderizar todas las tarjetas de mascotas
-async function renderPetCards(userId = null) {
+async function renderPetCards(requestedUserId = null) {
     const petsGrid = document.getElementById('pets-grid');
     if (!petsGrid) {
         console.error('Elemento pets-grid no encontrado');
@@ -50,7 +51,15 @@ async function renderPetCards(userId = null) {
     petsGrid.innerHTML = '';
 
     // Obtiene los datos de las mascotas del PetManager
-    const pets = await petManager.getPetsData();
+    const currentUser = await API.obtenerPerfilUsuario();
+    const userId = requestedUserId || currentUser?.data.id_usuario;
+    
+    if (!userId) {
+        console.error('No se pudo obtener el ID del usuario actual');
+        return;
+    }
+    
+    const pets = await petManager.getPetsData(userId);
 
     // Verifica si hay mascotas
     if (pets.length === 0) {
@@ -91,10 +100,19 @@ async function renderPetCards(userId = null) {
 
 // Carga los detalles de una mascota específica
 async function loadPetDetails(petId) {
+    // Obtener el ID del usuario actual
+    const currentUser = await API.obtenerPerfilUsuario();
+    const userId = currentUser?.data.id_usuario;
+    
+    if (!userId) {
+        console.error('No se pudo obtener el ID del usuario actual');
+        return;
+    }
+    
     // Busca la mascota por su ID usando la clase PetManager
-    const pets = await petManager.getPetsData();
+    const pets = await petManager.getPetsData(userId);
     const pet = pets.find(p => p.id === petId);
-    const appointments = await appointmentManager.getAppointments();
+    const appointments = await appointmentManager.getAppointments(userId);
 
     if (!pet) {
         console.error('Mascota no encontrada:', petId);
@@ -252,7 +270,8 @@ async function handleDeletePet(petId) {
             
             // Actualizar la vista
             showPage('pets');
-            await renderPetCards();
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            await renderPetCards(currentUser?.id);
         } else {
             // Mostrar mensaje de error con detalles
             let errorMessage = message || 'Error al eliminar la(s) mascota(s)';
@@ -279,12 +298,19 @@ async function handleDeletePet(petId) {
     }
 }
 
-// Ejemplo de uso para crear una nueva mascota
+// Crea una nueva mascota
 async function handleCreatePet(petData) {
     try {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const userId = currentUser?.id;
+        
+        if (!userId) {
+            throw new Error('No se pudo obtener el ID del usuario actual');
+        }
+        
         const newPet = await petManager.createPet(petData);
         notificationService.showSuccess('Mascota creada exitosamente');
-        await renderPetCards();
+        await renderPetCards(userId);
         return newPet;
     } catch (error) {
         console.error('Error al crear la mascota:', error);

@@ -5,7 +5,9 @@
 import { UserAuthManager } from "./UserAuthManager.js";
 import { ProfileManager } from "./ProfileManager.js";
 import { API } from "./APIS.js";
-import { renderPetCards } from "./PetView.js";
+import { PetManager } from "./PetManager.js";
+import { PetEdit } from "./PetEdit.js";
+
 // La función abrir está disponible globalmente desde openLogin.js
 class RoleUIManager {
     constructor() {
@@ -793,8 +795,6 @@ class RoleUIManager {
                             statusBadge.className = `status-badge ${statusLabel.class}`;
                         }
                         
-                        console.log(`Estado de cita ${appointment.id} actualizado a: ${newStatus}`);
-                        
                         // En una implementación real, aquí enviaríamos el cambio a la API
                         // const appointmentManager = new AppointmentDataManager();
                         // appointmentManager.updateAppointmentStatus(appointment.id, newStatus);
@@ -806,15 +806,6 @@ class RoleUIManager {
                 // Ocultar el botón para clientes
                 editButton.style.display = 'none';
             }
-        }
-
-        const cancelButton = cardElement.querySelector('.btn-cancel');
-        if (cancelButton) {
-            cancelButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                console.log(`Cancelar cita: ${appointment.id}`);
-                // Aquí se implementaría la lógica para cancelar la cita
-            });
         }
 
         return cardElement;
@@ -906,35 +897,97 @@ class RoleUIManager {
      * @static
      */
     static async loadUserPets(userId, petsList) {
-        // TODO: renderPetCards(userId);
         try {
-            // Llamar a la API para obtener las mascotas del usuario específico
-            const response = await API.obtenerMascotasPorUsuario(userId);
+            // Limpiamos el contenedor de mascotas
+            petsList.innerHTML = '';
             
-            // Verificar si la petición fue exitosa
-            if (!response.success) {
-                throw new Error(response.error || 'Error al obtener las mascotas');
-            }
+            // Instanciamos PetManager para usar su método de obtención de mascotas
+            const petManager = new PetManager();
             
-            // Verificar si hay mascotas
-            if (!response.data || response.data.length === 0) {
-                petsList.innerHTML = '<p class="no-pets-message">Este usuario no tiene mascotas registradas.</p>';
+            // Obtenemos las mascotas del usuario específico
+            const mascotas = await petManager.getPetsData(userId);
+
+            // Obtenemos las citas de las mascotas del usuario
+            const citas = await API.obtenerCitasMascotas(userId);
+            
+            // Verificamos si hay mascotas
+            if (!mascotas || mascotas.length === 0) {
+                petsList.innerHTML = `
+                    <div class="no-pets-message">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11.25 16.25h1.5L12 17z"></path>
+                            <path d="M16 14v.5"></path>
+                            <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                            <path d="M8 14v.5"></path>
+                            <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
+                        </svg>
+                        <h3>No hay mascotas registradas</h3>
+                        <p>Este usuario no tiene mascotas registradas.</p>
+                    </div>
+                `;
                 return;
             }
             
-            // Generar HTML para cada mascota
-            let petsHTML = '';
+            // Creamos una grid para las mascotas
+            petsList.style.display = 'grid';
+            petsList.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+            petsList.style.gap = '2rem';
             
-            response.data.forEach(mascota => {
-                // Determinar la edad de la mascota como texto
-                const edad = mascota.edad ? `${mascota.edad} ${mascota.edad === 1 ? 'año' : 'años'}` : 'Edad desconocida';
+            // Generamos el HTML para cada mascota
+            mascotas.forEach(pet => {
+                // Buscar si la mascota tiene citas programadas futuras
+                let fechaCita = 'No programada';
+                let fechaHora = 'No programada';
                 
-                // Construir el HTML para esta mascota
-                petsHTML += `
-                    <div class="pet-card" data-pet-id="${mascota.id_mascota}" data-pet-name="${mascota.nombre}" data-pet-type="${mascota.tipo || 'No especificado'}" data-pet-breed="${mascota.raza || 'No especificada'}" data-pet-age="${edad}">
+                if (citas?.data?.length > 0) {
+                    // Obtener la fecha y hora actual
+                    const ahora = new Date();
+                    
+                    // Filtrar citas de esta mascota que no estén canceladas y sean futuras
+                    const citasFuturas = citas.data.filter(cita => {
+                        if (!cita.mascota || cita.mascota.id_mascota !== pet.id || cita.is_canceled) {
+                            return false;
+                        }
+                        
+                        // Crear objeto Date con la fecha y hora de la cita
+                        const [year, month, day] = cita.fecha.split('-').map(Number);
+                        const [hours, minutes] = cita.hora_inicio?.split(':').map(Number) || [0, 0];
+                        const fechaHoraCita = new Date(year, month - 1, day, hours, minutes);
+                        
+                        // Verificar si la cita es futura
+                        return fechaHoraCita > ahora;
+                    });
+                    
+                    // Si hay citas futuras, obtener la más próxima
+                    if (citasFuturas.length > 0) {
+                        // Ordenar por fecha y hora más cercana
+                        citasFuturas.sort((a, b) => {
+                            const fechaA = new Date(a.fecha + 'T' + (a.hora_inicio || '00:00'));
+                            const fechaB = new Date(b.fecha + 'T' + (b.hora_inicio || '00:00'));
+                            return fechaA - fechaB;
+                        });
+                        
+                        // Tomar la cita más próxima (la primera después de ordenar)
+                        const citaProxima = citasFuturas[0];
+                        
+                        // Formatear la fecha para mostrarla de manera más amigable
+                        const fecha = new Date(citaProxima.fecha);
+                        const opciones = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                        fechaCita = fecha.toLocaleDateString('es-ES', opciones);
+                        
+                        // Si tiene hora de inicio, mostrarla también
+                        if (citaProxima.hora_inicio) {
+                            const hora = citaProxima.hora_inicio.split(':').slice(0, 2).join(':');
+                            fechaHora = `${fechaCita} a las ${hora}`;
+                        }
+                    }
+                }
+                
+                const petCardHTML = `
+                    <div class="pet-card" data-pet-id="${pet.id}">
                         <div style="position: relative;">
-                            <img src="${mascota.imagen || '/Frontend/imagenes/img_perfil.png'}" alt="Foto de ${mascota.nombre}" onerror="this.src='/Frontend/imagenes/img_perfil.png'">
-                            <span class="pet-age">${edad}</span>
+                            <img src="${pet.photoUrl}" alt="Foto de ${pet.name}" onerror="this.src='/Frontend/imagenes/default-pet.png'">
+                            <span class="pet-age">${pet.age} ${pet.ageUnit}</span>
                         </div>
                         <div class="pet-info">
                             <span class="pet-type">
@@ -945,39 +998,35 @@ class RoleUIManager {
                                     <path d="M8 14v.5"></path>
                                     <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
                                 </svg>
-                                ${mascota.tipo || 'No especificado'}
-                            </span>
-                            <h3 class="pet-name">${mascota.nombre}</h3>
-                            <p class="pet-breed">${mascota.raza || 'No especificada'}</p>
+                                ${pet.type}</span>
+                            <h3 class="pet-name">${pet.name}</h3>
+                            <p class="pet-breed">${pet.breed}</p>
                             <div class="pet-appointment">
-                                <strong>Próxima cita:</strong> ${mascota.proxima_cita ? new Date(mascota.proxima_cita).toLocaleDateString() : 'No programada'}
+                                <strong>Próxima cita:</strong> ${fechaHora}
                             </div>
                         </div>
                     </div>
                 `;
+                petsList.insertAdjacentHTML('beforeend', petCardHTML);
             });
             
-            // Actualizar el contenido de la lista de mascotas
-            petsList.innerHTML = petsHTML;
-            
-            // Permitir hacer clic en toda la tarjeta para ver el detalle
-            const petCards = document.querySelectorAll('#client-pets-page .pet-card');
+            // Añadimos event listeners a las tarjetas
+            const petCards = petsList.querySelectorAll('.pet-card');
             petCards.forEach(card => {
                 card.addEventListener('click', () => {
+                    // Usar el método existente para mostrar detalles de la mascota
                     RoleUIManager.showPetDetail(card);
                 });
             });
             
         } catch (error) {
-            console.error('Error al cargar las mascotas:', error);
+            console.error('Error al cargar mascotas del usuario:', error);
             petsList.innerHTML = `
                 <div class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p>Error al cargar las mascotas: ${error.message || 'Se produjo un error desconocido'}</p>
+                    <p>Error al cargar las mascotas: ${error.message || 'Error desconocido'}</p>
                 </div>
             `;
         }
-
     }
     
     /**
@@ -1018,124 +1067,255 @@ class RoleUIManager {
      * @param {HTMLElement} petCard - Tarjeta de la mascota que se quiere ver en detalle
      * @static
      */
-    static showPetDetail(petCard) {
+    static async showPetDetail(petCard) {
         if (!petCard) return;
         
-        // Obtener los datos de la mascota desde los atributos data
         const petId = petCard.dataset.petId;
-        const petName = petCard.dataset.petName;
-        const petType = petCard.dataset.petType;
-        const petBreed = petCard.dataset.petBreed;
-        const petAge = petCard.dataset.petAge;
+        try {
+            // Obtener los datos de la mascota desde la API
+            const response = await API.obtenerMascotaPorId(petId);
+            
+            if (!response || !response.data) {
+                throw new Error('No se pudieron cargar los datos de la mascota');
+            }
+            
+            // Obtener las citas específicas de esta mascota
+            const { success, data: citasMascota, error } = await API.obtenerCitasPorMascota(petId);
+            
+            if (!success) {
+                console.error('Error al obtener las citas de la mascota:', error);
+                return;
+            }
+            
+            // Obtener la fecha de la próxima cita (la más reciente)
+            let fechaCita = 'No programadas';
+            if (citasMascota && citasMascota.length > 0) {
+                // Encontrar la próxima cita no cancelada
+                const ahora = new Date();
+                const hoy = ahora.toISOString().split('T')[0];
+                const horaActual = ahora.getHours().toString().padStart(2, '0') + ':' + 
+                                 ahora.getMinutes().toString().padStart(2, '0');
+                
+                // Filtrar citas futuras o de hoy pero con hora posterior a la actual
+                const citasFuturas = citasMascota.filter(cita => {
+                    if (cita.is_canceled) return false;
+                    
+                    if (cita.fecha > hoy) return true;
+                    if (cita.fecha === hoy) {
+                        return cita.hora_inicio >= horaActual;
+                    }
+                    return false;
+                });
+                
+                // Ordenar por fecha y hora más cercanas
+                citasFuturas.sort((a, b) => {
+                    const fechaA = new Date(`${a.fecha}T${a.hora_inicio}`);
+                    const fechaB = new Date(`${b.fecha}T${b.hora_inicio}`);
+                    return fechaA - fechaB;
+                });
+                
+                // Tomar la próxima cita o la más reciente si no hay futuras
+                const proximaCita = citasFuturas[0] || 
+                                   citasMascota.find(c => !c.is_canceled) || 
+                                   citasMascota[0];
+                
+                if (proximaCita) {
+                    fechaCita = proximaCita.fecha;
+                }
+            }
+            
+            const pet = response.data;
+            const petName = pet.nombre || 'Sin nombre';
+            const petType = pet.especie || 'No especificado';
+            const petBreed = pet.raza || 'Raza no especificada';
+            const petAge = pet.edad ? pet.edad : 'Edad no especificada';
+            const petWeight = pet.peso ? pet.peso : 'No especificado';
+            const notes = pet.notas_especiales || 'Sin notas especiales';
+            const allergies = pet.alergia || 'No se han registrado alergias';
+            const medicalHistory = pet.historial_medico || 'No hay historial médico registrado';
+            const petImage = pet.imagen || '/Frontend/imagenes/default-pet.png';
         
-        // Obtener la imagen de la mascota
-        const petImage = petCard.querySelector('img').src;
+            // Obtener el nombre del cliente (dueño de la mascota)
+            const clientName = localStorage.getItem('currentClientName') || 'Cliente';
         
-        // Obtener el nombre del cliente (dueño de la mascota)
-        const clientName = localStorage.getItem('currentClientName') || 'Cliente';
+            // Guardar la página actual para poder volver
+            const currentPage = document.querySelector('.active-page')?.id || 'pets-page';
+            localStorage.setItem('previousPetPage', currentPage);
+            
+            // Configurar el botón de retorno en la página de detalle
+            const backButton = document.querySelector('#pet-detail-page .back-button');
+            if (backButton) {
+                backButton.dataset.page = currentPage.replace('-page', '');
+                backButton.innerHTML = `<span>\u2190</span> Volver a mascotas de ${clientName}`;
+            }
+            
+            // Actualizar la información en la página de detalle
+            const detailPage = document.getElementById('pet-detail-page');
+            if (!detailPage) return;
+            
+            // Actualizar el título de la página
+            document.title = `${petName} - Detalles | CuidaPet`;
+            
+            // Actualizar el nombre de la mascota y la información básica
+            const petNameElement = detailPage.querySelector('#pet-detail-page h1');
+            if (petNameElement) {
+                petNameElement.textContent = petName;
+                petNameElement.id = 'pet-detail-name';
+            }
+            
+            // Actualizar la raza junto al tag
+            const breedElement = detailPage.querySelector('#pet-detail-page .pet-tag');
+            if (breedElement && breedElement.nextSibling) {
+                breedElement.nextSibling.textContent = ` ${petBreed}`;
+            }
+            
+            // Actualizar el tipo de mascota con el ícono
+            const typeElement = detailPage.querySelector('#pet-detail-page .pet-type');
+            if (typeElement) {
+                typeElement.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11.25 16.25h1.5L12 17z"></path>
+                        <path d="M16 14v.5"></path>
+                        <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
+                        <path d="M8 14v.5"></path>
+                        <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
+                    </svg>
+                    ${petType}
+                `;
+            }
+            
+            // Actualizar la imagen de la mascota
+            const petImageElement = detailPage.querySelector('.pet-photo img');
+            if (petImageElement) {
+                petImageElement.src = petImage;
+                petImageElement.alt = `Foto de ${petName}`;
+                petImageElement.onerror = function() {
+                    this.src = '/Frontend/imagenes/default-pet.png';
+                    this.alt = 'Imagen no disponible';
+                };
+            }
+            
+            // Actualizar la información detallada
+            const updateInfoElement = (selector, value) => {
+                const element = detailPage.querySelector(selector);
+                if (element) element.textContent = value || 'No especificado';
+            };
+            
+            // Actualizar la sección de información detallada
+            const infoItems = [
+                { selector: '.info-item:nth-child(1) .info-value', value: petAge },
+                { selector: '.info-item:nth-child(2) .info-value', value: petWeight },
+                { selector: '.info-item:nth-child(3) .info-value', value: clientName },
+                { selector: '.container-right h2', value: fechaCita }
+            ];
+            
+            infoItems.forEach(item => updateInfoElement(item.selector, item.value));
+            
+            // Actualizar sección de alergias
+            const allergiesSection = detailPage.querySelector('.allergies');
+            if (allergiesSection) {
+                allergiesSection.innerHTML = `
+                    <h3>Alergias</h3>
+                    <p>${allergies}</p>
+                `;
+            }
+            
+            // Actualizar sección de notas especiales
+            const notesSection = detailPage.querySelector('.special-notes');
+            if (notesSection) {
+                notesSection.innerHTML = `
+                    <h3>Notas Especiales</h3>
+                    <p>${notes}</p>
+                `;
+            }
+            
+            // Actualizar historial médico
+            const medicalHistorySection = detailPage.querySelector('.medical-history');
+            if (medicalHistorySection) {
+                // Procesar el historial médico
+                let historialMedico = [];
+                
+                // Procesar el historial médico que puede venir en diferentes formatos
+                if (Array.isArray(medicalHistory)) {
+                    // Si ya es un array, usarlo directamente
+                    historialMedico = medicalHistory;
+                } else if (typeof medicalHistory === 'string') {
+                    try {
+                        // Intentar parsear si es un string de array JSON
+                        if (medicalHistory.trim().startsWith('[')) {
+                            historialMedico = JSON.parse(medicalHistory);
+                        } else {
+                            // Si no es JSON, dividir por saltos de línea
+                            historialMedico = medicalHistory.split('\n')
+                                .map(item => item.trim())
+                                .filter(item => item);
+                        }
+                    } catch (e) {
+                        // Si falla el parseo JSON, tratar como string simple
+                        if (medicalHistory.trim()) {
+                            historialMedico = [medicalHistory];
+                        }
+                    }
+                }
+                
+                // Construir el HTML del historial médico
+                let medicalHistoryHTML = '<h3>Historial Médico</h3>';
+                
+                if (historialMedico.length > 0) {
+                    medicalHistoryHTML += '<ul class="medical-list">';
+                    historialMedico.forEach((item, index) => {
+                        medicalHistoryHTML += `
+                            <li>${item}</li>
+                            ${index < historialMedico.length - 1 ? '<hr class="medical-divider">' : ''}
+                        `;
+                    });
+                    medicalHistoryHTML += '</ul>';
+                } else {
+                    medicalHistoryHTML += '<p>No hay registros médicos disponibles.</p>';
+                }
+                
+                medicalHistorySection.innerHTML = medicalHistoryHTML;
+            }
+            // Mostrar la página de detalle
+            this.navigateToPage('pet-detail');
+        } catch (error) {
+            console.error('Error al cargar los detalles de la mascota:', error);
+            // Mostrar mensaje de error en la interfaz
+            const errorSection = detailPage?.querySelector('.error-section');
+            if (errorSection) {
+                errorSection.innerHTML = `
+                    <div class="error-message">
+                        <p>Error al cargar los detalles de la mascota: ${error.message || 'Error desconocido'}</p>
+                    </div>
+                `;
+            }
         
-        // Guardar la página actual para poder volver
-        const currentPage = document.querySelector('.active-page').id;
-        localStorage.setItem('previousPetPage', currentPage);
-        
-        // Configurar el botón de retorno en la página de detalle
-        const backButton = document.querySelector('#pet-detail-page .back-button');
-        backButton.dataset.page = currentPage.replace('-page', '');
-        backButton.innerHTML = `<span>\u2190</span> Volver a mascotas de ${clientName}`;
-        
-        // Actualizar la información en la página de detalle
-        const detailPage = document.getElementById('pet-detail-page');
-        
-        // Actualizar el nombre de la mascota
-        const petNameElement = detailPage.querySelector('h1');
-        petNameElement.textContent = petName;
-        
-        // Agregar botón de editar junto al título
-        const editButton = document.createElement('button');
-        editButton.className = 'edit-button';
-        editButton.textContent = 'Editar';
-        editButton.style.marginLeft = '15px';
-        editButton.addEventListener('click', () => {
-            // Lógica para editar la mascota
-            console.log(`Editar mascota: ${petName}`);
-        });
-        
-        // Actualizar el tipo y raza
-        const petTypeElement = detailPage.querySelector('.pet-type');
-        petTypeElement.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M11.25 16.25h1.5L12 17z"></path>
-                <path d="M16 14v.5"></path>
-                <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
-                <path d="M8 14v.5"></path>
-                <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
-            </svg>
-            ${petType}
-        `;
-        
-        const petTypeRaceElement = detailPage.querySelector('.pet-type').nextSibling;
-        petTypeRaceElement.textContent = ` ${petBreed}`;
-        
-        // Actualizar la imagen
-        const petImageElement = detailPage.querySelector('.pet-photo img');
-        petImageElement.src = petImage;
-        petImageElement.alt = `Foto de ${petName}`;
-        
-        // Actualizar la información básica
-        const ageElement = detailPage.querySelector('.info-item:nth-child(1) .info-value');
-        ageElement.textContent = petAge;
-        
-        const weightElement = detailPage.querySelector('.info-item:nth-child(2) .info-value');
-        weightElement.textContent = `${Math.floor(Math.random() * 20) + 1} kg`; // Peso aleatorio para demo
-        
-        const ownerElement = detailPage.querySelector('.info-item:nth-child(3) .info-value');
-        ownerElement.textContent = clientName;
-        
-        // Actualizar próxima cita (fecha aleatoria para demo)
-        const nextAppointmentElement = detailPage.querySelector('.container-right h2');
-        const randomDate = new Date();
-        randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30) + 1);
-        nextAppointmentElement.textContent = randomDate.toLocaleDateString();
-        
-        // Generar historial médico aleatorio
-        const medicalHistoryList = detailPage.querySelector('.medical-list');
-        medicalHistoryList.innerHTML = `
-            <li><span class="date">${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}</span> - Vacunación anual</li>
-            <li><span class="date">${new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toLocaleDateString()}</span> - Revisión general</li>
-            <li><span class="date">${new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toLocaleDateString()}</span> - Tratamiento antiparasitario</li>
-        `;
-        
-        // Generar alergias aleatorias
-        const allergiesSection = detailPage.querySelector('.allergies');
-        if (Math.random() > 0.5) {
-            allergiesSection.innerHTML = `
-                <h3>Alergias</h3>
-                <span class="allergy-tag">Pollo</span>
-                <span class="allergy-tag">Penicilina</span>
-            `;
-        } else {
-            allergiesSection.innerHTML = `
-                <h3>Alergias</h3>
-                <p>No se han registrado alergias.</p>
-            `;
         }
+
+        // Inicializar la funcionalidad de edición después de cargar los detalles
+        const petEdit = new PetEdit(petId);
+        petEdit.initEditButton();
+    }
+    
+    /**
+     * Formatea el género de la mascota para mostrarlo correctamente
+     * @param {string} gender - Género de la mascota
+     * @returns {string} - Género formateado
+     * @private
+     */
+    static formatGender(gender) {
+        if (!gender) return 'No especificado';
         
-        // Generar notas especiales aleatorias
-        const notesSection = detailPage.querySelector('.special-notes');
-        if (Math.random() > 0.5) {
-            notesSection.innerHTML = `
-                <h3>Notas especiales</h3>
-                <p>Requiere atención especial debido a una lesión previa en la pata trasera derecha.</p>
-            `;
-        } else {
-            notesSection.innerHTML = `
-                <h3>Notas especiales</h3>
-                <p>Sin notas específicas.</p>
-            `;
-        }
+        const genderMap = {
+            'male': 'Macho',
+            'female': 'Hembra',
+            'macho': 'Macho',
+            'hembra': 'Hembra',
+            'otro': 'Otro',
+            'other': 'Otro'
+        };
         
-        // Navegar a la página de detalle
-        RoleUIManager.navigateToPage('pet-detail');
+        return genderMap[gender.toLowerCase()] || gender;
     }
 }
 

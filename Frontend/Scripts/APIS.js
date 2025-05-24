@@ -124,14 +124,12 @@ export class API{
      */
     static async obtenerPerfilUsuarioId(userId) {
         try {
-            console.log(userId)
             const idUser = userId;
-            console.log(idUser);
             
             // Obtener los datos del perfil del usuario
             const { data: perfilData, error: perfilError } = await supabase
                 .from('usuario')
-                .select('nombre, apellidos, direccion, imagen')
+                .select('*')
                 .eq('id_usuario', idUser)
                 .single();
                 
@@ -146,7 +144,8 @@ export class API{
                     nombre: perfilData?.nombre || '',
                     apellidos: perfilData?.apellidos || '',
                     direccion: perfilData?.direccion || '',
-                    imagen: perfilData?.imagen || ''
+                    imagen: perfilData?.imagen || '',
+                    id_usuario: perfilData?.id_usuario || ''
                 } 
             };
             
@@ -180,7 +179,7 @@ export class API{
             // Obtener los datos del perfil del usuario
             const { data: perfilData, error: perfilError } = await supabase
                 .from('usuario')
-                .select('nombre, apellidos, direccion, imagen')
+                .select('*')
                 .eq('id_usuario', userId)
                 .single();
                 
@@ -195,7 +194,8 @@ export class API{
                     nombre: perfilData?.nombre || '',
                     apellidos: perfilData?.apellidos || '',
                     direccion: perfilData?.direccion || '',
-                    imagen: perfilData?.imagen || ''
+                    imagen: perfilData?.imagen || '',
+                    id_usuario: perfilData?.id_usuario || ''
                 } 
             };
             
@@ -788,11 +788,6 @@ export class API{
                 throw new Error('Mascota no encontrada');
             }
 
-            // Verificar que la mascota pertenezca al usuario
-            if (mascota.id_usuario !== user.id) {
-                throw new Error('No tienes permiso para acceder a esta mascota');
-            }
-
             return { success: true, data: mascota };
             
         } catch (error) {
@@ -868,19 +863,21 @@ export class API{
      *   servicio: { id_servicio: number, nombre: string }
      * }>, error?: any}>} - Lista de citas de las mascotas del usuario
      */
-    static async obtenerCitasMascotas() {
+    static async obtenerCitasMascotas(userId) {
         try {
             // Obtener la sesión actual
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-            
-            if (sessionError) throw sessionError;
-            if (!session) return { success: false, noSession: true };
+            if (!userId) {
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError) throw sessionError;
+                if (!session) return { success: false, noSession: true };
+                userId = session.user.id;
+            }
             
             // 1. Obtener todas las mascotas del usuario
             const { data: mascotas, error: mascotasError } = await supabase
                 .from('mascota')
                 .select('id_mascota')
-                .eq('id_usuario', session.user.id);
+                .eq('id_usuario', userId);
                 
             if (mascotasError) throw mascotasError;
             
@@ -961,6 +958,63 @@ export class API{
         }
     }
 
+    /**
+     * Obtiene todas las citas de una mascota específica por su ID
+     * @param {string} idMascota - ID de la mascota
+     * @returns {Promise<{success: boolean, data?: Array<{
+     *   id_cita: string,
+     *   fecha: string,
+     *   hora_inicio: string,
+     *   hora_final: string,
+     *   is_canceled: boolean,
+     *   mascota: { id_mascota: string, nombre: string },
+     *   servicio: { id_servicio: number, nombre_servicio: string }
+     * }>, error?: any}>} - Lista de citas de la mascota
+     */
+    static async obtenerCitasPorMascota(idMascota) {
+        try {
+            if (!idMascota) {
+                throw new Error('ID de mascota no proporcionado');
+            }
+
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError) throw sessionError;
+            if (!session) return { success: false, noSession: true };
+            
+            // Obtener las citas de la mascota sin verificar el propietario para simplificar
+            const { data: citas, error: citasError } = await supabase
+                .from('cita')
+                .select(`
+                    id_cita,
+                    fecha,
+                    hora_inicio,
+                    hora_final,
+                    is_canceled,
+                    mascota: id_mascota (id_mascota, nombre),
+                    servicio: id_servicio (id_servicio, nombre_servicio)
+                `)
+                .eq('id_mascota', idMascota)
+                .order('fecha', { ascending: false })
+                .order('hora_inicio', { ascending: false });
+                
+            if (citasError) throw citasError;
+            
+            return { 
+                success: true, 
+                data: citas || [] 
+            };
+            
+        } catch (error) {
+            console.error('Error al obtener las citas de la mascota:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al obtener las citas de la mascota',
+                details: error 
+            };
+        }
+    }
+    
     /**
      * Convierte una hora en formato HH:MM a minutos desde la medianoche
      * @param {string} timeString - Hora en formato HH:MM

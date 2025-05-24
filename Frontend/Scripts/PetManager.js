@@ -21,6 +21,7 @@ class PetManager {
                 perfil = result.data;
                 perfilError = result.error;
                 noSession = result.noSession;
+                userId = perfil.id_usuario;
             }
     
             // Handle the results
@@ -46,7 +47,7 @@ class PetManager {
             ].filter(Boolean).join(' ').trim() || 'Sin propietario';
             
             // Obtener las mascotas del usuario desde la API
-            const { success, data: mascotas, error } = await API.obtenerMascotasUsuario();
+            const { success, data: mascotas, error } = await API.obtenerMascotasPorUsuario(userId);
             
             if (!success) {
                 console.error('Error al obtener mascotas:', error);

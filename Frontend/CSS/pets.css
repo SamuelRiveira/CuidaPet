@@ -1,5 +1,9 @@
 /* Pet Cards */
 
+.medical-divider {
+    border: 0;
+}
+
 .container-top{
     display: flex;
     justify-content: space-between;

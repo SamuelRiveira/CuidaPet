@@ -1271,7 +1271,7 @@ class RoleUIManager {
                     });
                     medicalHistoryHTML += '</ul>';
                 } else {
-                    medicalHistoryHTML += '<p>No hay registros médicos disponibles.</p>';
+                    medicalHistoryHTML += '<ul>No hay registros médicos disponibles.</ul>';
                 }
                 
                 medicalHistorySection.innerHTML = medicalHistoryHTML;

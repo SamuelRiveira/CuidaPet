@@ -3,10 +3,32 @@ import { API } from "./APIS.js";
 
 class PetManager {
 
-    async getPetsData() {
+    async getPetsData(userId = null) {
         try {
-            // Obtener el perfil del usuario para el nombre del propietario
-            const { success: perfilSuccess, data: perfil, error: perfilError, noSession } = await API.obtenerPerfilUsuario();
+            let perfilSuccess, perfil, perfilError, noSession;
+    
+            if (userId === null) {
+                // Obtener el perfil del usuario para el nombre del propietario
+                const result = await API.obtenerPerfilUsuario();
+                perfilSuccess = result.success;
+                perfil = result.data;
+                perfilError = result.error;
+                noSession = result.noSession;
+            } else {
+                // Obtener el perfil de un usuario específico
+                const result = await API.obtenerPerfilUsuarioId(userId);
+                perfilSuccess = result.success;
+                perfil = result.data;
+                perfilError = result.error;
+                noSession = result.noSession;
+            }
+    
+            // Handle the results
+            if (!perfilSuccess) {
+                console.error('Error obteniendo perfil:', perfilError);
+                return { success: false, error: perfilError };
+            }
+            
             
             if (!perfilSuccess) {
                 if (noSession) {

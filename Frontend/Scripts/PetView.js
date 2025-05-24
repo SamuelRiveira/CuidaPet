@@ -39,7 +39,7 @@ function createPetCardHTML(pet) {
 }
 
 // Función para renderizar todas las tarjetas de mascotas
-async function renderPetCards() {
+async function renderPetCards(userId = null) {
     const petsGrid = document.getElementById('pets-grid');
     if (!petsGrid) {
         console.error('Elemento pets-grid no encontrado');

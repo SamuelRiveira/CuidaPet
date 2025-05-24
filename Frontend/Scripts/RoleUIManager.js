@@ -5,6 +5,7 @@
 import { UserAuthManager } from "./UserAuthManager.js";
 import { ProfileManager } from "./ProfileManager.js";
 import { API } from "./APIS.js";
+import { renderPetCards } from "./PetView.js";
 // La función abrir está disponible globalmente desde openLogin.js
 class RoleUIManager {
     constructor() {
@@ -905,6 +906,7 @@ class RoleUIManager {
      * @static
      */
     static async loadUserPets(userId, petsList) {
+        // TODO: renderPetCards(userId);
         try {
             // Llamar a la API para obtener las mascotas del usuario específico
             const response = await API.obtenerMascotasPorUsuario(userId);

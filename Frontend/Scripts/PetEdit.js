@@ -341,17 +341,18 @@ class PetEdit {
         fields.forEach(field => {
             const element = document.querySelector(field.id);
             if (element) {
-                if (field.key === 'historial_medico') {
-                    // Capturar el historial médico como un array de items
-                    const items = Array.from(element.querySelectorAll('li')).map(li => li.textContent.trim());
-                    editedData[field.key] = items.join('\n');
-                } else {
-                    editedData[field.key] = field.isHtml ? 
-                        element.innerHTML.trim() : 
-                        element.textContent.trim();
-                }
+                editedData[field.key] = element.textContent.trim();
             }
         });
+        
+        // Manejar el historial médico por separado
+        const medicalHistoryElement = document.querySelector('.medical-history ul');
+        if (medicalHistoryElement) {
+            const medicalItems = Array.from(medicalHistoryElement.querySelectorAll('li'))
+                .map(li => li.textContent.trim())
+                .filter(item => item); // Eliminar elementos vacíos
+            editedData.historial_medico = medicalItems.length > 0 ? medicalItems : ['No hay historial médico registrado'];
+        }
         
         // Capturar alergias
         const allergiesContainer = document.querySelector('.allergies');

@@ -770,46 +770,26 @@ export class API{
     }
     
     /**
-     * Obtiene todas las mascotas del usuario actualmente autenticado
-     * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de mascotas del usuario
-     */
-    static async obtenerMascotasUsuario() {
-        try {
-            // Obtener la sesión actual
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-            
-            if (sessionError) throw sessionError;
-            if (!session) return { success: false, noSession: true };
-            
-            // Obtener las mascotas del usuario
-            const { data: mascotas, error: mascotasError } = await supabase
-                .from('mascota')
-                .select('*')
-                .eq('id_usuario', session.user.id);
-                
-            if (mascotasError) throw mascotasError;
-            
-            return { success: true, data: mascotas };
-            
-        } catch (error) {
-            // No mostrar error en consola si no hay sesión activa
-            if (error.message?.includes('No user') || error.message?.includes('No session')) {
-                return { success: false, noSession: true };
-            }
-            console.error('Error al obtener mascotas del usuario:', error);
-            return { success: false, error };
-        }
-    }
-    
-    /**
-     * Obtiene todas las mascotas de un usuario específico por su ID
-     * @param {string} userId - ID del usuario cuyas mascotas se quieren obtener
-     * @returns {Promise<{success: boolean, data?: Array, error?: any}>} - Lista de mascotas del usuario especificado
+     * Obtiene las mascotas de un usuario específico con sus imágenes
+     * @param {string} userId - ID del usuario
+     * @returns {Promise<{success: boolean, data?: Array, error?: any, noSession?: boolean}>} - Lista de mascotas del usuario con URLs de imagen
      */
     static async obtenerMascotasPorUsuario(userId) {
         try {
             if (!userId) {
                 throw new Error('Se requiere el ID del usuario');
+            }
+            
+            // Verificar sesión activa
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError) {
+                console.warn('Error al verificar sesión:', sessionError);
+                return { success: false, noSession: true, error: 'Error al verificar la sesión' };
+            }
+            
+            if (!session) {
+                return { success: false, noSession: true, error: 'No hay una sesión activa' };
             }
             
             // Obtener las mascotas del usuario especificado
@@ -820,11 +800,42 @@ export class API{
                 
             if (mascotasError) throw mascotasError;
             
-            return { success: true, data: mascotas };
+            // Procesar cada mascota para obtener la URL de la imagen
+            const mascotasConImagenes = await Promise.all(mascotas.map(async (mascota) => {
+                if (!mascota.imagen) {
+                    return { ...mascota, imagenUrl: '/Frontend/imagenes/default-pet.png' };
+                }
+                
+                try {
+                    // Verificar si la imagen es una URL completa o una ruta de almacenamiento
+                    if (mascota.imagen.startsWith('http')) {
+                        return { ...mascota, imagenUrl: mascota.imagen };
+                    }
+                    
+                    // Obtener URL firmada para la imagen
+                    const { data: { signedUrl } } = await supabase.storage
+                        .from('imagenes')
+                        .createSignedUrl(`mascotas/${mascota.id_mascota}`, 3600); // Válido por 1 hora
+                        
+                    return { 
+                        ...mascota, 
+                        imagenUrl: signedUrl || '/Frontend/imagenes/default-pet.png' 
+                    };
+                } catch (error) {
+                    console.error(`Error al obtener la imagen de la mascota ${mascota.id_mascota}:`, error);
+                    return { ...mascota, imagenUrl: '/Frontend/imagenes/default-pet.png' };
+                }
+            }));
+            
+            return { success: true, data: mascotasConImagenes };
             
         } catch (error) {
             console.error(`Error al obtener mascotas del usuario ID ${userId}:`, error);
-            return { success: false, error: error.message || 'Error al obtener las mascotas' };
+            return { 
+                success: false, 
+                error: error.message || 'Error al obtener las mascotas',
+                noSession: error.message?.includes('No hay sesión activa')
+            };
         }
     }
     
@@ -915,6 +926,71 @@ export class API{
                 success: false, 
                 error: error.message || 'Error al eliminar la mascota',
                 details: error 
+            };
+        }
+    }
+    
+    /**
+     * Obtiene todas las citas de un usuario específico
+     * @param {string} userId - ID del usuario del que se quieren obtener las citas
+     * @returns {Promise<{success: boolean, data?: Array<{
+     *   id_cita: string,
+     *   fecha: string,
+     *   hora_inicio: string,
+     *   hora_final: string,
+     *   is_canceled: boolean,
+     *   mascota: { id_mascota: string, nombre: string },
+     *   servicio: { id_servicio: number, nombre: string }
+     * }>, error?: any}>} - Lista de citas del usuario
+     */
+    static async obtenerCitasPorUsuario(userId) {
+        try {
+            if (!userId) {
+                throw new Error('Se requiere el ID del usuario');
+            }
+            
+            // Obtener las mascotas del usuario
+            const { data: mascotas, error: mascotasError } = await supabase
+                .from('mascota')
+                .select('id_mascota')
+                .eq('id_usuario', userId);
+                
+            if (mascotasError) throw mascotasError;
+            
+            // Si el usuario no tiene mascotas, devolver array vacío
+            if (!mascotas || mascotas.length === 0) {
+                return { success: true, data: [] };
+            }
+            
+            // Obtener los IDs de las mascotas
+            const mascotaIds = mascotas.map(m => m.id_mascota);
+            
+            // Obtener las citas de las mascotas del usuario
+            const { data: citas, error: citasError } = await supabase
+                .from('cita')
+                .select(`
+                    id_cita,
+                    fecha,
+                    hora_inicio,
+                    hora_final,
+                    is_canceled,
+                    mascota: id_mascota (id_mascota, nombre),
+                    servicio: id_servicio (id_servicio, nombre_servicio)
+                `)
+                .in('id_mascota', mascotaIds)
+                .order('fecha', { ascending: true })
+                .order('hora_inicio', { ascending: true });
+                
+            if (citasError) throw citasError;
+            
+            return { success: true, data: citas || [] };
+            
+        } catch (error) {
+            console.error('Error al obtener las citas del usuario:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al obtener las citas',
+                noSession: error.message?.includes('No hay sesión activa')
             };
         }
     }

@@ -6,36 +6,47 @@ import { API } from './APIS.js';
 class ProfileManager {
     /**
      * Obtiene los datos del perfil de usuario
+     * @param {string} userId - ID del usuario (opcional, si no se proporciona se usa el usuario actual)
      * @returns {Promise<Object>} Datos del perfil
      */
-    static async getUserProfile(userId) {
+    static async getUserProfile(userId = null) {
         try {
+            // Si no se proporciona un ID de usuario, intentar obtener el ID del usuario actual
+            if (!userId) {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                    return this.getDefaultProfile();
+                }
+                userId = session.user.id;
+            }
+
+            // Obtener datos del perfil
             const profileResponse = await API.obtenerPerfilUsuarioId(userId);
             
-            // Si no hay sesión activa, devolver datos por defecto
-            if (profileResponse.noSession) {
+            // Si no hay sesión activa o hay un error, devolver datos por defecto
+            if (profileResponse.noSession || !profileResponse.success) {
+                console.warn('No se pudo obtener el perfil:', profileResponse.error);
                 return this.getDefaultProfile();
-            }
-            
-            // Si hay un error al obtener el perfil, lanzar el error
-            if (!profileResponse.success) {
-                throw new Error(profileResponse.error || 'Error al obtener el perfil');
             }
             
             const profileData = profileResponse.data;
-            const petsResponse = await API.obtenerMascotasUsuario();
             
-            // Si no hay sesión activa al obtener mascotas, devolver datos por defecto
-            if (petsResponse.noSession) {
-                return this.getDefaultProfile();
+            // Obtener las mascotas del usuario en paralelo con las citas para mejor rendimiento
+            const [petsResponse, citasResponse] = await Promise.all([
+                API.obtenerMascotasPorUsuario(userId),
+                API.obtenerCitasPorUsuario(userId)
+            ]);
+            
+            // Verificar si hubo error al obtener las mascotas
+            if (petsResponse.noSession || !petsResponse.success) {
+                console.warn('No se pudieron obtener las mascotas:', petsResponse.error);
             }
             
             const totalMascotas = petsResponse.data?.length || 0;
-            
-            // Obtener las citas del usuario
             let totalCitas = 0;
-            const citasResponse = await API.obtenerCitasMascotas();
-            if (citasResponse.success && citasResponse.data) {
+            
+            // Procesar citas si la respuesta fue exitosa
+            if (citasResponse.success && Array.isArray(citasResponse.data)) {
                 const ahora = new Date();
                 const fechaActual = ahora.toISOString().split('T')[0];
                 const horaActual = ahora.getHours().toString().padStart(2, '0') + ':' + 
@@ -43,8 +54,7 @@ class ProfileManager {
                 
                 // Filtrar citas: no canceladas y futuras (fecha y hora)
                 const citasFuturas = citasResponse.data.filter(cita => {
-                    // Si la cita está cancelada, la descartamos
-                    if (cita.is_canceled) return false;
+                    if (!cita || cita.is_canceled) return false;
                     
                     // Si la cita es de una fecha posterior a hoy, la contamos
                     if (cita.fecha > fechaActual) return true;
@@ -54,11 +64,12 @@ class ProfileManager {
                         return cita.hora_inicio >= horaActual;
                     }
                     
-                    // Si es de una fecha pasada, la descartamos
                     return false;
                 });
                 
                 totalCitas = citasFuturas.length;
+            } else {
+                console.warn('No se pudieron obtener las citas:', citasResponse.error);
             }
 
             // Formatear los datos para que coincidan con el formato esperado
@@ -72,7 +83,15 @@ class ProfileManager {
                 personalInfo: {
                     name: profileData?.nombre || '',
                     surnames: profileData?.apellidos || '',
-                    address: profileData?.direccion || 'Dirección no especificada'
+                    address: profileData?.direccion || 'Dirección no especificada',
+                    email: profileData?.email || '',
+                    phone: profileData?.telefono || ''
+                },
+                // Guardar datos adicionales para uso futuro
+                _rawData: {
+                    profile: profileData,
+                    petsCount: totalMascotas,
+                    appointmentsCount: totalCitas
                 }
             };
         } catch (error) {
@@ -90,9 +109,23 @@ class ProfileManager {
         return {
             photo: "/Frontend/imagenes/img_perfil.png",
             name: "Usuario",
-            stats: { pets: 0, appointments: 0 },
-            personalInfo: { name: "", surnames: "", address: "" }
-        }
+            stats: { 
+                pets: 0, 
+                appointments: 0 
+            },
+            personalInfo: { 
+                name: "", 
+                surnames: "", 
+                address: "",
+                email: "",
+                phone: ""
+            },
+            _rawData: {
+                profile: {},
+                petsCount: 0,
+                appointmentsCount: 0
+            }
+        };
     }
 
     /**

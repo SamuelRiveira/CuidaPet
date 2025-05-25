@@ -112,6 +112,7 @@ class ProfileUI {
             // Limpiar el contenedor del perfil
             if (this.profileContainer && this.profileData) {
                 this.profileContainer.innerHTML = '';
+                console.log(this.profileData.stats.appointments);
                 
                 // Construir la estructura completa del perfil
                 this.profileContainer.innerHTML = `

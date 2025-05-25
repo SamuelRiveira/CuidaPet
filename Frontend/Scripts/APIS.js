@@ -1041,4 +1041,76 @@ export class API{
         const [hours, minutes] = timeString.split(':').map(Number);
         return hours * 60 + minutes;
     }
+    
+    /**
+     * Elimina uno o más usuarios de Supabase Auth, la base de datos y sus imágenes de perfil
+     * @param {string|string[]} userIds - ID o array de IDs de los usuarios a eliminar
+     * @returns {Promise<{success: boolean, deletedCount: number, errors: Array<{userId: string, error: any}>}>} - Resultado de la operación
+     */
+    static async eliminarUsuarios(userIds) {
+        try {
+            // Convertir a array si se pasa un solo ID
+            const ids = Array.isArray(userIds) ? userIds : [userIds];
+            const results = {
+                success: true,
+                deletedCount: 0,
+                errors: []
+            };
+
+            // Procesar cada usuario
+            for (const userId of ids) {
+                try {
+                    // 1. Eliminar la imagen de perfil si existe
+                    try {
+                        const { error: storageError } = await supabase.storage
+                            .from('imagenes')
+                            .remove([`perfiles/${userId}`]);
+                            
+                        if (storageError && storageError.message !== 'The resource was not found') {
+                            throw storageError;
+                        }
+                    } catch (storageError) {
+                        console.warn(`Error al eliminar la imagen de perfil del usuario ${userId}:`, storageError);
+                        // Continuamos a pesar del error con el storage
+                    }
+
+                    // 2. Eliminar el usuario de la base de datos
+                    const { error: dbError } = await supabase
+                        .from('usuario')
+                        .delete()
+                        .eq('id_usuario', userId);
+                        
+                    if (dbError) throw dbError;
+
+                    // 3. Eliminar el usuario de Supabase Auth
+                    const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+                    
+                    if (authError) throw authError;
+                    
+                    results.deletedCount++;
+                    
+                } catch (error) {
+                    console.error(`Error al eliminar el usuario ${userId}:`, error);
+                    results.success = false;
+                    results.errors.push({
+                        userId,
+                        error: error.message || 'Error desconocido al eliminar el usuario'
+                    });
+                }
+            }
+            
+            return results;
+            
+        } catch (error) {
+            console.error('Error en eliminarUsuarios:', error);
+            return {
+                success: false,
+                deletedCount: 0,
+                errors: [{
+                    userId: Array.isArray(userIds) ? 'multiple' : userIds,
+                    error: error.message || 'Error desconocido al procesar la solicitud'
+                }]
+            };
+        }
+    }
 }

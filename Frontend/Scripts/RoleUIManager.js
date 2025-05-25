@@ -1082,70 +1082,116 @@ class RoleUIManager {
                 <div class="appointment-status">
                     <span class="status-badge ${statusLabel.class}">${statusLabel.text}</span>
                     <div class="appointment-actions">
-                        <button class="btn-action btn-edit">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 20h9"></path>
-                                <path d="M16 14v.5"></path>
-                                <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309"></path>
-                                <path d="M8 14v.5"></path>
-                                <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
-                            </svg>
+                        <button class="appointment-cancel-btn" title="">
+                            <span class="appointment-cancel-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                </svg>
+                            </span>
+                            <span class="appointment-cancel-text">Cancelar</span>
                         </button>
                     </div>
+                    <style>
+                        .appointment-cancel-btn {
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 6px;
+                            padding: 6px 12px;
+                            background-color: #f8f9fa;
+                            border: 1px solid #dc3545;
+                            border-radius: 4px;
+                            color: #dc3545;
+                            font-size: 14px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.2s ease-in-out;
+                        }
+                        .appointment-cancel-btn:hover {
+                            background-color: #dc3545;
+                            color: white;
+                        }
+                        .appointment-cancel-btn .appointment-cancel-icon {
+                            display: flex;
+                            align-items: center;
+                        }
+                        .appointment-cancel-btn .appointment-cancel-text {
+                            white-space: nowrap;
+                        }
+                    </style>
                 </div>
             </div>
         `;
 
-        // Mostrar/ocultar botón de edición según el rol del usuario
-        const editButton = cardElement.querySelector('.btn-edit');
-        if (editButton) {
-            // Solo mostrar el botón de edición para empleados
-            if (this.userStatus.userRole === 'empleado') {
-                editButton.style.display = 'flex';
+        // Mostrar/ocultar botón de cancelar según el rol del usuario y el estado de la cita
+        const cancelButton = cardElement.querySelector('.btn-cancel');
+        if (cancelButton) {
+            // Solo mostrar el botón de cancelar para empleados y si la cita no está cancelada
+            if (this.userStatus.userRole === 'empleado' && !appointment.is_canceled) {
+                cancelButton.style.display = 'flex';
                 
                 // Agregar evento para cancelar la cita
-                editButton.addEventListener('click', (e) => {
+                cancelButton.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     
                     try {
-                        // Verificar si la cita ya está cancelada
-                        if (appointment.is_canceled) {
-                            notificationService.showWarning('Esta cita ya está cancelada');
-                            return;
-                        }
+                        // Mostrar diálogo de confirmación
+                        const confirmCancel = await notificationService.showConfirmation(
+                            'Confirmar cancelación',
+                            '¿Estás seguro de que deseas cancelar esta cita? Esta acción no se puede deshacer.'
+                        );
+                        
+                        if (!confirmCancel) return;
+                        
+                        // Mostrar indicador de carga
+                        const loadingId = notificationService.showLoading('Cancelando cita...');
                         
                         // Llamar a la función cancelarCita con el ID de la cita
-                        API.cancelarCita(appointment.id);
+                        const result = await API.cancelarCita(appointment.id);
                         
-                        // Actualizar el estado en el objeto de la cita
-                        appointment.is_canceled = true;
-                        
-                        // Actualizar la UI para reflejar el cambio
-                        // Eliminar clases de estado anteriores
-                        cardElement.classList.remove('status-pending', 'status-completed', 'status-cancelled', 'status-expired');
-                        
-                        // Obtener la nueva etiqueta y añadir la clase correspondiente para estado cancelado
-                        const statusLabel = AppointmentDataManager.getStatusLabel('cancelled');
-                        cardElement.classList.add(statusLabel.class);
-                        
-                        // Actualizar el texto del estado
-                        const statusBadge = cardElement.querySelector('.status-badge');
-                        if (statusBadge) {
-                            statusBadge.textContent = statusLabel.text;
-                            statusBadge.className = `status-badge ${statusLabel.class}`;
+                        if (result.success) {
+                            // Actualizar el estado en el objeto de la cita
+                            appointment.is_canceled = true;
+                            
+                            // Actualizar la UI para reflejar el cambio
+                            // Eliminar clases de estado anteriores
+                            cardElement.classList.remove('status-pending', 'status-completed', 'status-cancelled', 'status-expired');
+                            
+                            // Obtener la nueva etiqueta y añadir la clase correspondiente para estado cancelado
+                            const statusLabel = AppointmentDataManager.getStatusLabel('cancelled');
+                            cardElement.classList.add(statusLabel.class);
+                            
+                            // Actualizar el texto del estado
+                            const statusBadge = cardElement.querySelector('.status-badge');
+                            if (statusBadge) {
+                                statusBadge.textContent = statusLabel.text;
+                                statusBadge.className = `status-badge ${statusLabel.class}`;
+                            }
+                            
+                            // Ocultar el botón de cancelar
+                            cancelButton.style.display = 'none';
+                            
+                            // Mostrar notificación de éxito
+                            notificationService.showSuccess('Cita cancelada exitosamente');
+                        } else {
+                            throw new Error(result.error || 'Error al cancelar la cita');
                         }
-                        
-                        // Mostrar notificación de éxito
-                        notificationService.showSuccess('Cita cancelada exitosamente');
                         
                     } catch (error) {
                         console.error('Error al cancelar la cita:', error);
-                        notificationService.showError('Error al cancelar la cita');
+                        notificationService.showError(error.message || 'Error al cancelar la cita');
+                    } finally {
+                        // Cerrar el indicador de carga si existe
+                        if (loadingId) {
+                            notificationService.close(loadingId);
+                        }
                     }
                 });
             } else {
-                // Ocultar el botón para clientes
-                editButton.style.display = 'none';
+                // Ocultar el botón para clientes o si la cita ya está cancelada
+                cancelButton.style.display = 'none';
             }
         }
 

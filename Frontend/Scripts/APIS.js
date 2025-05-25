@@ -1058,8 +1058,7 @@ export class API{
             const { data, error } = await supabase
                 .from('cita')
                 .update({ 
-                    estado: 'cancelada',
-                    fecha_actualizacion: new Date().toISOString()
+                    is_canceled: TRUE,
                 })
                 .eq('id_cita', appointmentId)
                 .select();

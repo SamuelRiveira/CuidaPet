@@ -28,21 +28,56 @@ class AppointmentDataManager {
             }
             
             // Mapear los datos de la API al formato esperado por la aplicación
-            const formattedAppointments = citas.map(cita => ({
-                id: cita.id_cita,
-                date: new Date(`${cita.fecha}T${cita.hora_inicio}`),
-                is_canceled: cita.is_canceled,
-                id_mascota: cita.id_mascota,
-                id_servicio: cita.id_servicio
-            }));
+            let formattedAppointments = citas.map(cita => {
+                const appointmentDate = new Date(`${cita.fecha}T${cita.hora_inicio}`);
+                const now = new Date();
+                
+                // Determinar el estado de la cita
+                let status = 'pending';
+                if (cita.is_canceled) {
+                    status = 'cancelled';
+                } else if (appointmentDate < now) {
+                    status = 'completed';
+                }
+                
+                return {
+                    id: cita.id_cita,
+                    date: appointmentDate,
+                    status: status,
+                    is_canceled: cita.is_canceled,
+                    id_mascota: cita.id_mascota,
+                    id_servicio: cita.id_servicio,
+                    // Incluir más datos necesarios para las tarjetas
+                    petName: cita.mascota?.nombre || 'Mascota',
+                    petImage: cita.mascota?.imagen || '/Frontend/imagenes/default-pet.png',
+                    serviceName: cita.servicio?.nombre || 'Servicio'
+                };
+            });
             
-            // Devolver las citas formateadas
+            // Aplicar filtros
+            if (filters.status) {
+                formattedAppointments = formattedAppointments.filter(app => {
+                    if (filters.status === 'all') return true;
+                    return app.status === filters.status;
+                });
+            }
+            
+            if (filters.date) {
+                const filterDate = new Date(filters.date);
+                formattedAppointments = formattedAppointments.filter(app => {
+                    return app.date.toDateString() === filterDate.toDateString();
+                });
+            }
+            
+            // Ordenar por fecha (más recientes primero)
+            formattedAppointments.sort((a, b) => a.date - b.date);
+            
             return formattedAppointments;
-            
-        } catch (error) {
-            console.error('Error en getAppointments:', error);
-            return [];
-        }
+                
+            } catch (error) {
+                console.error('Error en getAppointments:', error);
+                return [];
+            }
     }
 
     /**

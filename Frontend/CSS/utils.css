@@ -135,6 +135,7 @@ input:checked + .slider:before {
 /* No pets message */
 .no-pets-message {
     display: flex;
+    width: 400px;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -144,7 +145,6 @@ input:checked + .slider:before {
     border-radius: 1rem;
     margin: 2rem auto;
     min-height: 250px;
-    width: 30%;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
 }
 

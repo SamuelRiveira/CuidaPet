@@ -92,6 +92,7 @@ export class API{
         try {
             // Primero intentamos limpiar el localStorage
             localStorage.removeItem('sb-kmypwriazdbxpwdxfhaf-auth-token');
+            localStorage.clear();
             
             // Luego intentamos cerrar sesión en Supabase
             try {

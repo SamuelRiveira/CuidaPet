@@ -1048,68 +1048,102 @@ export class API{
      * @returns {Promise<{success: boolean, deletedCount: number, errors: Array<{userId: string, error: any}>}>} - Resultado de la operación
      */
     static async eliminarUsuarios(userIds) {
+
+        if (!userIds || (Array.isArray(userIds) && userIds.length === 0)) {
+            return { success: false, error: "No se proporcionaron IDs de usuario" };
+        }
+    
+        const ids = Array.isArray(userIds) ? userIds : [userIds];
+        
         try {
-            // Convertir a array si se pasa un solo ID
-            const ids = Array.isArray(userIds) ? userIds : [userIds];
-            const results = {
-                success: true,
-                deletedCount: 0,
-                errors: []
-            };
-
-            // Procesar cada usuario
-            for (const userId of ids) {
-                try {
-                    // 1. Eliminar la imagen de perfil si existe
-                    try {
-                        const { error: storageError } = await supabase.storage
-                            .from('imagenes')
-                            .remove([`perfiles/${userId}`]);
-                            
-                        if (storageError && storageError.message !== 'The resource was not found') {
-                            throw storageError;
-                        }
-                    } catch (storageError) {
-                        console.warn(`Error al eliminar la imagen de perfil del usuario ${userId}:`, storageError);
-                        // Continuamos a pesar del error con el storage
-                    }
-
-                    // 2. Eliminar el usuario de la base de datos
-                    const { error: dbError } = await supabase
-                        .from('usuario')
-                        .delete()
-                        .eq('id_usuario', userId);
-                        
-                    if (dbError) throw dbError;
-
-                    // 3. Eliminar el usuario de Supabase Auth
-                    const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-                    
-                    if (authError) throw authError;
-                    
-                    results.deletedCount++;
-                    
-                } catch (error) {
-                    console.error(`Error al eliminar el usuario ${userId}:`, error);
-                    results.success = false;
-                    results.errors.push({
-                        userId,
-                        error: error.message || 'Error desconocido al eliminar el usuario'
-                    });
-                }
+            // Obtener la sesión actual
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                throw new Error("No hay una sesión activa");
             }
+    
+            console.log('Invocando función eliminar-usuarios con IDs:', ids);
+            console.log('Using session token:', session.access_token ? 'Present' : 'Missing');
+            console.log('Request body that will be sent:', { userIds: ids });
+            console.log('IDs type and content:', {
+                isArray: Array.isArray(ids),
+                length: ids.length,
+                content: ids,
+                firstIdType: typeof ids[0]
+            });
+    
+            // Llamar a la función de borde CON el token de autorización
+            // Usando fetch directamente para mejor control del cuerpo de la petición
+            const functionUrl = `https://kmypwriazdbxpwdxfhaf.supabase.co/functions/v1/eliminar-usuarios`;
             
-            return results;
-            
+            const response = await fetch(functionUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${session.access_token}`,
+                    'Content-Type': 'application/json',
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtteXB3cmlhemRieHB3ZHhmaGFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2NDMzNjMsImV4cCI6MjA2MzIxOTM2M30.oIjUGqzH6_REP0Ci8AvXDeJaLvYq17yLxWPu7xwxpXA'
+                },
+                body: JSON.stringify({ userIds: ids })
+            });
+    
+            console.log('Response status:', response.status);
+            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error response body:', errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+    
+            const data = await response.json();
+            console.log('Success response data:', data);
+    
+            // Verificar que tenemos una respuesta válida
+            if (!data) {
+                throw new Error('No se recibió respuesta del servidor');
+            }
+    
+            console.log('Respuesta procesada de la función:', data);
+    
+            // Verificar si hay errores en la respuesta
+            if (data.error) {
+                throw new Error(data.error);
+            }
+    
+            // Verificar si la operación fue exitosa
+            if (typeof data.success !== 'undefined' && !data.success) {
+                const errorMsg = data.error || `Solo se eliminaron ${data.deletedCount || 0} de ${ids.length} usuarios`;
+                
+                // Si algunos usuarios se eliminaron pero no todos, mostrar información detallada
+                if (data.deletedCount > 0) {
+                    console.warn('Eliminación parcial:', data);
+                    return {
+                        success: false,
+                        partialSuccess: true,
+                        deletedCount: data.deletedCount,
+                        failedCount: data.failedCount,
+                        results: data.results,
+                        error: errorMsg
+                    };
+                }
+                
+                throw new Error(errorMsg);
+            }
+    
+            return {
+                success: true,
+                deletedCount: data.deletedCount || ids.length,
+                failedCount: data.failedCount || 0,
+                results: data.results || [],
+                data: data
+            };
+    
         } catch (error) {
             console.error('Error en eliminarUsuarios:', error);
             return {
                 success: false,
                 deletedCount: 0,
-                errors: [{
-                    userId: Array.isArray(userIds) ? 'multiple' : userIds,
-                    error: error.message || 'Error desconocido al procesar la solicitud'
-                }]
+                error: error.message || 'Error desconocido al eliminar los usuarios'
             };
         }
     }

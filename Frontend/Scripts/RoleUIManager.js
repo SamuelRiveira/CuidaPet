@@ -7,6 +7,7 @@ import { ProfileManager } from "./ProfileManager.js";
 import { API } from "./APIS.js";
 import { PetManager } from "./PetManager.js";
 import { PetEdit } from "./PetEdit.js";
+import { notificationService } from "./NotificationService.js";
 
 // La función abrir está disponible globalmente desde openLogin.js
 class RoleUIManager {
@@ -271,9 +272,14 @@ class RoleUIManager {
                     <div class="card-header">
                         <div class="header-row">
                             <h3>Listado de Usuarios</h3>
-                            <button id="create-user-btn" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Crear Usuario
-                            </button>
+                            <div class="action-buttons">
+                                <button id="delete-users-btn" class="btn btn-danger" style="display: none;">
+                                    <i class="fas fa-trash"></i> Eliminar Seleccionados
+                                </button>
+                                <button id="create-user-btn" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Crear Usuario
+                                </button>
+                            </div>
                         </div>
                         <div class="search-filter-container">
                             <div class="search-container">
@@ -419,6 +425,13 @@ class RoleUIManager {
         const searchInput = document.getElementById('user-search-input');
         const searchButton = document.getElementById('user-search-btn');
         const roleFilter = document.getElementById('user-role-filter');
+        
+        // Mostrar/ocultar botón de eliminar según selección
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('user-checkbox') || e.target.classList.contains('checkbox-label')) {
+                this.toggleDeleteButton();
+            }
+        });
 
         // Evento para el botón de búsqueda
         searchButton.addEventListener('click', () => {
@@ -437,6 +450,68 @@ class RoleUIManager {
             this.filterUsers(searchInput.value, roleFilter.value);
         });
 
+        // Configurar el botón de eliminar usuarios
+        const deleteUsersBtn = document.getElementById('delete-users-btn');
+        if (deleteUsersBtn) {
+            deleteUsersBtn.addEventListener('click', () => this.confirmDeleteUsers());
+        }
+        
+        // Agregar estilos para el modo de selección
+        const style = document.createElement('style');
+        style.textContent = `
+            .user-selection {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                z-index: 2;
+            }
+            .user-checkbox {
+                display: none;
+            }
+            .checkbox-label {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border: 2px solid #ddd;
+                border-radius: 4px;
+                background: white;
+                cursor: pointer;
+                position: relative;
+            }
+            .checkbox-label:after {
+                content: '';
+                position: absolute;
+                display: none;
+                left: 6px;
+                top: 2px;
+                width: 5px;
+                height: 10px;
+                border: solid white;
+                border-width: 0 3px 3px 0;
+                transform: rotate(45deg);
+            }
+            .user-checkbox:checked + .checkbox-label {
+                background: #dc3545;
+                border-color: #dc3545;
+            }
+            .user-checkbox:checked + .checkbox-label:after {
+                display: block;
+            }
+            .client-card {
+                position: relative;
+                transition: all 0.3s ease;
+            }
+            .client-card.selected {
+                border: 2px solid #dc3545;
+                box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+            }
+            .action-buttons {
+                display: flex;
+                gap: 10px;
+            }
+        `;
+        document.head.appendChild(style);
+        
         // Página de administración de citas
         const appointmentsAdminPage = document.createElement('div');
         appointmentsAdminPage.id = 'appointments-admin-page';
@@ -530,6 +605,14 @@ class RoleUIManager {
             userCard.dataset.userId = user.id_usuario;
             userCard.dataset.userRole = user.rol?.nombre_rol || 'N/A';
             
+            // Checkbox para selección múltiple
+            const checkbox = `
+                <div class="user-selection">
+                    <input type="checkbox" class="user-checkbox" id="user-${user.id_usuario}" 
+                           data-user-id="${user.id_usuario}">
+                    <label for="user-${user.id_usuario}" class="checkbox-label"></label>
+                </div>`;
+            
             // Determinar los botones según el rol
             let actionButtons = '';
             if (user.rol?.nombre_rol === 'cliente') {
@@ -551,6 +634,7 @@ class RoleUIManager {
             
             // Construir HTML de la tarjeta
             userCard.innerHTML = `
+                ${checkbox}
                 <div class="client-avatar">
                     <img src="${user.imagen || '/Frontend/imagenes/img_perfil.png'}" alt="Avatar" 
                          onerror="this.src='/Frontend/imagenes/img_perfil.png'">
@@ -571,6 +655,91 @@ class RoleUIManager {
         
         // Agregar event listeners para los botones
         this.setupUserCardEventListeners();
+        
+        // Configurar checkboxes para selección múltiple
+        this.setupUserSelection();
+    }
+    
+    /**
+     * Configura la selección de usuarios
+     */
+    setupUserSelection() {
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const card = e.target.closest('.client-card');
+                if (e.target.checked) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+        });
+    }
+    
+    /**
+     * Muestra u oculta el botón de eliminar según los usuarios seleccionados
+     */
+    toggleDeleteButton() {
+        const deleteBtn = document.getElementById('delete-users-btn');
+        const selectedUsers = document.querySelectorAll('.user-checkbox:checked');
+        
+        if (selectedUsers.length > 0) {
+            deleteBtn.style.display = 'inline-flex';
+        } else {
+            deleteBtn.style.display = 'none';
+        }
+    }
+    
+    /**
+     * Muestra el diálogo de confirmación para eliminar usuarios
+     */
+    async confirmDeleteUsers() {
+        const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked'));
+        if (selectedUsers.length === 0) return;
+        
+        const userIds = selectedUsers.map(checkbox => checkbox.dataset.userId);
+        const userCount = userIds.length;
+        
+        const confirmed = await notificationService.showConfirmation(
+            `¿Estás seguro de que deseas eliminar ${userCount} usuario(s) seleccionado(s)?`,
+            'Esta acción no se puede deshacer. Se eliminarán los usuarios, sus perfiles y sus imágenes de perfil.'
+        );
+        
+        if (confirmed) {
+            try {
+                // Mostrar indicador de carga
+                const notificationId = notificationService.showLoading(`Eliminando ${userCount} usuario(s)...`);
+                
+                // Llamar a la API para eliminar los usuarios
+                const { API } = await import('./APIS.js');
+                const result = await API.eliminarUsuarios(userIds);
+                
+                // Cerrar notificación de carga
+                notificationService.close(notificationId);
+                
+                if (result.success) {
+                    notificationService.showSuccess(`Se eliminaron ${result.deletedCount} usuario(s) correctamente.`);
+                    
+                    // Recargar la lista de usuarios
+                    await this.loadAndDisplayUsers();
+                    
+                    // Ocultar el botón de eliminar
+                    const deleteBtn = document.getElementById('delete-users-btn');
+                    if (deleteBtn) {
+                        deleteBtn.style.display = 'none';
+                    }
+                } else {
+                    const errorMessage = result.errors?.length > 0 
+                        ? result.errors.map(e => `Usuario ${e.userId}: ${e.error}`).join('<br>') 
+                        : 'Error desconocido al eliminar usuarios';
+                    notificationService.showError(`Error al eliminar usuarios:<br>${errorMessage}`, 10000);
+                }
+            } catch (error) {
+                console.error('Error al eliminar usuarios:', error);
+                notificationService.showError(`Error al eliminar usuarios: ${error.message || 'Error desconocido'}`);
+            }
+        }
     }
     
     /**

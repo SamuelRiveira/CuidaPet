@@ -1091,20 +1091,14 @@ export class API{
     
                 try {
                     // 1. Eliminar imagen de perfil si existe
+                    // 1. Eliminar imágenes del storage
                     try {
-                        const { data: files, error: listError } = await supabase.storage
+                        const { error: removeError } = await supabase.storage
                             .from('imagenes')
-                            .list(`perfiles/${userId}`);
+                            .remove([`perfiles/${userId}`]);
                         
-                        if (!listError && files && files.length > 0) {
-                            const filesToRemove = files.map(file => `perfiles/${userId}/${file.name}`);
-                            const { error: removeError } = await supabase.storage
-                                .from('imagenes')
-                                .remove(filesToRemove);
-                            
-                            if (removeError) {
-                                throw removeError;
-                            }
+                        if (removeError) {
+                            throw removeError;
                         }
                     } catch (storageError) {
                         console.error(`Error eliminando imagen de perfil de ${userId}:`, storageError);

@@ -1048,7 +1048,6 @@ export class API{
      * @returns {Promise<{success: boolean, deletedCount: number, errors: Array<{userId: string, error: any}>}>} - Resultado de la operación
      */
     static async eliminarUsuarios(userIds) {
-
         if (!userIds || (Array.isArray(userIds) && userIds.length === 0)) {
             return { success: false, error: "No se proporcionaron IDs de usuario" };
         }
@@ -1062,79 +1061,89 @@ export class API{
                 throw new Error("No hay una sesión activa");
             }
     
-            console.log('Invocando función eliminar-usuarios con IDs:', ids);
-            console.log('Using session token:', session.access_token ? 'Present' : 'Missing');
-            console.log('Request body that will be sent:', { userIds: ids });
-            console.log('IDs type and content:', {
-                isArray: Array.isArray(ids),
-                length: ids.length,
-                content: ids,
-                firstIdType: typeof ids[0]
-            });
-    
-            // Llamar a la función de borde CON el token de autorización
-            // Usando fetch directamente para mejor control del cuerpo de la petición
-            const functionUrl = `https://kmypwriazdbxpwdxfhaf.supabase.co/functions/v1/eliminar-usuarios`;
-            
-            const response = await fetch(functionUrl, {
-                method: 'POST',
+            // Llamar a la función de borde
+            const { data, error } = await supabase.functions.invoke('eliminar-usuarios', {
                 headers: {
-                    'Authorization': `Bearer ${session.access_token}`,
-                    'Content-Type': 'application/json',
-                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtteXB3cmlhemRieHB3ZHhmaGFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2NDMzNjMsImV4cCI6MjA2MzIxOTM2M30.oIjUGqzH6_REP0Ci8AvXDeJaLvYq17yLxWPu7xwxpXA'
+                    'Authorization': `Bearer ${session.access_token}`
                 },
-                body: JSON.stringify({ userIds: ids })
+                body: { userIds: ids }
             });
     
-            console.log('Response status:', response.status);
-            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-    
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error response body:', errorText);
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            if (error) {
+                console.error('Error al invocar la función:', error);
+                throw new Error(error.message || 'Error al eliminar los usuarios');
             }
-    
-            const data = await response.json();
-            console.log('Success response data:', data);
-    
-            // Verificar que tenemos una respuesta válida
-            if (!data) {
-                throw new Error('No se recibió respuesta del servidor');
-            }
-    
-            console.log('Respuesta procesada de la función:', data);
     
             // Verificar si hay errores en la respuesta
-            if (data.error) {
+            if (data && data.error) {
                 throw new Error(data.error);
             }
     
-            // Verificar si la operación fue exitosa
-            if (typeof data.success !== 'undefined' && !data.success) {
-                const errorMsg = data.error || `Solo se eliminaron ${data.deletedCount || 0} de ${ids.length} usuarios`;
-                
-                // Si algunos usuarios se eliminaron pero no todos, mostrar información detallada
-                if (data.deletedCount > 0) {
-                    console.warn('Eliminación parcial:', data);
-                    return {
-                        success: false,
-                        partialSuccess: true,
-                        deletedCount: data.deletedCount,
-                        failedCount: data.failedCount,
-                        results: data.results,
-                        error: errorMsg
-                    };
+            // Eliminar usuarios de la base de datos y sus imágenes de perfil
+            const results = {
+                success: true,
+                deletedCount: 0,
+                results: []
+            };
+    
+            for (const userId of ids) {
+                const userResult = { userId, success: true, errors: [] };
+    
+                try {
+                    // 1. Eliminar imagen de perfil si existe
+                    try {
+                        const { data: files, error: listError } = await supabase.storage
+                            .from('imagenes')
+                            .list(`perfiles/${userId}`);
+                        
+                        if (!listError && files && files.length > 0) {
+                            const filesToRemove = files.map(file => `perfiles/${userId}/${file.name}`);
+                            const { error: removeError } = await supabase.storage
+                                .from('imagenes')
+                                .remove(filesToRemove);
+                            
+                            if (removeError) {
+                                throw removeError;
+                            }
+                        }
+                    } catch (storageError) {
+                        console.error(`Error eliminando imagen de perfil de ${userId}:`, storageError);
+                        userResult.errors.push(`Error eliminando imagen: ${storageError.message}`);
+                    }
+    
+                    // 2. Eliminar de la base de datos
+                    const { error: dbError } = await supabase
+                        .from('usuario')
+                        .delete()
+                        .eq('id_usuario', userId);
+    
+                    if (dbError) {
+                        throw dbError;
+                    }
+    
+                    results.deletedCount++;
+                } catch (error) {
+                    console.error(`Error procesando usuario ${userId}:`, error);
+                    userResult.success = false;
+                    userResult.errors.push(error.message);
                 }
-                
-                throw new Error(errorMsg);
+    
+                results.results.push(userResult);
+            }
+    
+            // Verificar si hubo errores
+            if (results.deletedCount < ids.length) {
+                results.success = results.deletedCount > 0; // Éxito parcial si se eliminó al menos uno
+                if (!results.success) {
+                    throw new Error('No se pudo eliminar ningún usuario de la base de datos');
+                }
             }
     
             return {
                 success: true,
-                deletedCount: data.deletedCount || ids.length,
-                failedCount: data.failedCount || 0,
-                results: data.results || [],
+                deletedCount: results.deletedCount,
+                failedCount: ids.length - results.deletedCount,
+                results: results.results,
                 data: data
             };
     

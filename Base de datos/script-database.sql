@@ -62,6 +62,7 @@ INSERT INTO servicio (nombre_servicio) VALUES
 ('Desparasitación'),
 ('Cirugía menor'),
 ('Limpieza dental'),
+('Castración química')
 ('Análisis de sangre');
 
 -- Crear índices para mejorar el rendimiento

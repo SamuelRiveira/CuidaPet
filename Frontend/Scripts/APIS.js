@@ -7,7 +7,7 @@ export class API{
      * @param {string} password - Contraseña del usuario
      * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
      */
-    static async registrarUsuario(email, password) {
+    static async registrarUsuario(email, password, idRol = 1) {
         try {
             // Registrar usuario con Supabase Auth sin iniciar sesión automáticamente
             const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -30,7 +30,7 @@ export class API{
                 .insert([
                     {
                         id_usuario: authData.user.id,
-                        id_rol: 1
+                        id_rol: idRol
                     }
                 ]);
                 

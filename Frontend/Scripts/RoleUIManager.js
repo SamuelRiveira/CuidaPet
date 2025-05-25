@@ -393,7 +393,7 @@ class RoleUIManager {
                     
                     if (resultado.success) {
                         // Mostrar mensaje de éxito
-                        alert('Usuario creado exitosamente');
+                        notificationService.showSuccess('Usuario creado exitosamente');
                         // Recargar la lista de usuarios
                         this.loadAndDisplayUsers();
                         // Cerrar el modal y limpiar el formulario
@@ -403,8 +403,7 @@ class RoleUIManager {
                         throw new Error(resultado.error?.message || 'Error al crear el usuario');
                     }
                 } catch (error) {
-                    console.error('Error al crear usuario:', error);
-                    alert(`Error: ${error.message}`);
+                    notificationService.showError(`Error: ${error.message}`);
                 } finally {
                     // Restaurar el botón
                     const submitBtn = createUserForm.querySelector('button[type="submit"]');
@@ -557,7 +556,7 @@ class RoleUIManager {
                          onerror="this.src='/Frontend/imagenes/img_perfil.png'">
                 </div>
                 <div class="client-info">
-                    <h4>${user.nombre || ''} ${user.apellidos || ''}</h4>
+                    <h4>${user.nombre || 'Sin nombre'} ${user.apellidos || ''}</h4>
                     <p><i class="fas fa-user-tag"></i> ${user.rol?.nombre_rol || 'Sin rol'}</p>
                     <p><i class="fas fa-map-marker-alt"></i> ${user.direccion || 'Dirección no especificada'}</p>
                     <hr class="client-card-divider">

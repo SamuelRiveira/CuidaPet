@@ -280,6 +280,7 @@ textarea{
     flex-direction: column;
     gap: 10px;
     width: 100%;
+    height: 101.6px;
     margin-top: auto;
     padding: 10px 0 0;
 }

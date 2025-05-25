@@ -373,7 +373,7 @@ class ProfileUI {
             // Validar que los campos requeridos tengan valor
             if (!nameInput || !surnamesInput || !addressInput) {
                 console.error('No se encontraron todos los campos del formulario');
-                alert('Error: No se pudieron obtener los datos del formulario');
+                showError('Error: No se pudieron obtener los datos del formulario');
                 return false;
             }
             
@@ -390,7 +390,7 @@ class ProfileUI {
             
             // Validar datos requeridos
             if (!updatedProfileData.personalInfo.name) {
-                alert('Por favor ingresa tu nombre');
+                this.showWarning('Por favor ingresa tu nombre');
                 nameInput.focus();
                 return false;
             }
@@ -433,7 +433,7 @@ class ProfileUI {
             }
         } catch (error) {
             console.error('Error al actualizar el perfil:', error);
-            alert(`Error al actualizar el perfil: ${error.message || 'Error desconocido'}`);
+            showError(`Error al actualizar el perfil: ${error.message || 'Error desconocido'}`);
             return false;
         }
     }

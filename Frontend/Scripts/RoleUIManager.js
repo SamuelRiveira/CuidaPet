@@ -769,11 +769,11 @@ class RoleUIManager {
                         await window.profileUI.loadProfileData(userId);
                     } else {
                         console.error('No se pudo cargar el perfil: ProfileUI no está inicializado');
-                        alert('No se pudo cargar el perfil del usuario');
+                        notificationService.showError('No se pudo cargar el perfil del usuario');
                     }
                 } catch (error) {
                     console.error('Error al cargar el perfil:', error);
-                    alert('Ocurrió un error al cargar el perfil');
+                    notificationService.showError('Ocurrió un error al cargar el perfil');
                 }
             });
         });

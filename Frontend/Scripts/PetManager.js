@@ -300,7 +300,7 @@ class PetManager {
         } catch (error) {
             console.error('Error en handlePetEdit:', error);
             // Mostrar mensaje de error al usuario
-            alert(`Error al guardar los cambios: ${error.message}`);
+            showError(`Error al guardar los cambios: ${error.message}`);
             return false;
         }
     }

@@ -474,8 +474,8 @@ class RoleUIManager {
             button.addEventListener('click', async function() {
                 const userId = this.dataset.userId;
                 try {
-                    // Navegar a la página de perfil
-                    RoleUIManager.navigateToPage('profile');
+                    // Navegar a la página de perfil, pasando el ID del usuario
+                    await RoleUIManager.navigateToPage('profile', userId);
                     
                     // Cargar los datos del perfil usando el método estático de ProfileUI
                     if (window.profileUI && typeof window.profileUI.loadProfileData === 'function') {
@@ -1052,30 +1052,54 @@ class RoleUIManager {
      * @param {string} pageId - ID de la página a mostrar sin el sufijo "-page"
      * @static
      */
-    static navigateToPage(pageId) {
-        // Obtener todas las páginas
-        const pages = document.querySelectorAll('.page');
-        const navLinks = document.querySelectorAll('nav a');
+    static async navigateToPage(pageId, userId = null) {
+        // Usar el sistema de navegación existente
+        const navLinks = document.querySelectorAll('[data-page]');
+        let targetNavLink;
         
-        // Ocultar todas las páginas
-        pages.forEach(page => {
-            page.classList.remove('active-page');
-        });
-        
-        // Desactivar todos los enlaces de navegación
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-        });
-        
-        // Mostrar la página solicitada
-        const targetPage = document.getElementById(`${pageId}-page`);
-        if (targetPage) {
-            targetPage.classList.add('active-page');
+        // Determinar qué enlace resaltar
+        if (pageId === 'profile' && userId) {
+            // Obtener el ID del usuario actual
+            const storedToken = localStorage.getItem('sb-kmypwriazdbxpwdxfhaf-auth-token');
+            let currentUserId = null;
             
-            // Activar el enlace correspondiente si existe
-            const activeLink = document.querySelector(`nav a[data-page="${pageId}"]`);
-            if (activeLink) {
-                activeLink.classList.add('active');
+            if (storedToken) {
+                try {
+                    const parsedToken = JSON.parse(storedToken);
+                    currentUserId = parsedToken.user?.id;
+                } catch (error) {
+                    console.error('Error al analizar el token de autenticación:', error);
+                }
+            }
+            
+            // Si el ID del perfil que se está viendo es diferente al ID del usuario actual,
+            // resaltar el enlace de Usuarios
+            if (currentUserId && userId !== currentUserId) {
+                targetNavLink = document.querySelector('[data-page="users"]');
+            } else {
+                targetNavLink = document.querySelector(`[data-page="${pageId}"]`);
+            }
+        } else {
+            targetNavLink = document.querySelector(`[data-page="${pageId}"]`);
+        }
+        
+        // Actualizar clases de navegación
+        navLinks.forEach(link => {
+            link.classList.toggle('active', link === targetNavLink);
+        });
+        
+        // Mostrar la página solicitada usando el sistema de navegación
+        const showPage = window.showPage;
+        if (typeof showPage === 'function') {
+            showPage(pageId);
+        } else {
+            // Fallback en caso de que el sistema de navegación no esté disponible
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active-page');
+            });
+            const targetPage = document.getElementById(`${pageId}-page`);
+            if (targetPage) {
+                targetPage.classList.add('active-page');
             }
         }
     }

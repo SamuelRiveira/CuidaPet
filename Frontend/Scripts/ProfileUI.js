@@ -4,6 +4,7 @@
 
 import { ProfileManager } from "./ProfileManager.js";
 import { notificationService } from "./NotificationService.js";
+import { API } from "./APIS.js";
 
 class ProfileUI {
     constructor(idUsuario = null) {
@@ -102,32 +103,38 @@ class ProfileUI {
                 this.idUsuario = userId;
             }
             // Obtener datos del perfil desde ProfileManager
-            this.profileData = await ProfileManager.getUserProfile(userId);
+            this.profileData = await ProfileManager.getUserProfile(this.idUsuario);
+            
+            // Obtener el rol del usuario desde la API
+            const rolResponse = await API.obtenerRolUsuario(this.idUsuario);
+            const userRole = rolResponse.success ? rolResponse.role : 'cliente'; // Por defecto a 'cliente' si hay error
             
             // Limpiar el contenedor del perfil
             if (this.profileContainer && this.profileData) {
-            this.profileContainer.innerHTML = '';
-            
-            // Construir la estructura completa del perfil
-            this.profileContainer.innerHTML = `
-                <!-- Sidebar con información personal -->
-                <div class="profile-sidebar">
-                    <div class="profile-photo">
-                        <img src="${this.profileData.photo}" alt="Foto de perfil">
-                    </div>
-                    <div class="profile-name">
-                        <h2>${this.profileData.name}</h2>
+                this.profileContainer.innerHTML = '';
+                
+                // Construir la estructura completa del perfil
+                this.profileContainer.innerHTML = `
+                    <!-- Sidebar con información personal -->
+                    <div class="profile-sidebar">
+                        <div class="profile-photo">
+                            <img src="${this.profileData.photo}" alt="Foto de perfil">
                         </div>
-                        <div class="profile-stats">
-                            <div class="stat-item">
-                                <div class="stat-value">${this.profileData.stats.pets}</div>
-                                <div class="stat-label">Mascotas</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value">${this.profileData.stats.appointments}</div>
-                                <div class="stat-label">Citas</div>
-                            </div>
+                        <div class="profile-name">
+                            <h2>${this.profileData.name}</h2>
                         </div>
+                        ${userRole !== 'empleado' ? `
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">${this.profileData.stats.pets}</div>
+                                    <div class="stat-label">Mascotas</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${this.profileData.stats.appointments}</div>
+                                    <div class="stat-label">Citas</div>
+                                </div>
+                            </div>
+                        ` : ''}
                         <div class="action-buttons2">
                             <a href="#" class="btn btn-primary btn-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

@@ -2,6 +2,51 @@ import { supabase } from "./supabaseClient.js";
 
 export class API{
     /**
+     * Obtiene el rol de un usuario por su ID
+     * @param {string} userId - ID del usuario
+     * @returns {Promise<{success: boolean, role?: string, error?: any}>} - Objeto con el rol del usuario o error
+     */
+    static async obtenerRolUsuario(userId) {
+        try {
+            if (!userId) {
+                throw new Error('Se requiere un ID de usuario válido');
+            }
+
+            // Obtener el ID del rol del usuario
+            const { data: usuarioData, error: usuarioError } = await supabase
+                .from('usuario')
+                .select('id_rol')
+                .eq('id_usuario', userId)
+                .single();
+
+            if (usuarioError) throw usuarioError;
+            if (!usuarioData) throw new Error('Usuario no encontrado');
+
+            // Obtener el nombre del rol
+            const { data: rolData, error: rolError } = await supabase
+                .from('rol')
+                .select('nombre_rol')
+                .eq('id_rol', usuarioData.id_rol)
+                .single();
+
+            if (rolError) throw rolError;
+            if (!rolData) throw new Error('Rol no encontrado');
+
+            return { 
+                success: true, 
+                role: rolData.nombre_rol.toLowerCase() // Devolver en minúsculas para consistencia
+            };
+
+        } catch (error) {
+            console.error('Error al obtener el rol del usuario:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al obtener el rol del usuario' 
+            };
+        }
+    }
+
+    /**
      * Registra un nuevo usuario en Supabase y crea su perfil en la tabla usuario
      * @param {string} email - Email del usuario
      * @param {string} password - Contraseña del usuario

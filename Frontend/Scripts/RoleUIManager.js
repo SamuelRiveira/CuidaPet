@@ -530,7 +530,7 @@ class RoleUIManager {
                             <select class="filter-select" id="appointment-status-filter">
                                 <option value="all">Todas las citas</option>
                                 <option value="pending">Pendientes</option>
-                                <option value="completed">Expiradas</option>
+                                <option value="completed">Completadas</option>
                                 <option value="cancelled">Canceladas</option>
                             </select>
                             <input type="date" class="date-filter" id="appointment-date-filter">

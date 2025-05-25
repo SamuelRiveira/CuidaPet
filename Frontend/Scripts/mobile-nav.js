@@ -75,7 +75,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mobileNavToggle) {
         mobileNavToggle.addEventListener('click', function(e) {
             e.stopPropagation(); // Detiene la propagación para closeMenuOnClickOutside
-            console.log('Botón de menú clickeado'); // Para depuración
             toggleMenu(); // Llama sin argumentos para que alterne
         });
     }
@@ -83,7 +82,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Evento para el overlay
     if (overlay) {
         overlay.addEventListener('click', function() {
-            console.log('Overlay clickeado'); // Para depuración
             toggleMenu(false); // Cierra el menú
         });
     }
@@ -95,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Solo cerrar si el menú está visible (móvil) y es un enlace de navegación normal
             if (nav.classList.contains('active') && window.innerWidth <= 767) {
                 // Podrías añadir una comprobación para no cerrar en enlaces que abren submenús, si los tuvieras
-                console.log('Enlace de navegación clickeado, cerrando menú.'); // Para depuración
                 toggleMenu(false);
             }
         });
@@ -104,7 +101,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cerrar menú con la tecla Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && nav && nav.classList.contains('active')) { // Asegúrate que nav existe
-            console.log('Tecla Escape presionada, cerrando menú.'); // Para depuración
             toggleMenu(false);
         }
     });
@@ -116,7 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
             if (window.innerWidth > 767 && nav.classList.contains('active')) {
-                console.log('Redimensionado a pantalla grande, cerrando menú si estaba abierto.'); // Para depuración
                 toggleMenu(false); // Cierra el menú si se pasa a vista de escritorio y estaba abierto
             }
         }, 250);

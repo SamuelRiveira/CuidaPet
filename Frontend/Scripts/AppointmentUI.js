@@ -396,8 +396,8 @@ class AppointmentUI {
             const result = await this.appointmentsService.handleCreateAppointment(petId, serviceId, date, time);
             
             if (result && result.success) {
-                // Si la operación fue exitosa, mostrar mensaje de éxito
-                this.showFormSuccess('¡Cita programada con éxito!');
+                // Mostrar notificación de éxito
+                notificationService.showSuccess('¡Cita programada con éxito!');
                 
                 // Limpiar el formulario
                 document.querySelector('.appointment-form').reset();
@@ -408,11 +408,6 @@ class AppointmentUI {
                 // Obtener la instancia de ProfileUI si existe
                 ProfileUI.loadProfileData();
                 
-                // Eliminar mensaje de éxito después de 3 segundos
-                setTimeout(() => {
-                    const successMsg = document.getElementById('form-success');
-                    if (successMsg) successMsg.remove();
-                }, 3000);
             } else {
                 // Mostrar mensaje de error
                 const errorMessage = result?.error?.message || 'Ha ocurrido un error al programar la cita. Por favor, intenta de nuevo.';

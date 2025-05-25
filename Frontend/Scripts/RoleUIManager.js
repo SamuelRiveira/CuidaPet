@@ -1014,6 +1014,9 @@ class RoleUIManager {
         const cardElement = document.createElement('div');
         cardElement.className = 'appointment-card';
         cardElement.dataset.appointmentId = appointment.id;
+        cardElement.dataset.petId = mascota?.id_mascota || '';
+        cardElement.dataset.userId = usuario?.id_usuario || '';
+        cardElement.style.cursor = 'pointer';
         
         // Agregar clase según el estado
         if (statusLabel.class) {
@@ -1125,8 +1128,48 @@ class RoleUIManager {
             </div>
         `;
 
+        // Add hover effect
+        cardElement.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+        cardElement.addEventListener('mouseenter', () => {
+            cardElement.style.transform = 'translateY(-5px)';
+            cardElement.style.boxShadow = '0 10px 20px rgba(0,0,0,0.1)';
+        });
+        cardElement.addEventListener('mouseleave', () => {
+            cardElement.style.transform = 'translateY(0)';
+            cardElement.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+        });
+        
+        // Add click handler for the card (excluding cancel button)
+        if (cardElement.dataset.petId && cardElement.dataset.userId) {
+            const cardContent = cardElement.querySelector('.appointment-content');
+            if (cardContent) {
+                cardContent.addEventListener('click', async (e) => {
+                    // Only navigate if not clicking the cancel button
+                    if (!e.target.closest('.appointment-actions')) {
+                        const petId = cardElement.dataset.petId;
+                        const userId = cardElement.dataset.userId;
+                        
+                        if (petId && userId) {
+                            // Store the current page to return to
+                            localStorage.setItem('previousPetPage', 'appointments-admin-page');
+                            
+                            // Store the client name for the back button
+                            const clientName = usuario?.nombre || 'Cliente';
+                            localStorage.setItem('currentClientName', clientName);
+                            
+                            // Navigate to the pet detail page
+                            await RoleUIManager.navigateToPage('pet-detail');
+                            
+                            // Load and display the pet details
+                            RoleUIManager.showPetDetail({ dataset: { petId, userId } });
+                        }
+                    }
+                });
+            }
+        }
+
         // Mostrar/ocultar botón de cancelar según el rol del usuario y el estado de la cita
-        const cancelButton = cardElement.querySelector('.btn-cancel');
+        const cancelButton = cardElement.querySelector('.appointment-cancel-btn');
         if (cancelButton) {
             // Solo mostrar el botón de cancelar para empleados y si la cita no está cancelada
             if (this.userStatus.userRole === 'empleado' && !appointment.is_canceled) {
@@ -1134,6 +1177,8 @@ class RoleUIManager {
                 
                 // Agregar evento para cancelar la cita
                 cancelButton.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     e.stopPropagation();
                     
                     try {
@@ -1182,11 +1227,6 @@ class RoleUIManager {
                     } catch (error) {
                         console.error('Error al cancelar la cita:', error);
                         notificationService.showError(error.message || 'Error al cancelar la cita');
-                    } finally {
-                        // Cerrar el indicador de carga si existe
-                        if (loadingId) {
-                            notificationService.close(loadingId);
-                        }
                     }
                 });
             } else {

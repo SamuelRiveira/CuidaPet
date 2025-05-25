@@ -269,7 +269,12 @@ class RoleUIManager {
                 </div>
                 <div class="content-card">
                     <div class="card-header">
-                        <h3>Listado de Usuarios</h3>
+                        <div class="header-row">
+                            <h3>Listado de Usuarios</h3>
+                            <button id="create-user-btn" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Crear Usuario
+                            </button>
+                        </div>
                         <div class="search-filter-container">
                             <div class="search-container">
                                 <input type="text" id="user-search-input" class="search-input" placeholder="Buscar usuario...">
@@ -295,8 +300,121 @@ class RoleUIManager {
         `;
         container.appendChild(clientManagementPage);
 
+        // Crear el modal para nuevo usuario
+        const modalHTML = `
+            <div id="user-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span>
+                    <h2>Crear Nuevo Usuario</h2>
+                    <form id="create-user-form">
+                        <div class="form-group">
+                            <label for="user-email">Email:</label>
+                            <input type="email" id="user-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-password">Contraseña:</label>
+                            <input type="password" id="user-password" minlength="6" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-role">Rol:</label>
+                            <select id="user-role" required>
+                                <option value="1">Cliente</option>
+                                <option value="2">Empleado</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="cancel-user-btn">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        
+        // Añadir el modal al final del body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
         // Cargar usuarios cuando se crea la página
         this.loadAndDisplayUsers();
+        
+        // Configurar el modal
+        const modal = document.getElementById('user-modal');
+        const createUserBtn = document.getElementById('create-user-btn');
+        const closeBtn = document.querySelector('#user-modal .close-btn');
+        const cancelBtn = document.getElementById('cancel-user-btn');
+        const createUserForm = document.getElementById('create-user-form');
+        
+        // Mostrar el modal al hacer clic en el botón de crear usuario
+        if (createUserBtn) {
+            createUserBtn.addEventListener('click', () => {
+                modal.style.display = 'block';
+            });
+        }
+        
+        // Cerrar el modal al hacer clic en la X
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
+        
+        // Cerrar el modal al hacer clic en Cancelar
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
+        
+        // Cerrar el modal al hacer clic fuera del contenido
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Manejar el envío del formulario
+        if (createUserForm) {
+            createUserForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('user-email').value;
+                const password = document.getElementById('user-password').value;
+                const roleId = parseInt(document.getElementById('user-role').value);
+                
+                try {
+                    // Mostrar indicador de carga
+                    const submitBtn = createUserForm.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando...';
+                    
+                    // Llamar a la API para crear el usuario
+                    const resultado = await API.registrarUsuario(email, password, roleId);
+                    
+                    if (resultado.success) {
+                        // Mostrar mensaje de éxito
+                        alert('Usuario creado exitosamente');
+                        // Recargar la lista de usuarios
+                        this.loadAndDisplayUsers();
+                        // Cerrar el modal y limpiar el formulario
+                        modal.style.display = 'none';
+                        createUserForm.reset();
+                    } else {
+                        throw new Error(resultado.error?.message || 'Error al crear el usuario');
+                    }
+                } catch (error) {
+                    console.error('Error al crear usuario:', error);
+                    alert(`Error: ${error.message}`);
+                } finally {
+                    // Restaurar el botón
+                    const submitBtn = createUserForm.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Crear Usuario';
+                    }
+                }
+            });
+        }
 
         // Configurar eventos de búsqueda y filtrado
         const searchInput = document.getElementById('user-search-input');

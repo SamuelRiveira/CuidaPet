@@ -1,5 +1,5 @@
-import { PetManager } from './PetManager.js';
-import { notificationService } from './NotificationService.js';
+import { PetManager } from '../managers/PetManager.js';
+import { notificationService } from '../services/NotificationService.js';
 import { renderPetCards } from './PetView.js';
 import { ProfileUI } from './ProfileUI.js';
 

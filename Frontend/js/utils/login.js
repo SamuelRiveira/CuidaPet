@@ -1,4 +1,4 @@
-import { UserAuthManager } from "./UserAuthManager.js";
+import { UserAuthManager } from "../managers/UserAuthManager.js";
 
 // Manejo del formulario de inicio de sesión
 document.addEventListener('DOMContentLoaded', () => {

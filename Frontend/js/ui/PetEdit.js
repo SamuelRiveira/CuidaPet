@@ -1,7 +1,7 @@
 // Funcionalidad de edición de mascotas
-import { PetManager } from './PetManager.js';
-import { notificationService } from './NotificationService.js';
-import { renderPetCards } from './PetView.js';
+import { PetManager } from '../managers/PetManager.js';
+import { notificationService } from '../services/NotificationService.js';
+import { renderPetCards } from './PetView.js'; // Esta ruta ya es correcta
 
 // Crear una instancia de PetManager
 const petManager = new PetManager();

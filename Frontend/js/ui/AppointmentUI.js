@@ -1,5 +1,5 @@
-import { notificationService } from "./NotificationService.js";
-import { AppointmentManager } from "./AppointmentManager.js";
+import { notificationService } from "../services/NotificationService.js";
+import { AppointmentManager } from "../managers/AppointmentManager.js";
 import { ProfileUI } from "./ProfileUI.js";
 
 /**

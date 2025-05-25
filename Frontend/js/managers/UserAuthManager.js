@@ -2,7 +2,7 @@
  * Clase encargada de la gestión de autenticación y autorización de usuarios
  * Proporciona funciones para verificar el estado de sesión y los roles de usuario
  */
-import { API } from "./APIS.js";
+import { API } from "../services/APIS.js";
 
 class UserAuthManager {
     

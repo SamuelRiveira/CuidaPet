@@ -3,7 +3,7 @@
  * Proporciona métodos para obtener, crear, actualizar y eliminar citas
  */
 
-import { API } from "./APIS.js";
+import { API } from "../services/APIS.js";
 
 class AppointmentManager {
     /**
@@ -174,7 +174,7 @@ class AppointmentManager {
             let petsData = [];
 
             if (!userId) {
-                ({ success: petsSuccess, data: petsData } = await API.obtenerMascotasUsuario());
+                ({ success: petsSuccess, data: petsData } = await API.obtenerMascotasPorUsuario());
             } else {
                 ({ success: petsSuccess, data: petsData } = await API.obtenerMascotasPorUsuario(userId));
             }

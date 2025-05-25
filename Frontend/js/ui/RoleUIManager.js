@@ -2,13 +2,14 @@
  * Clase encargada de gestionar la interfaz según el rol del usuario
  * Controla la visualización de elementos y opciones de menú basado en permisos
  */
-import { UserAuthManager } from "./UserAuthManager.js";
-import { ProfileManager } from "./ProfileManager.js";
-import { API } from "./APIS.js";
-import { PetManager } from "./PetManager.js";
+import { UserAuthManager } from "../managers/UserAuthManager.js";
+import { ProfileManager } from "../managers/ProfileManager.js";
+import { API } from "../services/APIS.js";
+import { PetManager } from "../managers/PetManager.js";
 import { PetEdit } from "./PetEdit.js";
-import { notificationService } from "./NotificationService.js";
-import { AppointmentDataManager } from "./AppointmentDataManager.js";
+import { notificationService } from "../services/NotificationService.js";
+import { AppointmentDataManager } from "../services/AppointmentDataManager.js";
+import { abrir } from "../core/openLogin.js";
 
 // La función abrir está disponible globalmente desde openLogin.js
 class RoleUIManager {
@@ -530,7 +531,7 @@ class RoleUIManager {
                             <select class="filter-select" id="appointment-status-filter">
                                 <option value="all">Todas las citas</option>
                                 <option value="pending">Pendientes</option>
-                                <option value="completed">Completadas</option>
+                                <option value="completed">Expiradas</option>
                                 <option value="cancelled">Canceladas</option>
                             </select>
                             <input type="date" class="date-filter" id="appointment-date-filter">
@@ -713,7 +714,6 @@ class RoleUIManager {
                 const notificationId = notificationService.showLoading(`Eliminando ${userCount} usuario(s)...`);
                 
                 // Llamar a la API para eliminar los usuarios
-                const { API } = await import('./APIS.js');
                 const result = await API.eliminarUsuarios(userIds);
                 
                 // Cerrar notificación de carga

@@ -4,20 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CuidaPet - Gestión de Mascotas</title>
-    <link rel="stylesheet" href="CSS/appointment.css">
-    <link rel="stylesheet" href="CSS/appointments.css">
-    <link rel="stylesheet" href="CSS/auth.css">
-    <link rel="stylesheet" href="CSS/base.css">
-    <link rel="stylesheet" href="CSS/forms.css">
-    <link rel="stylesheet" href="CSS/header.css">
-    <link rel="stylesheet" href="CSS/home.css">
-    <link rel="stylesheet" href="CSS/modals.css">
-    <link rel="stylesheet" href="CSS/pets.css">
-    <link rel="stylesheet" href="CSS/profile.css">
-    <link rel="stylesheet" href="CSS/roles.css">
-    <link rel="stylesheet" href="CSS/appointment-status.css">
-    <link rel="stylesheet" href="CSS/utils.css">
-    <link rel="stylesheet" href="CSS/responsive.css">
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="CSS/core/base.css">
+    <link rel="stylesheet" href="CSS/core/responsive.css">
+    <link rel="stylesheet" href="CSS/core/utils.css">
+    
+    <!-- Components CSS -->
+    <link rel="stylesheet" href="CSS/components/forms.css">
+    <link rel="stylesheet" href="CSS/components/header.css">
+    <link rel="stylesheet" href="CSS/components/modals.css">
+    <link rel="stylesheet" href="CSS/components/appointment-status.css">
+    
+    <!-- Pages CSS -->
+    <link rel="stylesheet" href="CSS/pages/appointment.css">
+    <link rel="stylesheet" href="CSS/pages/appointments.css">
+    <link rel="stylesheet" href="CSS/pages/auth.css">
+    <link rel="stylesheet" href="CSS/pages/home.css">
+    <link rel="stylesheet" href="CSS/pages/pets.css">
+    <link rel="stylesheet" href="CSS/pages/profile.css">
+    <link rel="stylesheet" href="CSS/pages/roles.css">
     <link rel="shortcut icon" href="imagenes/CuidaPet_azul_v2_icon.png" type="image/x-icon">
 </head>
 <body>
@@ -530,27 +535,32 @@
         </div>
     </div>
 
-    <script src="Scripts/main.js"></script>
-    <script src="Scripts/openLogin.js"></script>
-    <script type="module" src="Scripts/login.js"></script>
-    <script type="module" src="Scripts/navigation.js"></script>
-    <script type="module" src="Scripts/AppointmentManager.js"></script>
-    <script type="module" src="Scripts/AppointmentDataManager.js"></script>
-    <script type="module" src="Scripts/AppointmentUI.js"></script>
-    <script type="module" src="Scripts/PetManager.js"></script>
-    <script type="module" src="Scripts/PetForm.js"></script>
-    <script type="module" src="Scripts/PetView.js"></script>
-    <script type="module" src="Scripts/PetDelete.js"></script>
-    <script type="module" src="Scripts/PetEdit.js"></script>
-    <script type="module" src="Scripts/ProfileManager.js"></script>
-    <script type="module" src="Scripts/ProfileUI.js"></script>
-    <!-- Sistema de roles y autenticación -->
-    <script type="module" src="Scripts/UserAuthManager.js"></script>
-    <script type="module" src="Scripts/RoleUIManager.js"></script>
-    <script type="module" src="Scripts/navigation.js"></script>
-    <script type="module" src="Scripts/app-init.js"></script>
-    <script type="module" src="Scripts/APIS.js"></script>
-    <script type="module" src="Scripts/registro.js"></script>
-    <script src="Scripts/mobile-nav.js"></script>
+    <script type="module" src="js/core/main.js"></script>
+    <script type="module" src="js/core/app-init.js"></script>
+    <script type="module" src="js/core/navigation.js"></script>
+    <script type="module" src="js/core/mobile-nav.js"></script>
+    <script type="module" src="js/core/openLogin.js"></script>
+    
+    <script type="module" src="js/managers/AppointmentManager.js"></script>
+    <script type="module" src="js/managers/ClientManager.js"></script>
+    <script type="module" src="js/managers/PetManager.js"></script>
+    <script type="module" src="js/managers/ProfileManager.js"></script>
+    <script type="module" src="js/managers/UserAuthManager.js"></script>
+    
+    <script type="module" src="js/ui/AppointmentUI.js"></script>
+    <script type="module" src="js/ui/PetView.js"></script>
+    <script type="module" src="js/ui/PetForm.js"></script>
+    <script type="module" src="js/ui/ProfileUI.js"></script>
+    <script type="module" src="js/ui/RoleUIManager.js"></script>
+    <script type="module" src="js/ui/PetEdit.js"></script>
+    <script type="module" src="js/ui/PetDelete.js"></script>
+    
+    <script type="module" src="js/services/APIS.js"></script>
+    <script type="module" src="js/services/AppointmentDataManager.js"></script>
+    <script type="module" src="js/services/NotificationService.js"></script>
+    <script type="module" src="js/services/supabaseClient.js"></script>
+    
+    <script type="module" src="js/utils/login.js"></script>
+    <script type="module" src="js/utils/registro.js"></script>
 </body>
 </html>

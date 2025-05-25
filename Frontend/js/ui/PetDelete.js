@@ -1,7 +1,7 @@
 // Importar dependencias
-import { PetManager } from './PetManager.js';
+import { PetManager } from '../managers/PetManager.js';
 import { addPetCardEventListeners, renderPetCards } from './PetView.js';
-import { notificationService } from './NotificationService.js';
+import { notificationService } from '../services/NotificationService.js';
 import { ProfileUI } from './ProfileUI.js';
 
 // Inicializar instancia de PetManager

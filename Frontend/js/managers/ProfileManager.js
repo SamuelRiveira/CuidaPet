@@ -1,4 +1,4 @@
-import { API } from './APIS.js';
+import { API } from '../services/APIS.js';
 
 /**
  * Clase encargada de la gestión de datos del perfil de usuario

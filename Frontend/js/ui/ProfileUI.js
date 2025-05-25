@@ -2,9 +2,9 @@
  * Clase encargada de la interfaz de usuario de la página de perfil
  */
 
-import { ProfileManager } from "./ProfileManager.js";
-import { notificationService } from "./NotificationService.js";
-import { API } from "./APIS.js";
+import { ProfileManager } from "../managers/ProfileManager.js";
+import { notificationService } from "../services/NotificationService.js";
+import { API } from "../services/APIS.js";
 
 class ProfileUI {
     constructor(idUsuario = null) {

@@ -774,10 +774,23 @@ export class API{
      * @param {string} userId - ID del usuario
      * @returns {Promise<{success: boolean, data?: Array, error?: any, noSession?: boolean}>} - Lista de mascotas del usuario con URLs de imagen
      */
-    static async obtenerMascotasPorUsuario(userId) {
+    static async obtenerMascotasPorUsuario(userId = null) {
         try {
+
             if (!userId) {
-                throw new Error('Se requiere el ID del usuario');
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                
+                if (sessionError) {
+                    console.warn('Error al verificar sesión:', sessionError);
+                    return { success: false, noSession: true, error: 'Error al verificar la sesión' };
+                }
+                
+                if (!session) {
+                    // No hay sesión activa, retornamos un objeto indicando esto
+                    return { success: false, noSession: true, error: 'No hay una sesión activa' };
+                }
+                
+                userId = session.user.id;
             }
             
             // Verificar sesión activa

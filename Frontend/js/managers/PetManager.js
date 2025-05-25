@@ -1,5 +1,5 @@
 
-import { API } from "./APIS.js";
+import { API } from "../services/APIS.js";
 
 class PetManager {
 

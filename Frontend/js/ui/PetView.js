@@ -1,9 +1,9 @@
-import { PetManager } from "./PetManager.js";
-import { showPage } from "./navigation.js";
+import { PetManager } from "../managers/PetManager.js";
+import { showPage } from "../core/navigation.js";
 import { PetEdit } from "./PetEdit.js";
-import { notificationService } from "./NotificationService.js";
-import { AppointmentManager } from "./AppointmentManager.js";
-import { API } from "./APIS.js";
+import { notificationService } from "../services/NotificationService.js";
+import { AppointmentManager } from "../managers/AppointmentManager.js";
+import { API } from "../services/APIS.js";
 
 // Instanciamos el AppointmentManager
 const appointmentManager = new AppointmentManager();

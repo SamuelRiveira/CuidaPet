@@ -1041,6 +1041,57 @@ export class API{
         const [hours, minutes] = timeString.split(':').map(Number);
         return hours * 60 + minutes;
     }
+
+    /**
+     * Cancela una cita cambiando su estado a 'cancelada'
+     * @param {string} appointmentId - ID de la cita a cancelar
+     * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
+     */
+    static async cancelarCita(appointmentId) {
+        try {
+            // Verificar que el ID de la cita sea válido
+            if (!appointmentId) {
+                throw new Error('ID de cita no proporcionado');
+            }
+
+            // Actualizar el estado de la cita a 'cancelada' en la base de datos
+            const { data, error } = await supabase
+                .from('cita')
+                .update({ 
+                    estado: 'cancelada',
+                    fecha_actualizacion: new Date().toISOString()
+                })
+                .eq('id_cita', appointmentId)
+                .select();
+
+            if (error) {
+                console.error('Error al cancelar la cita:', error);
+                return { 
+                    success: false, 
+                    error: error.message || 'Error al actualizar el estado de la cita' 
+                };
+            }
+
+            if (!data || data.length === 0) {
+                return { 
+                    success: false, 
+                    error: 'No se encontró la cita especificada' 
+                };
+            }
+
+            return { 
+                success: true, 
+                data: data[0] 
+            };
+
+        } catch (error) {
+            console.error('Error en cancelarCita:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error inesperado al cancelar la cita' 
+            };
+        }
+    }
     
     /**
      * Elimina uno o más usuarios de Supabase Auth, la base de datos y sus imágenes de perfil

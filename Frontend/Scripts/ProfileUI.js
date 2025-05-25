@@ -93,9 +93,15 @@ class ProfileUI {
                 userId = this.idUsuario || await this.getCurrentUserId();
             }
             
-            // Si aún no tenemos un ID, mostrar error
+            // Si aún no tenemos un ID, mostrar mensaje de inicio de sesión
             if (!userId) {
-                throw new Error('No se pudo obtener el ID del usuario');
+                if (this.profileContainer) {
+                    this.profileContainer.innerHTML = `
+                        <div class="no-profile-message">
+                            <p>Inicia sesión para ver tu perfil</p>
+                        </div>`;
+                }
+                return;
             }
             
             // Actualizar el ID de usuario si es diferente al actual
@@ -122,7 +128,6 @@ class ProfileUI {
             // Limpiar el contenedor del perfil
             if (this.profileContainer && this.profileData) {
                 this.profileContainer.innerHTML = '';
-                console.log(this.profileData.stats.appointments);
                 
                 // Determinar el título del perfil
                 const profileTitle = isCurrentUser 

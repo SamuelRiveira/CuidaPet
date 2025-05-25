@@ -1617,7 +1617,7 @@ class RoleUIManager {
             const backButton = document.querySelector('#pet-detail-page .back-button');
             if (backButton) {
                 backButton.dataset.page = currentPage.replace('-page', '');
-                backButton.innerHTML = `<span>\u2190</span> Volver a mascotas de ${clientName}`;
+                backButton.innerHTML = `<span>\u2190</span> Volver`;
             }
             
             // Actualizar la información en la página de detalle

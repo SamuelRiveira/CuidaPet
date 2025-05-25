@@ -109,10 +109,25 @@ class ProfileUI {
             const rolResponse = await API.obtenerRolUsuario(this.idUsuario);
             const userRole = rolResponse.success ? rolResponse.role : 'cliente'; // Por defecto a 'cliente' si hay error
             
+            // Obtener el ID del usuario actual
+            const currentUserId = await this.getCurrentUserId();
+            const isCurrentUser = this.idUsuario === currentUserId;
+            
+            // Actualizar el título de la página
+            const pageTitle = document.querySelector('#profile-page h1');
+            if (pageTitle) {
+                pageTitle.textContent = isCurrentUser ? 'Mi Perfil' : `Perfil de ${this.profileData.name}`;
+            }
+            
             // Limpiar el contenedor del perfil
             if (this.profileContainer && this.profileData) {
                 this.profileContainer.innerHTML = '';
                 console.log(this.profileData.stats.appointments);
+                
+                // Determinar el título del perfil
+                const profileTitle = isCurrentUser 
+                    ? 'Mi perfil' 
+                    : `Perfil de ${this.profileData.name}`;
                 
                 // Construir la estructura completa del perfil
                 this.profileContainer.innerHTML = `

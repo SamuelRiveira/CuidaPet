@@ -385,6 +385,36 @@ class AppointmentUI {
                 return;
             }
             
+            // Validar que la fecha no sea anterior a la actual
+            const selectedDate = new Date(date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Establecer a inicio del día actual
+            
+            if (selectedDate < today) {
+                this.showFormError('No se puede seleccionar una fecha anterior al día actual');
+                return;
+            }
+            
+            // Si la fecha seleccionada es hoy, validar que la hora sea futura
+            const isToday = selectedDate.getDate() === today.getDate() &&
+                          selectedDate.getMonth() === today.getMonth() &&
+                          selectedDate.getFullYear() === today.getFullYear();
+            
+            if (isToday) {
+                const now = new Date();
+                const [hours, minutes] = time.split(':').map(Number);
+                
+                // Crear un objeto Date con la hora seleccionada
+                const selectedDateTime = new Date(selectedDate);
+                selectedDateTime.setHours(hours, minutes, 0, 0);
+                
+                // Verificar si la hora seleccionada es anterior a la hora actual
+                if (selectedDateTime <= now) {
+                    this.showFormError('La hora seleccionada debe ser posterior a la hora actual');
+                    return;
+                }
+            }
+            
             // Verificar si existe un mensaje de advertencia de horario ocupado
             const timeWarning = document.getElementById('time-warning');
             if (timeWarning) {

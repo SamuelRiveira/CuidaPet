@@ -59,8 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const petType = document.getElementById('pet-type').value;
             const petBreed = document.getElementById('pet-breed').value;
             const petWeight = parseFloat(document.getElementById('pet-weight').value) || null;
-            const petAge = document.getElementById('pet-age').value || null;
-            const petAgeUnit = document.getElementById('pet-age-unit').value;
+            const petAge = parseInt(document.getElementById('pet-age').value) || null;
             const petNotes = document.getElementById('pet-notes').value;
             const petImage = document.getElementById('pet-photo').files[0] || null;
 
@@ -70,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 breed: petBreed,
                 weight: petWeight,
                 age: petAge,
-                ageUnit: petAgeUnit,
+                ageUnit: 'años', // Siempre será años
                 notas_especiales: petNotes || null,
                 imagen: petImage
             };

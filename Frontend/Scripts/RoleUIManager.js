@@ -8,6 +8,7 @@ import { API } from "./APIS.js";
 import { PetManager } from "./PetManager.js";
 import { PetEdit } from "./PetEdit.js";
 import { notificationService } from "./NotificationService.js";
+import { AppointmentDataManager } from "./AppointmentDataManager.js";
 
 // La función abrir está disponible globalmente desde openLogin.js
 class RoleUIManager {
@@ -938,9 +939,24 @@ class RoleUIManager {
             appointmentsGrid.innerHTML = '';
 
             // Crear las tarjetas de citas
-            appointments.forEach(appointment => {
-                const appointmentCard = this.createAppointmentCard(appointment);
-                appointmentsGrid.appendChild(appointmentCard);
+            const cardPromises = appointments.map(async appointment => {
+                try {
+                    const card = await this.createAppointmentCard(appointment);
+                    return card;
+                } catch (error) {
+                    console.error('Error creando tarjeta de cita:', error);
+                    return null;
+                }
+            });
+
+            // Esperar a que todas las tarjetas se creen
+            const cards = await Promise.all(cardPromises);
+            
+            // Añadir solo las tarjetas que se crearon correctamente
+            cards.forEach(card => {
+                if (card) {
+                    appointmentsGrid.appendChild(card);
+                }
             });
 
             // Aplicar estilo de grid al contenedor
@@ -959,14 +975,37 @@ class RoleUIManager {
     /**
      * Crea una tarjeta de cita con el formato especificado
      * @param {Object} appointment - Datos de la cita
-     * @returns {HTMLElement} - Elemento de la tarjeta de cita
+     * @returns {Promise<HTMLElement>} - Promesa que resuelve al elemento de la tarjeta de cita
      */
-    createAppointmentCard(appointment) {
+    async createAppointmentCard(appointment) {
         const appointmentDate = appointment.date;
         const day = appointmentDate.getDate();
         const month = AppointmentDataManager.getMonthName(appointmentDate.getMonth());
         const time = AppointmentDataManager.formatTime(appointmentDate);
-        const statusLabel = AppointmentDataManager.getStatusLabel(appointment.status);
+        
+        // Obtener datos de servicio y mascota en paralelo
+        const [servicioResponse, mascotaResponse] = await Promise.all([
+            API.obtenerServicioPorId(appointment.id_servicio),
+            API.obtenerMascotaPorId(appointment.id_mascota)
+        ]);
+        
+        const servicio = servicioResponse.success ? servicioResponse.data : null;
+        const mascota = mascotaResponse.success ? mascotaResponse.data : null;
+        
+        // Determinar el estado basado en is_canceled y fecha/hora
+        let status;
+        if (appointment.is_canceled) {
+            status = 'cancelled';
+        } else {
+            const now = new Date();
+            if (appointmentDate < now) {
+                status = 'expired';
+            } else {
+                status = 'pending';
+            }
+        }
+        
+        const statusLabel = AppointmentDataManager.getStatusLabel(status);
 
         // Crear el elemento de la tarjeta
         const cardElement = document.createElement('div');
@@ -999,10 +1038,13 @@ class RoleUIManager {
             </div>
             <div class="appointment-content">
                 <div class="pet-info-brief">
-                    <img src="${appointment.pet.imageUrl}" alt="${appointment.pet.name}" class="pet-thumbnail">
+                    <img src="${mascota?.imagen || 'imagenes/default-pet.png'}" 
+                         alt="${mascota?.nombre || 'Mascota'}" 
+                         class="pet-thumbnail"
+                         onerror="this.src='imagenes/default-pet.png'">
                     <div class="pet-details">
-                        <h4>${appointment.pet.name}</h4>
-                        <p>${appointment.pet.type} - ${appointment.pet.breed}</p>
+                        <h4>${mascota?.nombre || 'Mascota no encontrada'}</h4>
+                        ${mascota ? `<p>${mascota.tipo || ''} ${mascota.raza ? `- ${mascota.raza}` : ''}</p>` : ''}
                     </div>
                 </div>
                 <div class="appointment-service">
@@ -1015,7 +1057,7 @@ class RoleUIManager {
                             <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5"></path>
                         </svg>
                     </div>
-                    <span class="service-name">${appointment.service.name}</span>
+                    <span class="service-name">${servicio?.nombre_servicio || 'Servicio no disponible'}</span>
                 </div>
                 <div class="appointment-owner">
                     <div class="owner-icon">
@@ -1024,7 +1066,7 @@ class RoleUIManager {
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <span class="owner-name">${appointment.owner.name}</span>
+                    <span class="owner-name">${'TODO: nombre del propietario'}</span>
                 </div>
                 <div class="appointment-vet">
                     <div class="vet-icon">
@@ -1032,7 +1074,7 @@ class RoleUIManager {
                             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.908.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
                         </svg>
                     </div>
-                    <span class="vet-name">${appointment.owner.phone}</span>
+                    <span class="vet-name">${'TODO: nombre del veterinario'}</span>
                 </div>
                 <div class="appointment-status">
                     <span class="status-badge ${statusLabel.class}">${statusLabel.text}</span>
@@ -1055,41 +1097,32 @@ class RoleUIManager {
         const editButton = cardElement.querySelector('.btn-edit');
         if (editButton) {
             // Solo mostrar el botón de edición para empleados
-            if (this.userStatus.userRole === 'empleado' || this.userStatus.userRole === 'admin') {
+            if (this.userStatus.userRole === 'empleado') {
                 editButton.style.display = 'flex';
                 
-                // Agregar evento para cambiar estado de forma cíclica
+                // Agregar evento para cancelar la cita
                 editButton.addEventListener('click', (e) => {
                     e.stopPropagation();
                     
                     try {
-                        // Obtener el estado actual de la cita
-                        const currentStatus = appointment.status;
-                        
-                        // Cambiar al siguiente estado en el ciclo
-                        let newStatus;
-                        switch (currentStatus) {
-                            case 'pending':
-                                newStatus = 'completed';
-                                break;
-                            case 'completed':
-                                newStatus = 'cancelled';
-                                break;
-                            case 'cancelled':
-                            default:
-                                newStatus = 'pending';
-                                break;
+                        // Verificar si la cita ya está cancelada
+                        if (appointment.is_canceled) {
+                            notificationService.showWarning('Esta cita ya está cancelada');
+                            return;
                         }
                         
+                        // Llamar a la función cancelarCita con el ID de la cita
+                        API.cancelarCita(appointment.id);
+                        
                         // Actualizar el estado en el objeto de la cita
-                        appointment.status = newStatus;
+                        appointment.is_canceled = true;
                         
                         // Actualizar la UI para reflejar el cambio
                         // Eliminar clases de estado anteriores
-                        cardElement.classList.remove('status-pending', 'status-completed', 'status-cancelled');
+                        cardElement.classList.remove('status-pending', 'status-completed', 'status-cancelled', 'status-expired');
                         
-                        // Obtener la nueva etiqueta y añadir la clase correspondiente
-                        const statusLabel = AppointmentDataManager.getStatusLabel(newStatus);
+                        // Obtener la nueva etiqueta y añadir la clase correspondiente para estado cancelado
+                        const statusLabel = AppointmentDataManager.getStatusLabel('cancelled');
                         cardElement.classList.add(statusLabel.class);
                         
                         // Actualizar el texto del estado
@@ -1099,11 +1132,12 @@ class RoleUIManager {
                             statusBadge.className = `status-badge ${statusLabel.class}`;
                         }
                         
-                        // En una implementación real, aquí enviaríamos el cambio a la API
-                        // const appointmentManager = new AppointmentDataManager();
-                        // appointmentManager.updateAppointmentStatus(appointment.id, newStatus);
+                        // Mostrar notificación de éxito
+                        notificationService.showSuccess('Cita cancelada exitosamente');
+                        
                     } catch (error) {
-                        console.error('Error al actualizar el estado de la cita:', error);
+                        console.error('Error al cancelar la cita:', error);
+                        notificationService.showError('Error al cancelar la cita');
                     }
                 });
             } else {

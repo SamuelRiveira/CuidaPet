@@ -1058,7 +1058,7 @@ export class API{
             const { data, error } = await supabase
                 .from('cita')
                 .update({ 
-                    is_canceled: TRUE,
+                    is_canceled: true,
                 })
                 .eq('id_cita', appointmentId)
                 .select();

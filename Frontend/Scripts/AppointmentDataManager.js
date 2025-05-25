@@ -2,6 +2,9 @@
  * Clase encargada de gestionar los datos de citas
  * Proporciona métodos para obtener, filtrar y gestionar citas
  */
+
+import { API } from "./APIS.js";
+
 class AppointmentDataManager {
     /**
      * Constructor de la clase
@@ -16,11 +19,30 @@ class AppointmentDataManager {
      * @returns {Promise<Array>} - Promesa que resuelve a un array de citas
      */
     async getAppointments(filters = {}) {
-        // Por ahora, devolvemos datos simulados
-        // TODO: Implementar llamada a API
-        return new Promise((resolve) => {
-            resolve(this.getMockAppointments(filters));
-        });
+        try {
+            const { success, data: citas, error } = await API.obtenerTodasLasCitas();
+            
+            if (!success) {
+                console.error('Error al obtener las citas:', error);
+                return [];
+            }
+            
+            // Mapear los datos de la API al formato esperado por la aplicación
+            const formattedAppointments = citas.map(cita => ({
+                id: cita.id_cita,
+                date: new Date(`${cita.fecha}T${cita.hora_inicio}`),
+                is_canceled: cita.is_canceled,
+                id_mascota: cita.id_mascota,
+                id_servicio: cita.id_servicio
+            }));
+            
+            // Devolver las citas formateadas
+            return formattedAppointments;
+            
+        } catch (error) {
+            console.error('Error en getAppointments:', error);
+            return [];
+        }
     }
 
     /**
@@ -242,8 +264,8 @@ class AppointmentDataManager {
         switch (status) {
             case 'pending':
                 return { class: 'status-pending', text: 'Pendiente' };
-            case 'completed':
-                return { class: 'status-completed', text: 'Completada' };
+            case 'expired':
+                return { class: 'status-expired', text: 'Expirada' };
             case 'cancelled':
                 return { class: 'status-cancelled', text: 'Cancelada' };
             default:
@@ -271,9 +293,9 @@ class AppointmentDataManager {
         // Actualizar el estado siguiendo el ciclo: pendiente -> completada -> cancelada -> pendiente
         switch (appointment.status) {
             case 'pending':
-                appointment.status = 'completed';
+                appointment.status = 'expired';
                 break;
-            case 'completed':
+            case 'expired':
                 appointment.status = 'cancelled';
                 break;
             case 'cancelled':
@@ -297,8 +319,8 @@ class AppointmentDataManager {
     static cycleAppointmentStatus(currentStatus) {
         switch (currentStatus) {
             case 'pending':
-                return 'completed';
-            case 'completed':
+                return 'expired';
+            case 'expired':
                 return 'cancelled';
             case 'cancelled':
             default:
@@ -306,3 +328,5 @@ class AppointmentDataManager {
         }
     }
 }
+
+export { AppointmentDataManager };

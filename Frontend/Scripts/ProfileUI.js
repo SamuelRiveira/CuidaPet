@@ -6,7 +6,8 @@ import { ProfileManager } from "./ProfileManager.js";
 import { notificationService } from "./NotificationService.js";
 
 class ProfileUI {
-    constructor() {
+    constructor(idUsuario = null) {
+        this.idUsuario = idUsuario;
         this.profileContainer = document.querySelector('.profile-container');
         this.profileData = null;
         this.isEditing = false;
@@ -21,7 +22,7 @@ class ProfileUI {
      * Inicializa la interfaz del perfil
      */
     init() {
-        this.loadProfileData();
+        this.loadProfileData(this.idUsuario);
         this.setupEventListeners();
     }
 
@@ -73,7 +74,10 @@ class ProfileUI {
         const confirmButton = document.getElementById('confirm-profile-update-btn');
         if (confirmButton) {
             confirmButton.addEventListener('click', () => {
-                this.updateProfile();
+                // Usar el idUsuario de la instancia actual
+                const userIdToUpdate = this.idUsuario || (this.profileData && this.profileData.userId);
+                console.log('Updating profile for user ID:', userIdToUpdate);
+                this.updateProfile(userIdToUpdate);
             });
         }
     }
@@ -83,6 +87,7 @@ class ProfileUI {
      */
     async loadProfileData(userId = null) {
         try {
+            console.log("userId", userId);
             // Obtener datos del perfil desde ProfileManager
             this.profileData = await ProfileManager.getUserProfile(userId);
             
@@ -345,85 +350,103 @@ class ProfileUI {
     /**
      * Actualiza el perfil del usuario con los datos del formulario
      */
-    updateProfile() {
-        // Obtener los valores actualizados usando IDs únicos
-        const nameInput = this.profileContainer.querySelector('#profile-name-input');
-        const surnamesInput = this.profileContainer.querySelector('#profile-surnames-input');
-        const addressInput = this.profileContainer.querySelector('#profile-address-input');
-        
-        // Validar que los campos requeridos tengan valor
-        if (!nameInput || !surnamesInput || !addressInput) {
-            console.error('No se encontraron todos los campos del formulario');
-            alert('Error: No se pudieron obtener los datos del formulario');
-            return;
-        }
-        
-        const updatedProfileData = {
-            personalInfo: {
-                name: nameInput.value.trim(),
-                surnames: surnamesInput.value.trim(),
-                address: addressInput.value.trim()
-            },
-            // Incluir la nueva foto si se ha cambiado
-            photo: this.newPhotoUrl || this.profileData.photo,
-            photoFile: this.newPhotoFile
-        };
-        
-        // Validar datos requeridos
-        if (!updatedProfileData.personalInfo.name) {
-            alert('Por favor ingresa tu nombre');
-            nameInput.focus();
-            return;
-        }
-        
-        // Actualizar los datos en el servidor (simulado)
-        const success = ProfileManager.updateUserProfile(updatedProfileData);
-        
-        if (success) {
-            // Actualizar los datos locales
-            this.profileData.personalInfo = updatedProfileData.personalInfo;
-            this.profileData.name = `${updatedProfileData.personalInfo.name} ${updatedProfileData.personalInfo.surnames}`.trim();
+    async updateProfile(idUsuario = null) {
+        try {
+            // Obtener los valores actualizados usando IDs únicos
+            const nameInput = this.profileContainer.querySelector('#profile-name-input');
+            const surnamesInput = this.profileContainer.querySelector('#profile-surnames-input');
+            const addressInput = this.profileContainer.querySelector('#profile-address-input');
             
-            // Actualizar la foto si se ha cambiado
-            if (this.newPhotoUrl) {
-                this.profileData.photo = this.newPhotoUrl;
+            // Validar que los campos requeridos tengan valor
+            if (!nameInput || !surnamesInput || !addressInput) {
+                console.error('No se encontraron todos los campos del formulario');
+                alert('Error: No se pudieron obtener los datos del formulario');
+                return false;
             }
             
-            // Limpiar variables temporales
-            this.newPhotoFile = null;
-            this.newPhotoUrl = null;
+            const updatedProfileData = {
+                personalInfo: {
+                    name: nameInput.value.trim(),
+                    surnames: surnamesInput.value.trim(),
+                    address: addressInput.value.trim()
+                },
+                // Incluir la nueva foto si se ha cambiado
+                photo: this.newPhotoUrl || this.profileData.photo,
+                photoFile: this.newPhotoFile
+            };
             
-            // Salir del modo edición
-            this.isEditing = false;
-            
-            // Ocultar modal
-            const modal = document.getElementById('profile-update-modal');
-            if (modal) {
-                modal.style.display = 'none';
+            // Validar datos requeridos
+            if (!updatedProfileData.personalInfo.name) {
+                alert('Por favor ingresa tu nombre');
+                nameInput.focus();
+                return false;
             }
             
-            // Mostrar mensaje de éxito con notificación
-            notificationService.showSuccess('Perfil actualizado correctamente');
-
-            // Recargar la interfaz
-            setTimeout(() => {
-                this.loadProfileData();
-            }, 1150);
-        } else {
-            // Mostrar mensaje de error
-            notificationService.showError('Error al actualizar el perfil');
+            console.log('Actualizando perfil para el usuario ID:', idUsuario);
+            
+            // Actualizar los datos en el servidor
+            const success = await ProfileManager.updateUserProfile(updatedProfileData, idUsuario);
+            
+            if (success) {
+                // Actualizar los datos locales
+                this.profileData.personalInfo = updatedProfileData.personalInfo;
+                this.profileData.name = `${updatedProfileData.personalInfo.name} ${updatedProfileData.personalInfo.surnames}`.trim();
+                
+                // Actualizar la foto si se ha cambiado
+                if (this.newPhotoUrl) {
+                    this.profileData.photo = this.newPhotoUrl;
+                }
+                
+                // Limpiar variables temporales
+                this.newPhotoFile = null;
+                this.newPhotoUrl = null;
+                
+                // Salir del modo edición
+                this.isEditing = false;
+                
+                // Ocultar modal
+                const modal = document.getElementById('profile-update-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+                
+                // Mostrar notificación de éxito
+                this.showSuccessNotification('Perfil actualizado correctamente');
+                
+                // Mostrar el modal de éxito
+                this.showSuccessModal();
+                
+                // Recargar los datos del perfil para asegurar que todo esté actualizado
+                this.loadProfileData(idUsuario || this.idUsuario);
+                
+                return true;
+            } else {
+                throw new Error('No se pudo actualizar el perfil');
+            }
+        } catch (error) {
+            console.error('Error al actualizar el perfil:', error);
+            alert(`Error al actualizar el perfil: ${error.message || 'Error desconocido'}`);
+            return false;
         }
-    }
-
-    /**
-     * Muestra una notificación de éxito
-     * @param {string} message - Mensaje a mostrar en la notificación
-     * @deprecated Use notificationService.showSuccess() instead
-     */
-    showSuccessNotification(message) {
-        notificationService.showSuccess(message);
     }
     
+    /**
+     * Muestra un modal confirmando que el perfil se actualizó correctamente
+     */
+    /**
+     * Muestra una notificación de éxito
+     * @param {string} message - Mensaje a mostrar
+     */
+    showSuccessNotification(message) {
+        // Usar el servicio de notificaciones si está disponible
+        if (window.notificationService && typeof window.notificationService.showSuccess === 'function') {
+            window.notificationService.showSuccess(message);
+        } else {
+            // Fallback a un alert estándar si el servicio no está disponible
+            alert(message);
+        }
+    }
+
     /**
      * Muestra un modal confirmando que el perfil se actualizó correctamente
      */
@@ -444,8 +467,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Solo inicializar si estamos en la página de perfil
     const profilePage = document.getElementById('profile-page');
     if (profilePage) {
+        // Intentar obtener el ID de usuario de los parámetros de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+        
         // Almacenar la instancia en window para acceso global
-        window.profileUI = new ProfileUI();
+        window.profileUI = new ProfileUI(userId);
     }
 });
 

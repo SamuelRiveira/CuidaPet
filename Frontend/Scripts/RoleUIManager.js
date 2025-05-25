@@ -1079,6 +1079,21 @@ class RoleUIManager {
             } else {
                 targetNavLink = document.querySelector(`[data-page="${pageId}"]`);
             }
+            
+            // Asegurarse de que el ProfileUI se inicialice con el ID de usuario correcto
+            const profilePage = document.getElementById('profile-page');
+            if (profilePage) {
+                // Si ya existe una instancia, actualizamos el ID de usuario
+                if (window.profileUI) {
+                    window.profileUI.idUsuario = userId;
+                    await window.profileUI.loadProfileData(userId);
+                } else {
+                    // Si no existe, creamos una nueva instancia con el ID de usuario
+                    import('./ProfileUI.js').then(({ ProfileUI }) => {
+                        window.profileUI = new ProfileUI(userId);
+                    });
+                }
+            }
         } else {
             targetNavLink = document.querySelector(`[data-page="${pageId}"]`);
         }
@@ -1337,27 +1352,6 @@ class RoleUIManager {
         // Inicializar la funcionalidad de edición después de cargar los detalles
         const petEdit = new PetEdit(petId);
         petEdit.initEditButton();
-    }
-    
-    /**
-     * Formatea el género de la mascota para mostrarlo correctamente
-     * @param {string} gender - Género de la mascota
-     * @returns {string} - Género formateado
-     * @private
-     */
-    static formatGender(gender) {
-        if (!gender) return 'No especificado';
-        
-        const genderMap = {
-            'male': 'Macho',
-            'female': 'Hembra',
-            'macho': 'Macho',
-            'hembra': 'Hembra',
-            'otro': 'Otro',
-            'other': 'Otro'
-        };
-        
-        return genderMap[gender.toLowerCase()] || gender;
     }
 }
 

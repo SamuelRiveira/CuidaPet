@@ -9,6 +9,7 @@ class ProfileManager {
      * @returns {Promise<Object>} Datos del perfil
      */
     static async getUserProfile(userId) {
+        console.log("userId", userId);
         try {
             const profileResponse = await API.obtenerPerfilUsuarioId(userId);
             
@@ -100,8 +101,9 @@ class ProfileManager {
      * @param {Object} profileData - Datos actualizados del perfil
      * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
      */
-    static async updateUserProfile(profileData) {
+    static async updateUserProfile(profileData, idUsuario = null) {
         try {
+            console.log(idUsuario);
             // Preparar los datos para la API
             const datosActualizacion = {
                 nombre: profileData.personalInfo.name,
@@ -116,7 +118,7 @@ class ProfileManager {
             }
             
             // Llamar al método de la API para actualizar el perfil
-            const resultado = await API.actualizarPerfilUsuario(datosActualizacion);
+            const resultado = await API.actualizarPerfilUsuario(datosActualizacion, idUsuario);
             
             if (!resultado.success) {
                 throw resultado.error || new Error('Error al actualizar el perfil');

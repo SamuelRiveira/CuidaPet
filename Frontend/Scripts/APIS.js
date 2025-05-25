@@ -123,6 +123,7 @@ export class API{
      * @returns {Promise<{success: boolean, data?: {nombre: string, apellidos: string, direccion: string, imagen: string}, error?: any}>} - Perfil del usuario
      */
     static async obtenerPerfilUsuarioId(userId = null) {
+        console.log("userId", userId);
         try {
             if (!userId) {
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -439,17 +440,19 @@ export class API{
      * @param {File} [datosUsuario.imagenFile] - Archivo de imagen para subir (opcional)
      * @returns {Promise<{success: boolean, data?: any, error?: any}>} - Resultado de la operación
      */
-    static async actualizarPerfilUsuario(datosUsuario) {
+    static async actualizarPerfilUsuario(datosUsuario, idUsuario = null) {
         try {
-            // Obtener la sesión actual
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-            
-            if (sessionError) throw sessionError;
-            if (!session) {
-                throw new Error('No hay una sesión activa');
+
+            console.log(idUsuario);
+
+            if (idUsuario === null) {
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError) throw sessionError;
+                if (!session) {
+                    throw new Error('No hay una sesión activa');
+                }
+                idUsuario = session.user.id;
             }
-            
-            const userId = session.user.id;
             
             // Preparar datos para actualizar
             const updateData = {
@@ -461,7 +464,7 @@ export class API{
             // Si hay un archivo de imagen nuevo, subirlo a Storage
             if (datosUsuario.imagenFile) {
                 // Generar un nombre único para el archivo
-                const fileName = userId;
+                const fileName = idUsuario;
                 
                 // Subir el archivo a Supabase Storage
                 const { data: uploadData, error: uploadError } = await supabase.storage
@@ -495,7 +498,7 @@ export class API{
             const { data: updateResult, error: updateError } = await supabase
                 .from('usuario')
                 .update(updateData)
-                .eq('id_usuario', userId);
+                .eq('id_usuario', idUsuario);
             
             if (updateError) throw updateError;
             

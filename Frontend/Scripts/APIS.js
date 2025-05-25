@@ -9,22 +9,21 @@ export class API{
      */
     static async registrarUsuario(email, password, idRol = 1) {
         try {
-            // Registrar usuario con Supabase Auth sin iniciar sesión automáticamente
+            // Guardar la sesión actual
+            const { data: currentSession } = await supabase.auth.getSession();
+            
+            // Registrar nuevo usuario
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
-                    emailRedirectTo: window.location.origin + '/Frontend/index.html',
-                    data: {
-                        // No guardar la sesión en el almacenamiento local
-                        skipSession: true
-                    }
+                    emailRedirectTo: window.location.origin + '/Frontend/index.html'
                 }
             });
             
             if (authError) throw authError;
             
-            // Crear un registro en la tabla usuario con el id del usuario autenticado
+            // Crear registro en la tabla usuario
             const { data: userData, error: userError } = await supabase
                 .from('usuario')
                 .insert([
@@ -35,6 +34,13 @@ export class API{
                 ]);
                 
             if (userError) throw userError;
+            
+            // Restaurar la sesión original si existía
+            if (currentSession?.session) {
+                await supabase.auth.setSession(currentSession.session);
+            } else {
+                await supabase.auth.signOut();
+            }
             
             return { success: true, data: { auth: authData, user: userData } };
             

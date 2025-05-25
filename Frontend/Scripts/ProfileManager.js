@@ -9,7 +9,6 @@ class ProfileManager {
      * @returns {Promise<Object>} Datos del perfil
      */
     static async getUserProfile(userId) {
-        console.log("userId", userId);
         try {
             const profileResponse = await API.obtenerPerfilUsuarioId(userId);
             
@@ -103,7 +102,6 @@ class ProfileManager {
      */
     static async updateUserProfile(profileData, idUsuario = null) {
         try {
-            console.log(idUsuario);
             // Preparar los datos para la API
             const datosActualizacion = {
                 nombre: profileData.personalInfo.name,

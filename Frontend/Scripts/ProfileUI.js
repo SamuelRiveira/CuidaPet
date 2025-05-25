@@ -75,8 +75,7 @@ class ProfileUI {
         if (confirmButton) {
             confirmButton.addEventListener('click', () => {
                 // Usar el idUsuario de la instancia actual
-                const userIdToUpdate = this.idUsuario || (this.profileData && this.profileData.userId);
-                console.log('Updating profile for user ID:', userIdToUpdate);
+                const userIdToUpdate = this.idUsuario || (this.profileData && this.profileData.userId)
                 this.updateProfile(userIdToUpdate);
             });
         }
@@ -84,10 +83,24 @@ class ProfileUI {
 
     /**
      * Carga los datos del perfil y construye el HTML dinámicamente
+     * @param {string|null} userId - ID del usuario a cargar (opcional, si no se proporciona usa el ID actual)
      */
     async loadProfileData(userId = null) {
         try {
-            console.log("userId", userId);
+            // Si no se proporcionó un ID, intentar obtener el ID del usuario actual
+            if (!userId) {
+                userId = this.idUsuario || await this.getCurrentUserId();
+            }
+            
+            // Si aún no tenemos un ID, mostrar error
+            if (!userId) {
+                throw new Error('No se pudo obtener el ID del usuario');
+            }
+            
+            // Actualizar el ID de usuario si es diferente al actual
+            if (this.idUsuario !== userId) {
+                this.idUsuario = userId;
+            }
             // Obtener datos del perfil desde ProfileManager
             this.profileData = await ProfileManager.getUserProfile(userId);
             
@@ -382,8 +395,6 @@ class ProfileUI {
                 return false;
             }
             
-            console.log('Actualizando perfil para el usuario ID:', idUsuario);
-            
             // Actualizar los datos en el servidor
             const success = await ProfileManager.updateUserProfile(updatedProfileData, idUsuario);
             
@@ -411,10 +422,7 @@ class ProfileUI {
                 }
                 
                 // Mostrar notificación de éxito
-                this.showSuccessNotification('Perfil actualizado correctamente');
-                
-                // Mostrar el modal de éxito
-                this.showSuccessModal();
+                notificationService.showSuccess('Perfil actualizado correctamente');
                 
                 // Recargar los datos del perfil para asegurar que todo esté actualizado
                 this.loadProfileData(idUsuario || this.idUsuario);
@@ -429,35 +437,34 @@ class ProfileUI {
             return false;
         }
     }
-    
     /**
-     * Muestra un modal confirmando que el perfil se actualizó correctamente
+     * Obtiene el ID del usuario actual desde el token de autenticación
+     * @returns {Promise<string|null>} ID del usuario o null si no se pudo obtener
      */
-    /**
-     * Muestra una notificación de éxito
-     * @param {string} message - Mensaje a mostrar
-     */
-    showSuccessNotification(message) {
-        // Usar el servicio de notificaciones si está disponible
-        if (window.notificationService && typeof window.notificationService.showSuccess === 'function') {
-            window.notificationService.showSuccess(message);
-        } else {
-            // Fallback a un alert estándar si el servicio no está disponible
-            alert(message);
-        }
-    }
-
-    /**
-     * Muestra un modal confirmando que el perfil se actualizó correctamente
-     */
-    showSuccessModal() {
-        const modal = document.getElementById('profile-success-modal');
-        if (modal) {
-            modal.style.display = 'block';
-            // Cerrar automáticamente después de 3 segundos
-            setTimeout(() => {
-                this.closeModal('profile-success-modal');
-            }, 3000);
+    async getCurrentUserId() {
+        try {
+            // Intentar obtener el ID del token almacenado primero
+            const storedToken = localStorage.getItem('sb-kmypwriazdbxpwdxfhaf-auth-token');
+            if (storedToken) {
+                try {
+                    const parsedToken = JSON.parse(storedToken);
+                    if (parsedToken.user?.id) {
+                        return parsedToken.user.id;
+                    }
+                } catch (error) {
+                    console.error('Error al analizar el token de autenticación:', error);
+                }
+            }
+            
+            // Si no se pudo obtener del token, intentar con la API
+            const response = await API.obtenerPerfilUsuario();
+            if (response.success && response.data) {
+                return response.data.id_usuario;
+            }
+            return null;
+        } catch (error) {
+            console.error('Error al obtener el ID del usuario:', error);
+            return null;
         }
     }
 }
@@ -467,21 +474,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Solo inicializar si estamos en la página de perfil
     const profilePage = document.getElementById('profile-page');
     if (profilePage) {
-        // Intentar obtener el ID de usuario de los parámetros de la URL
         const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('userId');
-        
-        // Almacenar la instancia en window para acceso global
-        window.profileUI = new ProfileUI(userId);
+        const idUsuario = urlParams.get('id');
+        window.profileUI = new ProfileUI(idUsuario);
     }
 });
 
 // Método estático para cargar los datos del perfil desde cualquier parte de la aplicación
-ProfileUI.loadProfileData = async function() {
-    if (window.profileUI && typeof window.profileUI.loadProfileData === 'function') {
-        return window.profileUI.loadProfileData();
+ProfileUI.loadProfileData = async function(userId = null) {
+    if (window.profileUI) {
+        return window.profileUI.loadProfileData(userId);
     }
-    return null;
+    window.profileUI = new ProfileUI(userId);
+    return window.profileUI.loadProfileData(userId);
 };
 
 export { ProfileUI };

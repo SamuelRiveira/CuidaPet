@@ -123,7 +123,6 @@ export class API{
      * @returns {Promise<{success: boolean, data?: {nombre: string, apellidos: string, direccion: string, imagen: string}, error?: any}>} - Perfil del usuario
      */
     static async obtenerPerfilUsuarioId(userId = null) {
-        console.log("userId", userId);
         try {
             if (!userId) {
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -442,8 +441,6 @@ export class API{
      */
     static async actualizarPerfilUsuario(datosUsuario, idUsuario = null) {
         try {
-
-            console.log(idUsuario);
 
             if (idUsuario === null) {
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();

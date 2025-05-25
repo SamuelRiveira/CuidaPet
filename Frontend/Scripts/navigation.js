@@ -28,6 +28,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const targetPage = this.getAttribute('data-page');
             showPage(targetPage);
+
+            // Si es el enlace de perfil, recargar los datos del perfil
+            if (targetPage === 'profile') {
+                // Obtener el ID del usuario actual del localStorage
+                const storedToken = localStorage.getItem('sb-kmypwriazdbxpwdxfhaf-auth-token');
+                let userId = null;
+                
+                if (storedToken) {
+                    try {
+                        const parsedToken = JSON.parse(storedToken);
+                        userId = parsedToken.user?.id || null;
+                    } catch (error) {
+                        console.error('Error al analizar el token de autenticación:', error);
+                    }
+                }
+                
+                // Verificar si ya existe una instancia de ProfileUI
+                if (window.profileUI) {
+                    window.profileUI.loadProfileData(userId);
+                }
+            }
         });
     });
 

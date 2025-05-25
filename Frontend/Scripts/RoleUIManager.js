@@ -1227,6 +1227,11 @@ class RoleUIManager {
                     } catch (error) {
                         console.error('Error al cancelar la cita:', error);
                         notificationService.showError(error.message || 'Error al cancelar la cita');
+                    } finally {
+                        // Cerrar el indicador de carga si existe
+                        if (loadingId) {
+                            notificationService.close(loadingId);
+                        }
                     }
                 });
             } else {

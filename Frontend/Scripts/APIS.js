@@ -1032,6 +1032,42 @@ export class API{
     }
     
     /**
+     * Obtiene el ID de usuario asociado a una mascota
+     * @param {string} mascotaId - ID de la mascota
+     * @returns {Promise<{success: boolean, data?: {id_usuario: string}, error?: any}>} - ID del usuario o error
+     */
+    static async obtenerUsuarioIdPorMascotaId(mascotaId) {
+        try {
+            if (!mascotaId) {
+                throw new Error('ID de mascota no proporcionado');
+            }
+
+            const { data, error } = await supabase
+                .from('mascota')
+                .select('id_usuario')
+                .eq('id_mascota', mascotaId)
+                .single();
+
+            if (error) throw error;
+            if (!data) {
+                throw new Error('No se encontró la mascota especificada');
+            }
+
+            return { 
+                success: true, 
+                data: { id_usuario: data.id_usuario } 
+            };
+
+        } catch (error) {
+            console.error('Error al obtener el ID de usuario por ID de mascota:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Error al obtener el ID de usuario' 
+            };
+        }
+    }
+
+    /**
      * Convierte una hora en formato HH:MM a minutos desde la medianoche
      * @param {string} timeString - Hora en formato HH:MM
      * @returns {number} Minutos desde la medianoche

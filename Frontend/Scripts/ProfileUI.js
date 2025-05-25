@@ -81,10 +81,10 @@ class ProfileUI {
     /**
      * Carga los datos del perfil y construye el HTML dinámicamente
      */
-    async loadProfileData() {
+    async loadProfileData(userId = null) {
         try {
             // Obtener datos del perfil desde ProfileManager
-            this.profileData = await ProfileManager.getUserProfile();
+            this.profileData = await ProfileManager.getUserProfile(userId);
             
             // Limpiar el contenedor del perfil
             if (this.profileContainer && this.profileData) {

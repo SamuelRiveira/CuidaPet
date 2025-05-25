@@ -471,11 +471,23 @@ class RoleUIManager {
         // Event listener para botones "Ver Perfil"
         const viewProfileButtons = document.querySelectorAll('.view-profile-btn');
         viewProfileButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Aquí iría el código para mostrar el perfil del usuario
-                // Por ejemplo:
-                alert('Ver perfil del usuario: ' + this.dataset.userId);
-                // Implementar la funcionalidad de ver perfil
+            button.addEventListener('click', async function() {
+                const userId = this.dataset.userId;
+                try {
+                    // Navegar a la página de perfil
+                    RoleUIManager.navigateToPage('profile');
+                    
+                    // Cargar los datos del perfil usando el método estático de ProfileUI
+                    if (window.profileUI && typeof window.profileUI.loadProfileData === 'function') {
+                        await window.profileUI.loadProfileData(userId);
+                    } else {
+                        console.error('No se pudo cargar el perfil: ProfileUI no está inicializado');
+                        alert('No se pudo cargar el perfil del usuario');
+                    }
+                } catch (error) {
+                    console.error('Error al cargar el perfil:', error);
+                    alert('Ocurrió un error al cargar el perfil');
+                }
             });
         });
     }

@@ -8,9 +8,9 @@ class ProfileManager {
      * Obtiene los datos del perfil de usuario
      * @returns {Promise<Object>} Datos del perfil
      */
-    static async getUserProfile() {
+    static async getUserProfile(userId) {
         try {
-            const profileResponse = await API.obtenerPerfilUsuario();
+            const profileResponse = await API.obtenerPerfilUsuarioId(userId);
             
             // Si no hay sesión activa, devolver datos por defecto
             if (profileResponse.noSession) {

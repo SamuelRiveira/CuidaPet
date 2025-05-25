@@ -122,8 +122,24 @@ export class API{
      * Obtiene el perfil del usuario actual basado en la sesión activa
      * @returns {Promise<{success: boolean, data?: {nombre: string, apellidos: string, direccion: string, imagen: string}, error?: any}>} - Perfil del usuario
      */
-    static async obtenerPerfilUsuarioId(userId) {
+    static async obtenerPerfilUsuarioId(userId = null) {
         try {
+            if (!userId) {
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                
+                if (sessionError) {
+                    console.warn('Error al verificar sesión:', sessionError);
+                    return { success: false, noSession: true, error: 'Error al verificar la sesión' };
+                }
+                
+                if (!session) {
+                    // No hay sesión activa, retornamos un objeto indicando esto
+                    return { success: false, noSession: true, error: 'No hay una sesión activa' };
+                }
+                
+                userId = session.user.id;
+            }
+            
             const idUser = userId;
             
             // Obtener los datos del perfil del usuario
